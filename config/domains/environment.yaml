@@ -1,0 +1,151 @@
+profile_id: environment
+name: Environment and climate monitoring
+version: "1.1.0"
+owner: Nexora (educational prototype)
+coverage: basic
+description: >
+  Monitoring station checks: station references, timestamp gaps, unit consistency, calibration metadata and physical plausibility.
+guardrail: >
+  Extreme weather can be genuine. Flag for review; never smooth or delete observations. Basic coverage.
+settings:
+  datetime_formats: ["ISO8601"]
+  cleaning:
+    duplicates: {key: [station_id, timestamp], rationale: "One observation per station and timestamp."}
+    normalize_case: {temperature_unit: upper}
+    units:
+      - {label: temperature, value_field: temperature, unit_field: temperature_unit, target_unit: C,
+         conversions: {C: [1, 0], F: [0.5555555555555556, -17.77777777777778], K: [1, -273.15]},
+         rationale: "Standard conversions to degrees Celsius (F: (x-32)x5/9, K: x-273.15). Readings with a missing or unknown unit are left unchanged."}
+    outliers: {policy: review, rationale: "Extreme weather is real; isolated spikes from one station may be sensor faults."}
+scoring_weights: {completeness: 1, validity: 1, uniqueness: 1, consistency: 1, freshness: 1}
+changelog:
+  - {version: "1.1.0", date: "2026-10-28", note: "Added domain-aware cleaning settings (record key, spellings, units, outlier policy)."}
+  - {version: "1.0.0", date: "2026-10-18", note: "Initial basic-coverage profile. Needs domain-expert validation."}
+fields:
+  station_id: {label: Station ID, type: identifier, required: true, aliases: [stationid, site_id, sensor_id]}
+  timestamp: {label: Timestamp, type: datetime, required: true, aliases: [time, observed_at, datetime]}
+  temperature: {label: Temperature, type: number, aliases: [temp, air_temperature]}
+  temperature_unit: {label: Temperature unit, type: category, aliases: [temp_unit, temperature_uom]}
+  humidity_pct: {label: Relative humidity (%), type: number, aliases: [humidity, rh]}
+  rainfall_mm: {label: Rainfall (mm), type: number, aliases: [rain_mm, precipitation_mm, rainfall]}
+  calibration_date: {label: Calibration date, type: datetime, aliases: [last_calibrated, calibrated_on]}
+rules:
+  - id: ENV-001
+    name: Station and time are present
+    type: required
+    fields: [station_id, timestamp]
+    severity: High
+    explanation: An observation has no station or time.
+    recommendation: Check the logger export.
+    rationale: Traceability.
+  - id: ENV-002
+    name: Timestamps and calibration dates are valid
+    type: datetime
+    fields: [timestamp, calibration_date]
+    severity: High
+    explanation: The date or time is not valid ISO format.
+    recommendation: Check the format and time zone.
+    rationale: Time checks need valid times.
+  - id: ENV-003
+    name: Observations are numeric
+    type: numeric
+    fields: [temperature, humidity_pct, rainfall_mm]
+    severity: High
+    explanation: The value is not a plain number.
+    recommendation: Check for sensor error codes such as -999; keep the original value.
+    rationale: Numeric checks need numbers.
+  - id: ENV-004
+    name: One observation per station and time
+    type: unique
+    fields: [station_id, timestamp]
+    severity: Medium
+    explanation: More than one row exists for the same station and time.
+    recommendation: Check for duplicate upload.
+    rationale: Duplicates skew averages.
+  - id: ENV-005
+    name: Gaps between observations
+    type: timestamp_gap
+    fields: [timestamp]
+    params: {group_by: [station_id], max_gap_seconds: 7200}
+    severity: Medium
+    explanation: Observations are further apart than the configured interval.
+    recommendation: Check station power or connectivity.
+    rationale: Missing intervals.
+  - id: ENV-006
+    name: Timestamps do not go backwards
+    type: timestamp_order
+    fields: [timestamp]
+    params: {group_by: [station_id]}
+    severity: Low
+    explanation: An observation is dated earlier than the previous one.
+    recommendation: Check sort order and logger clock.
+    rationale: Timeline consistency.
+  - id: ENV-007
+    name: Temperature unit is expected and consistent per station
+    type: unit_consistency
+    fields: [temperature_unit]
+    params: {expected_units: [C, F, K], group_by: [station_id]}
+    severity: High
+    explanation: The unit is unexpected or changes within a station.
+    recommendation: Confirm the unit before comparing temperatures.
+    rationale: Unit consistency.
+  - id: ENV-008
+    name: Humidity is between 0 and 100 percent
+    type: range
+    fields: [humidity_pct]
+    params: {min: 0, max: 100}
+    category: Invalid
+    severity: High
+    explanation: Relative humidity outside 0-100 is physically impossible.
+    recommendation: Check sensor scaling or calibration.
+    rationale: Physical bound.
+  - id: ENV-009
+    name: Rainfall is not negative
+    type: range
+    fields: [rainfall_mm]
+    params: {min: 0}
+    category: Invalid
+    severity: High
+    explanation: Negative rainfall is physically impossible.
+    recommendation: Check the gauge.
+    rationale: Physical bound.
+  - id: ENV-010
+    name: Temperature within broad plausibility range
+    type: range
+    fields: [temperature]
+    params:
+      unit_field: temperature_unit
+      ranges_by_unit:
+        C: {min: -90, max: 60}
+        F: {min: -130, max: 140}
+        K: {min: 183, max: 333}
+    severity: Low
+    explanation: The temperature is outside the broad plausibility range. Record extremes exist, so this is a review signal only.
+    recommendation: Compare with neighbouring stations before deciding anything.
+    rationale: Broad plausibility; genuine extremes are retained.
+  - id: ENV-011
+    name: Calibration date recorded
+    type: required
+    fields: [calibration_date]
+    severity: Medium
+    explanation: Calibration metadata is missing.
+    recommendation: Add the calibration record.
+    rationale: Calibration metadata.
+  - id: ENV-012
+    name: Calibration is not after the observation
+    type: compare
+    fields: [calibration_date, timestamp]
+    params: {op: "<=", kind: datetime}
+    severity: Low
+    explanation: The calibration date is later than the observation.
+    recommendation: Check the calibration record.
+    rationale: Metadata consistency.
+  - id: ENV-013
+    name: Observation screening per station (statistical)
+    type: statistical_anomaly
+    fields: [temperature, rainfall_mm]
+    params: {method: iqr, k: 3.0, group_by: [station_id], min_samples: 10}
+    severity: Low
+    explanation: The value is far from the same station's other observations. Extreme weather can be genuine.
+    recommendation: Review only; do not smooth or delete.
+    rationale: Screening aid.

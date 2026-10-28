@@ -1,0 +1,146 @@
+profile_id: telecom
+name: Telecommunications
+version: "1.1.0"
+owner: Nexora (educational prototype)
+coverage: basic
+description: >
+  Network and usage event checks: event timestamps, duplicate events, KPI completeness, sequence gaps and plausible KPI values.
+guardrail: >
+  High usage or odd network metrics are investigation signals, not automatic abuse findings. Basic coverage.
+settings:
+  datetime_formats: ["ISO8601"]
+  cleaning:
+    duplicates: {key: [event_id], rationale: "An event ID identifies one network or usage event; identical repeats are re-ingested records."}
+    normalize_case: {event_type: upper}
+    outliers: {policy: report_only, rationale: "Latency and throughput spikes are often real incidents that must stay visible."}
+scoring_weights: {completeness: 1, validity: 1, uniqueness: 1, consistency: 1, freshness: 1}
+changelog:
+  - {version: "1.1.0", date: "2026-10-28", note: "Added domain-aware cleaning settings (record key, spellings, units, outlier policy)."}
+  - {version: "1.0.0", date: "2026-10-18", note: "Initial basic-coverage profile. Needs domain-expert validation."}
+fields:
+  event_id: {label: Event ID, type: identifier, required: true, aliases: [eventid, record_id, cdr_id]}
+  subscriber_id: {label: Subscriber ID, type: identifier, required: true, aliases: [subscriberid, msisdn, customer_id]}
+  device_id: {label: Device ID, type: identifier, aliases: [imei, deviceid]}
+  event_time: {label: Event time, type: datetime, required: true, aliases: [timestamp, time, start_time]}
+  event_type: {label: Event type, type: category, aliases: [type, service_type]}
+  duration_sec: {label: Duration (seconds), type: number, aliases: [duration, call_duration]}
+  cell_id: {label: Cell ID, type: identifier, aliases: [cellid, site_id, tower_id]}
+  kpi_seq: {label: KPI record sequence, type: integer, aliases: [seq, sequence]}
+  latency_ms: {label: Latency (ms), type: number, aliases: [latency]}
+  packet_loss_pct: {label: Packet loss (%), type: number, aliases: [packet_loss, loss_pct]}
+  throughput_mbps: {label: Throughput (Mbps), type: number, aliases: [throughput]}
+rules:
+  - id: TEL-001
+    name: Event, subscriber and time are present
+    type: required
+    fields: [event_id, subscriber_id, event_time]
+    severity: High
+    explanation: A mandatory event field is empty.
+    recommendation: Check the mediation export.
+    rationale: Traceability.
+  - id: TEL-002
+    name: Event IDs are unique
+    type: unique
+    fields: [event_id]
+    severity: High
+    explanation: The same event ID appears more than once.
+    recommendation: Check for duplicate delivery from the network element.
+    rationale: Duplicate events inflate usage.
+  - id: TEL-003
+    name: Possible duplicate events
+    type: duplicate_rows
+    fields: [subscriber_id, event_time, event_type, duration_sec]
+    severity: Medium
+    explanation: Several events share subscriber, time, type and duration, which can happen when records are re-sent.
+    recommendation: Review before removing; simultaneous genuine events exist.
+    rationale: Duplicate records.
+  - id: TEL-004
+    name: Event times are valid
+    type: datetime
+    fields: [event_time]
+    severity: High
+    explanation: The timestamp is not valid ISO format.
+    recommendation: Check the export and time zone.
+    rationale: Time-based checks need valid times.
+  - id: TEL-005
+    name: KPI and duration values are numeric
+    type: numeric
+    fields: [duration_sec, latency_ms, packet_loss_pct, throughput_mbps]
+    severity: High
+    explanation: The value is not a plain number.
+    recommendation: Check for placeholder text from the probe.
+    rationale: Numeric checks need numbers.
+  - id: TEL-006
+    name: Network KPIs are complete
+    type: required
+    fields: [latency_ms, packet_loss_pct, throughput_mbps]
+    severity: Medium
+    explanation: A network KPI value is missing.
+    recommendation: Check the probe or collector.
+    rationale: KPI completeness.
+  - id: TEL-007
+    name: Packet loss is a percentage between 0 and 100
+    type: range
+    fields: [packet_loss_pct]
+    params: {min: 0, max: 100}
+    category: Invalid
+    severity: High
+    explanation: A percentage outside 0-100 is impossible.
+    recommendation: Check the probe scaling.
+    rationale: Physical bound.
+  - id: TEL-008
+    name: Duration and latency are not negative
+    type: range
+    fields: [duration_sec, latency_ms]
+    params: {min: 0}
+    category: Invalid
+    severity: High
+    explanation: A negative duration or latency is impossible.
+    recommendation: Check clock sync between network elements.
+    rationale: Logical lower bound.
+  - id: TEL-009
+    name: Event type is in the configured list
+    type: allowed_values
+    fields: [event_type]
+    params: {values: [CALL, SMS, DATA, ROAMING, VOICEMAIL]}
+    severity: Low
+    explanation: The event type is not in the configured list.
+    recommendation: Map to a known type.
+    rationale: Type hygiene.
+  - id: TEL-010
+    name: Gaps in KPI records per cell
+    type: timestamp_gap
+    fields: [event_time]
+    params: {group_by: [cell_id], max_gap_seconds: 900}
+    severity: Low
+    explanation: The gap between records for this cell is longer than the configured interval.
+    recommendation: Check collector availability.
+    rationale: Log freshness and continuity.
+  - id: TEL-011
+    name: KPI record sequence has no gaps
+    type: sequence
+    fields: [kpi_seq]
+    params: {group_by: [cell_id], step: 1}
+    severity: Low
+    explanation: KPI sequence numbers skip values.
+    recommendation: Check for lost records.
+    rationale: Sequence continuity.
+  - id: TEL-012
+    name: KPI screening per cell (statistical)
+    type: statistical_anomaly
+    fields: [latency_ms, throughput_mbps]
+    params: {method: iqr, k: 3.0, group_by: [cell_id], min_samples: 10}
+    severity: Low
+    explanation: The KPI differs strongly from other records of the same cell. Congestion and faults produce real extremes.
+    recommendation: Review only.
+    rationale: Screening aid.
+  - id: TEL-013
+    name: Data freshness (off by default)
+    type: freshness
+    fields: [event_time]
+    params: {max_age_hours: 2}
+    severity: Medium
+    enabled: false
+    explanation: The newest event is older than the configured age.
+    recommendation: Check the mediation feed.
+    rationale: For live feeds only.

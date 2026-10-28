@@ -1,0 +1,11 @@
+# Nexora runtime dependencies.
+# Verified combination is listed in docs/TESTING.md (the test report).
+streamlit>=1.50,<2
+pandas>=2.2.3,<4
+numpy>=2.0,<3          # pyarrow (installed by Streamlit) needs NumPy 2
+scikit-learn>=1.5,<2
+plotly>=5.24,<8
+openpyxl>=3.1,<4       # Excel (.xlsx) upload
+PyYAML>=6.0,<7         # domain profiles
+joblib>=1.4            # model artifacts
+imbalanced-learn>=0.12,<1   # optional: random over/under-sampling and SMOTE. Without it those options are shown as unavailable.

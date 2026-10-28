@@ -1,0 +1,147 @@
+profile_id: aviation
+name: Aviation and aerospace
+version: "1.1.0"
+owner: Nexora (educational prototype)
+coverage: tested_end_to_end
+description: >
+  Long-format flight sensor data checks: flight and aircraft references, timestamps, sequence continuity,
+  sample gaps, unit consistency per sensor and optional approved-range checks.
+guardrail: >
+  Educational prototype on synthetic data. Never use for operational flight-safety decisions. Range limits
+  are switched off by default because only approved, aircraft-specific limits are acceptable.
+settings:
+  datetime_formats: ["ISO8601"]
+  cleaning:
+    duplicates: {key: [flight_id, sensor_id, timestamp], rationale: "One reading per flight, sensor and timestamp; an identical row is a repeated load."}
+    normalize_case: {flight_phase: lower}
+    outliers: {policy: report_only, rationale: "Unusual flight-data readings can be exceedance events that must be investigated, not smoothed away. Units are not converted because each sensor has its own unit."}
+scoring_weights: {completeness: 1, validity: 1, uniqueness: 1, consistency: 1, freshness: 1}
+changelog:
+  - {version: "1.1.0", date: "2026-10-28", note: "Added domain-aware cleaning settings (record key, spellings, units, outlier policy)."}
+  - {version: "1.0.0", date: "2026-10-18", note: "Initial profile"}
+fields:
+  flight_id: {label: Flight ID, type: identifier, required: true, aliases: [flight_number, flight, flightno]}
+  aircraft_id: {label: Aircraft ID, type: identifier, required: true, aliases: [tail_number, registration, tail]}
+  timestamp: {label: Timestamp (UTC), type: datetime, required: true, aliases: [time, recorded_at, utc_time, sample_time]}
+  seq_no: {label: Record sequence number, type: integer, aliases: [sequence, frame_no, record_no, seq]}
+  sensor_id: {label: Sensor / parameter, type: identifier, required: true, aliases: [parameter, sensor, channel, param]}
+  reading: {label: Sensor reading, type: number, required: true, aliases: [value, sensor_value]}
+  unit: {label: Unit, type: category, required: true, aliases: [units, uom]}
+  flight_phase: {label: Flight phase, type: category, aliases: [phase]}
+  departure_time: {label: Departure time, type: datetime, aliases: [departure, dep_time]}
+  arrival_time: {label: Arrival time, type: datetime, aliases: [arrival, arr_time]}
+rules:
+  - id: AV-001
+    name: Required references and readings are present
+    type: required
+    fields: [flight_id, aircraft_id, timestamp, sensor_id, reading, unit]
+    severity: High
+    explanation: A mandatory field is missing, so the sample cannot be tied to a flight, sensor or time.
+    recommendation: Check the recorder export. Never fill in a reading.
+    rationale: Traceability of every sample.
+  - id: AV-002
+    name: Timestamps are valid
+    type: datetime
+    fields: [timestamp, departure_time, arrival_time]
+    severity: High
+    explanation: The timestamp is not a valid ISO date-time.
+    recommendation: Check the export format and time zone handling.
+    rationale: All time-based checks depend on this.
+  - id: AV-003
+    name: Readings are numeric
+    type: numeric
+    fields: [reading]
+    severity: High
+    explanation: The reading contains text or symbols instead of a number.
+    recommendation: Check for placeholder text such as 'ERR' from the recorder; keep the original value.
+    rationale: Non-numeric readings cannot be analysed.
+  - id: AV-004
+    name: No duplicate samples for a sensor at the same time
+    type: unique
+    fields: [flight_id, sensor_id, timestamp]
+    severity: High
+    explanation: More than one reading exists for the same flight, sensor and timestamp.
+    recommendation: Check whether the feed was merged twice.
+    rationale: Duplicate samples distort statistics.
+  - id: AV-005
+    name: Gaps between samples of a sensor
+    type: timestamp_gap
+    fields: [timestamp]
+    params: {group_by: [flight_id, sensor_id], max_gap_seconds: 5}
+    severity: Medium
+    explanation: Samples are further apart than the configured maximum interval.
+    recommendation: Compare with the recording rate. Set max_gap_seconds from the approved sampling specification.
+    rationale: Missing samples can hide events.
+  - id: AV-006
+    name: Timestamps do not go backwards
+    type: timestamp_order
+    fields: [timestamp]
+    params: {group_by: [flight_id, sensor_id]}
+    severity: Medium
+    explanation: A timestamp is earlier than the previous one for the same sensor in file order.
+    recommendation: Check the sort order of the export or clock problems.
+    rationale: Time ordering is expected for recorder data.
+  - id: AV-007
+    name: Sequence numbers are continuous
+    type: sequence
+    fields: [seq_no]
+    params: {group_by: [flight_id], step: 1}
+    severity: Medium
+    explanation: Sequence numbers skip values, which suggests missing records.
+    recommendation: Check whether the missing records exist in the source recorder.
+    rationale: Continuity of recorder frames.
+  - id: AV-008
+    name: One unit per sensor
+    type: unit_consistency
+    fields: [unit]
+    params: {group_by: [sensor_id]}
+    severity: High
+    explanation: The same sensor is reported in more than one unit.
+    recommendation: Confirm the unit with the data dictionary. Do not convert without an approved factor.
+    rationale: Mixed units are a classic cause of wrong analysis.
+  - id: AV-009
+    name: Flight phase is in the configured list
+    type: allowed_values
+    fields: [flight_phase]
+    params: {values: [ground, taxi, takeoff, climb, cruise, descent, approach, landing]}
+    severity: Low
+    explanation: The flight phase is not in the configured list.
+    recommendation: Map to the approved phase list.
+    rationale: Phase-aware limits depend on correct phases.
+  - id: AV-010
+    name: Departure is not after arrival
+    type: date_order
+    fields: [departure_time, arrival_time]
+    severity: High
+    explanation: The arrival time is earlier than the departure time.
+    recommendation: Check time zones (local versus UTC).
+    rationale: A flight cannot arrive before it departs.
+  - id: AV-011
+    name: Approved reading limits (off until configured)
+    type: range
+    fields: [reading]
+    params: {min: -1000000, max: 1000000}
+    severity: Medium
+    enabled: false
+    explanation: The reading is outside the limits configured for this sensor.
+    recommendation: Replace the placeholder limits with approved, sensor-specific, phase-specific limits before enabling.
+    rationale: Placeholder limits are intentionally wide; real limits must be approved by the responsible engineers.
+  - id: AV-012
+    name: Per-sensor reading screening (statistical)
+    type: statistical_anomaly
+    fields: [reading]
+    params: {method: iqr, k: 3.0, group_by: [sensor_id], min_samples: 10}
+    severity: Low
+    explanation: The reading differs strongly from other readings of the same sensor in this file.
+    recommendation: Review with engineers in the context of flight phase. Real events cause real extremes.
+    rationale: Screening aid only.
+  - id: AV-013
+    name: Data freshness (off by default)
+    type: freshness
+    fields: [timestamp]
+    params: {max_age_hours: 24}
+    severity: Medium
+    enabled: false
+    explanation: The newest sample is older than the configured age.
+    recommendation: Check the data feed.
+    rationale: Useful only for live feeds; switch on and set the as-of time.

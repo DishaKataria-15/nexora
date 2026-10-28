@@ -1,0 +1,166 @@
+profile_id: healthcare
+name: Healthcare and clinical data
+version: "1.1.0"
+owner: Nexora (educational prototype)
+coverage: tested_end_to_end
+description: >
+  Structural and consistency checks for visit-level clinical observations: identifiers, visit dates,
+  units and missing measurements. It deliberately contains no universal clinical thresholds.
+guardrail: >
+  Educational prototype for synthetic data only. Rare measurements can be clinically important, so
+  nothing is removed or corrected automatically. Real clinical rules need qualified clinical governance.
+settings:
+  datetime_formats: ["ISO8601"]
+  cleaning:
+    duplicates: {key: [visit_id], rationale: "A visit ID identifies one visit; identical repeated rows are a duplicate extract."}
+    outliers: {policy: report_only, rationale: "Clinically extreme values are often real and important. Measurement units are not converted because the correct conversion depends on the measurement type (for example glucose mg/dL to mmol/L)."}
+scoring_weights: {completeness: 1, validity: 1, uniqueness: 1, consistency: 1, freshness: 1}
+changelog:
+  - {version: "1.1.0", date: "2026-10-28", note: "Added domain-aware cleaning settings (record key, spellings, units, outlier policy)."}
+  - {version: "1.0.0", date: "2026-10-18", note: "Initial profile"}
+fields:
+  patient_id: {label: Patient ID, type: identifier, required: true, aliases: [patientid, mrn, pid, patient]}
+  visit_id: {label: Visit ID, type: identifier, required: true, aliases: [visitid, encounter_id, encounter, visit]}
+  admit_time: {label: Admission time, type: datetime, required: true, aliases: [admission_date, admit_date, admitted_at, admission_time]}
+  discharge_time: {label: Discharge time, type: datetime, aliases: [discharge_date, discharged_at]}
+  birth_date: {label: Date of birth, type: datetime, aliases: [dob, date_of_birth, birthdate]}
+  sex: {label: Sex, type: category, aliases: [gender]}
+  measurement_type: {label: Measurement type, type: category, aliases: [test_name, observation, lab_test, test]}
+  measurement_value: {label: Measurement value, type: number, aliases: [result, value, observation_value]}
+  measurement_unit: {label: Measurement unit, type: category, aliases: [unit, uom, units]}
+  measured_at: {label: Measurement time, type: datetime, aliases: [observation_time, collected_at, measurement_time]}
+  heart_rate: {label: Heart rate (bpm), type: number, aliases: [hr, pulse, heart_rate_bpm]}
+rules:
+  - id: HC-001
+    name: Patient, visit and admission references are present
+    type: required
+    fields: [patient_id, visit_id, admit_time]
+    severity: High
+    explanation: A record without a patient, visit or admission time cannot be linked to the rest of the record.
+    recommendation: Find the missing reference in the source system. Do not guess identifiers.
+    rationale: Required references are needed for linkage and audit.
+  - id: HC-002
+    name: Visit IDs are unique per visit row
+    type: unique
+    fields: [visit_id]
+    severity: High
+    explanation: The same visit ID appears more than once. If one row per visit is expected this is a duplicate.
+    recommendation: Check whether the file is meant to hold several observations per visit; if so, disable this rule in the run settings.
+    rationale: Duplicate keys cause double counting. Observation-level files legitimately repeat visit IDs, so the rule can be disabled.
+    enabled: false
+  - id: HC-003
+    name: Dates and times are valid ISO timestamps
+    type: datetime
+    fields: [admit_time, discharge_time, measured_at, birth_date]
+    severity: High
+    explanation: The value is not a valid date or time in ISO format (YYYY-MM-DD or YYYY-MM-DDThh:mm:ss).
+    recommendation: Correct the format at the source, or confirm the real date from the record.
+    rationale: Unparseable dates break every date-based check.
+  - id: HC-004
+    name: Discharge is not before admission
+    type: date_order
+    fields: [admit_time, discharge_time]
+    severity: High
+    explanation: The discharge time is earlier than the admission time.
+    recommendation: Check both timestamps (time zone or day/month swap are common causes).
+    rationale: A stay cannot end before it starts.
+  - id: HC-005
+    name: Measurement time is not before admission
+    type: compare
+    fields: [measured_at, admit_time]
+    params: {op: ">=", kind: datetime}
+    severity: Medium
+    explanation: The measurement is dated before the visit began. Pre-admission results can be legitimate (referrals) but need a look.
+    recommendation: Confirm whether this is a pre-admission result or a timestamp error.
+    rationale: Timeline consistency within a visit.
+  - id: HC-006
+    name: Birth date is plausible (not in the future, not before 1900)
+    type: datetime_range
+    fields: [birth_date]
+    params: {not_before: "1900-01-01", not_after: as_of}
+    category: Invalid
+    severity: High
+    explanation: The birth date is in the future or implausibly old.
+    recommendation: Verify against the registration record.
+    rationale: A birth date after the analysis date is impossible.
+  - id: HC-007
+    name: Sex uses the configured code list
+    type: allowed_values
+    fields: [sex]
+    params: {values: [F, M, X, U, Female, Male, Other, Unknown]}
+    severity: Medium
+    explanation: The value is not in the configured code list.
+    recommendation: Map to the organisation's code list. Edit this list to match your data standard.
+    rationale: The example list is a placeholder; the organisation's own standard should replace it.
+  - id: HC-008
+    name: Measurement values and heart rate are numeric
+    type: numeric
+    fields: [measurement_value, heart_rate]
+    severity: High
+    explanation: The value contains text or symbols instead of a plain number.
+    recommendation: Check whether the result is qualitative ("positive") or has a typo; do not convert silently.
+    rationale: Text in numeric fields blocks analysis.
+  - id: HC-009
+    name: A measurement unit is given whenever a value is given
+    type: required
+    fields: [measurement_unit]
+    when: [{field: measurement_value, not_blank: true}]
+    severity: Medium
+    explanation: A measurement value has no unit, so it cannot be interpreted safely.
+    recommendation: Obtain the unit from the source system.
+    rationale: Values without units are ambiguous.
+  - id: HC-010
+    name: One unit per measurement type
+    type: unit_consistency
+    fields: [measurement_unit]
+    params: {group_by: [measurement_type]}
+    severity: Medium
+    explanation: The same measurement type is reported in more than one unit within this file.
+    recommendation: Confirm the units. Convert only with an approved conversion factor and record it as a correction.
+    rationale: Mixed units silently distort statistics.
+  - id: HC-011
+    name: Heart rate is not negative
+    type: range
+    fields: [heart_rate]
+    params: {min: 0}
+    category: Invalid
+    severity: High
+    explanation: A heart rate below zero is impossible as a count of beats per minute.
+    recommendation: Check the source device or data entry.
+    rationale: Logical lower bound only; this rule sets no clinical upper limit.
+  - id: HC-012
+    name: Possible duplicate observations
+    type: duplicate_rows
+    fields: [patient_id, measurement_type, measured_at]
+    severity: Medium
+    explanation: Several rows share the same patient, measurement type and time. Repeat measurements can be genuine.
+    recommendation: Review the rows and keep both if they are genuine repeats.
+    rationale: Duplicate feeds are common in interface exports.
+  - id: HC-013
+    name: Measurement type present when a value is given
+    type: required
+    fields: [measurement_type]
+    when: [{field: measurement_value, not_blank: true}]
+    severity: Medium
+    explanation: A value was recorded without saying what was measured.
+    recommendation: Add the measurement type from the source.
+    rationale: Context needed to interpret any value.
+  - id: HC-014
+    name: Measurement value present when a measurement type is given
+    type: required
+    fields: [measurement_value]
+    when: [{field: measurement_type, not_blank: true}]
+    severity: Medium
+    explanation: A measurement was listed but its value is missing.
+    recommendation: Check whether the test was not performed or the result was lost.
+    rationale: Missing measurements affect completeness.
+  - id: HC-015
+    name: Heart rate screening (statistical, off by default)
+    type: statistical_anomaly
+    fields: [heart_rate]
+    params: {method: iqr, k: 3.0, min_samples: 10}
+    severity: Low
+    enabled: false
+    explanation: The value is far from the other values in this file. In clinical data this can be a real and important observation.
+    recommendation: Never delete. Compare with the patient's record before any decision.
+    rationale: Generic outlier detection is switched off by default for clinical values; turn it on only as a screening aid.

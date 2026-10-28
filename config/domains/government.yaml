@@ -1,0 +1,131 @@
+profile_id: government
+name: Government and public services
+version: "1.1.0"
+owner: Nexora (educational prototype)
+coverage: basic
+description: >
+  Case and application checks: record identifiers, code lists, reference integrity, decision dates and duplicate applications.
+guardrail: >
+  Follow applicable privacy, retention, accessibility and records-management rules. Code lists here are examples; use the official ones. Basic coverage.
+settings:
+  datetime_formats: ["ISO8601"]
+  cleaning:
+    duplicates: {key: [record_id], rationale: "A record ID identifies one case record; identical repeats are a duplicated extract."}
+    normalize_case: {status: {mode: upper, map: {"IN REVIEW": IN_REVIEW, "IN-REVIEW": IN_REVIEW, INREVIEW: IN_REVIEW}}, service_code: upper, region_code: upper}
+scoring_weights: {completeness: 1, validity: 1, uniqueness: 1, consistency: 1, freshness: 1}
+changelog:
+  - {version: "1.1.0", date: "2026-10-28", note: "Added domain-aware cleaning settings (record key, spellings, units, outlier policy)."}
+  - {version: "1.0.0", date: "2026-10-18", note: "Initial basic-coverage profile. Needs domain-expert validation."}
+fields:
+  record_id: {label: Record ID, type: identifier, required: true, aliases: [case_id, application_id, recordid, reference]}
+  parent_record_id: {label: Parent record ID, type: identifier, aliases: [parent_id, related_record_id]}
+  applicant_id: {label: Applicant ID, type: identifier, aliases: [citizen_id, applicant]}
+  service_code: {label: Service code, type: category, required: true, aliases: [service, service_type]}
+  region_code: {label: Region code, type: category, aliases: [region, district_code]}
+  postal_code: {label: Postal code, type: text, aliases: [postcode, zip, pin_code]}
+  application_date: {label: Application date, type: datetime, required: true, aliases: [submitted_on, date_submitted]}
+  decision_date: {label: Decision date, type: datetime, aliases: [decided_on, date_decided]}
+  status: {label: Status, type: category, required: true, aliases: [case_status, application_status]}
+rules:
+  - id: GOV-001
+    name: Mandatory case fields are present
+    type: required
+    fields: [record_id, service_code, application_date, status]
+    severity: High
+    explanation: A mandatory field is empty.
+    recommendation: Obtain the value from the case system.
+    rationale: Mandatory fields.
+  - id: GOV-002
+    name: Record IDs are unique
+    type: unique
+    fields: [record_id]
+    severity: High
+    explanation: The same record ID appears more than once.
+    recommendation: Check for duplicates in the export.
+    rationale: Record integrity.
+  - id: GOV-003
+    name: Dates are valid
+    type: datetime
+    fields: [application_date, decision_date]
+    severity: High
+    explanation: The date is not valid ISO format.
+    recommendation: Check the export format.
+    rationale: Date checks depend on valid dates.
+  - id: GOV-004
+    name: Decision is not before application
+    type: date_order
+    fields: [application_date, decision_date]
+    severity: High
+    explanation: The decision date is earlier than the application date.
+    recommendation: Check both dates.
+    rationale: Date consistency.
+  - id: GOV-005
+    name: Status is in the configured list
+    type: allowed_values
+    fields: [status]
+    params: {values: [SUBMITTED, IN_REVIEW, APPROVED, REJECTED, WITHDRAWN]}
+    severity: Medium
+    explanation: The status is not in the configured list.
+    recommendation: Map to a known status.
+    rationale: Code-list validity.
+  - id: GOV-006
+    name: Service code is in the code list
+    type: allowed_values
+    fields: [service_code]
+    params: {values: [LIC, PERMIT, BENEFIT, TAX, ID], case_sensitive: true}
+    severity: Medium
+    explanation: The service code is not in the example code list.
+    recommendation: Replace the example list with the official code list, then review the value.
+    rationale: Code-list validity.
+  - id: GOV-007
+    name: Parent record exists in this file
+    type: referential
+    fields: [parent_record_id]
+    params: {reference_field: record_id}
+    severity: Medium
+    explanation: The parent record is not in this file; it may be in another extract.
+    recommendation: Check the other extracts before correcting.
+    rationale: Reference integrity.
+  - id: GOV-008
+    name: Decided cases have a decision date
+    type: required
+    fields: [decision_date]
+    when: [{field: status, in: [APPROVED, REJECTED]}]
+    severity: High
+    explanation: An approved or rejected case has no decision date.
+    recommendation: Add the decision date from the case file.
+    rationale: Mandatory field by status.
+  - id: GOV-009
+    name: Postal code format
+    type: regex
+    fields: [postal_code]
+    params: {pattern: '[A-Za-z0-9 -]{3,10}'}
+    severity: Low
+    explanation: The postal code does not match the generic pattern.
+    recommendation: Replace the pattern with your country's postal format and check the value.
+    rationale: Geographic reference format.
+  - id: GOV-010
+    name: Possible duplicate applications
+    type: duplicate_rows
+    fields: [applicant_id, service_code, application_date]
+    severity: Medium
+    explanation: Several applications share applicant, service and date.
+    recommendation: A caseworker should review; do not merge automatically.
+    rationale: Duplicate applications.
+  - id: GOV-011
+    name: Application date not in the future
+    type: datetime_range
+    fields: [application_date]
+    params: {not_after: as_of}
+    severity: Medium
+    explanation: The application date is after the analysis date.
+    recommendation: Check the date.
+    rationale: Date consistency.
+  - id: GOV-012
+    name: Region code present
+    type: required
+    fields: [region_code]
+    severity: Low
+    explanation: The region code is missing.
+    recommendation: Add the region from the application.
+    rationale: Geographic completeness.

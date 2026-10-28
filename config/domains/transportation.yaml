@@ -1,0 +1,157 @@
+profile_id: transportation
+name: Transportation and mobility
+version: "1.1.0"
+owner: Nexora (educational prototype)
+coverage: basic
+description: >
+  Trip and GPS checks: trip references, timestamp consistency, GPS gaps, coordinate validity, distance units and speed plausibility.
+guardrail: >
+  GPS drift, detours, traffic and service changes cause legitimate anomalies. Basic coverage.
+settings:
+  datetime_formats: ["ISO8601"]
+  cleaning:
+    duplicates: {key: [trip_id, timestamp], rationale: "One position report per trip and timestamp."}
+    units:
+      - {label: distance, value_field: distance, unit_field: distance_unit, target_unit: km,
+         conversions: {km: [1, 0], m: [0.001, 0], mi: [1.609344, 0]},
+         rationale: "Exact conversions to kilometres (1 mile = 1.609344 km)."}
+    outliers: {policy: review, rationale: "Very high speeds are usually GPS jumps but can be real on motorways; review before treating."}
+scoring_weights: {completeness: 1, validity: 1, uniqueness: 1, consistency: 1, freshness: 1}
+changelog:
+  - {version: "1.1.0", date: "2026-10-28", note: "Added domain-aware cleaning settings (record key, spellings, units, outlier policy)."}
+  - {version: "1.0.0", date: "2026-10-18", note: "Initial basic-coverage profile. Needs domain-expert validation."}
+fields:
+  trip_id: {label: Trip ID, type: identifier, required: true, aliases: [tripid, journey_id, route_trip]}
+  vehicle_id: {label: Vehicle ID, type: identifier, required: true, aliases: [vehicleid, bus_id, unit_id]}
+  timestamp: {label: GPS timestamp, type: datetime, required: true, aliases: [time, recorded_at, gps_time]}
+  latitude: {label: Latitude, type: number, aliases: [lat]}
+  longitude: {label: Longitude, type: number, aliases: [lon, lng, long]}
+  speed_kmh: {label: Speed (km/h), type: number, aliases: [speed, velocity_kmh]}
+  distance: {label: Distance, type: number, aliases: [trip_distance, distance_value]}
+  distance_unit: {label: Distance unit, type: category, aliases: [distance_uom, unit]}
+  trip_start: {label: Trip start, type: datetime, aliases: [start_time, departed_at]}
+  trip_end: {label: Trip end, type: datetime, aliases: [end_time, arrived_at]}
+rules:
+  - id: TRN-001
+    name: Trip, vehicle and timestamp are present
+    type: required
+    fields: [trip_id, vehicle_id, timestamp]
+    severity: High
+    explanation: A GPS record has no trip, vehicle or time.
+    recommendation: Check the telematics export.
+    rationale: Traceability.
+  - id: TRN-002
+    name: Timestamps are valid
+    type: datetime
+    fields: [timestamp, trip_start, trip_end]
+    severity: High
+    explanation: The date or time is not valid ISO format.
+    recommendation: Check the format and time zone.
+    rationale: Time checks need valid times.
+  - id: TRN-003
+    name: Coordinates, speed and distance are numeric
+    type: numeric
+    fields: [latitude, longitude, speed_kmh, distance]
+    severity: High
+    explanation: The value is not a plain number.
+    recommendation: Check the device output.
+    rationale: Numeric checks need numbers.
+  - id: TRN-004
+    name: Trip ends on or after it starts
+    type: date_order
+    fields: [trip_start, trip_end]
+    severity: High
+    explanation: The trip end is earlier than its start.
+    recommendation: Check both timestamps.
+    rationale: Timeline consistency.
+  - id: TRN-005
+    name: One GPS record per trip and time
+    type: unique
+    fields: [trip_id, timestamp]
+    severity: Medium
+    explanation: More than one record exists for the same trip and time.
+    recommendation: Check for duplicate transmission.
+    rationale: Duplicates skew distances.
+  - id: TRN-006
+    name: Gaps in GPS records
+    type: timestamp_gap
+    fields: [timestamp]
+    params: {group_by: [trip_id], max_gap_seconds: 120}
+    severity: Medium
+    explanation: GPS records are further apart than the configured interval, for example in a tunnel or from a device fault.
+    recommendation: Check device connectivity. Set the maximum from the real ping interval.
+    rationale: Missing GPS intervals.
+  - id: TRN-007
+    name: Timestamps do not go backwards within a trip
+    type: timestamp_order
+    fields: [timestamp]
+    params: {group_by: [trip_id]}
+    severity: Medium
+    explanation: A record is dated earlier than the previous one in the same trip.
+    recommendation: Check sort order and device clock.
+    rationale: Route sequence.
+  - id: TRN-008
+    name: Latitude is between -90 and 90
+    type: range
+    fields: [latitude]
+    params: {min: -90, max: 90}
+    category: Invalid
+    severity: High
+    explanation: A latitude outside -90 to 90 does not exist.
+    recommendation: Check for swapped latitude and longitude.
+    rationale: Geographic bound.
+  - id: TRN-009
+    name: Longitude is between -180 and 180
+    type: range
+    fields: [longitude]
+    params: {min: -180, max: 180}
+    category: Invalid
+    severity: High
+    explanation: A longitude outside -180 to 180 does not exist.
+    recommendation: Check for swapped coordinates.
+    rationale: Geographic bound.
+  - id: TRN-010
+    name: Distance unit is expected and consistent per vehicle
+    type: unit_consistency
+    fields: [distance_unit]
+    params: {expected_units: [km, mi, m], group_by: [vehicle_id]}
+    severity: High
+    explanation: The unit is unexpected or changes within a vehicle.
+    recommendation: Confirm units before adding distances.
+    rationale: Distance/time unit consistency.
+  - id: TRN-011
+    name: Speed is not negative
+    type: range
+    fields: [speed_kmh]
+    params: {min: 0}
+    category: Invalid
+    severity: High
+    explanation: A negative speed is not possible.
+    recommendation: Check the device output.
+    rationale: Logical lower bound.
+  - id: TRN-012
+    name: Speed within configured plausibility (250 km/h)
+    type: range
+    fields: [speed_kmh]
+    params: {max: 250}
+    severity: Low
+    explanation: The speed is above the configured plausibility limit. GPS jitter is a common cause; trains and aircraft transport differ.
+    recommendation: Check the vehicle type and the neighbouring points.
+    rationale: Configurable plausibility.
+  - id: TRN-013
+    name: Coordinates are present
+    type: required
+    fields: [latitude, longitude]
+    severity: Medium
+    explanation: A GPS record has no coordinates.
+    recommendation: Check the device.
+    rationale: Missing GPS data.
+  - id: TRN-014
+    name: Speed screening per vehicle (statistical)
+    type: statistical_anomaly
+    fields: [speed_kmh]
+    params: {method: iqr, k: 3.0, group_by: [vehicle_id], min_samples: 10}
+    severity: Low
+    explanation: The speed is far from the same vehicle's other speeds. Traffic and detours cause real variation.
+    recommendation: Review only.
+    rationale: Screening aid.

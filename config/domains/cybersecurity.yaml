@@ -1,0 +1,135 @@
+profile_id: cybersecurity
+name: Cybersecurity and IT logs
+version: "1.1.0"
+owner: Nexora (educational prototype)
+coverage: basic
+description: >
+  Log quality checks: required event fields, valid severity values, IP format, duplicate events, ordering and silent log sources.
+guardrail: >
+  A data-quality flag is not a security incident. Preserve original events and provenance. Basic coverage.
+settings:
+  datetime_formats: ["ISO8601"]
+  cleaning:
+    duplicates: {key: [event_id], rationale: "An event ID identifies one log event; identical repeats are a re-ingested log."}
+    normalize_case: {severity: lower}
+    outliers: {policy: report_only, rationale: "Extreme traffic (for example bytes sent out) can be exactly the incident you are looking for. Never alter it before investigation."}
+scoring_weights: {completeness: 1, validity: 1, uniqueness: 1, consistency: 1, freshness: 1}
+changelog:
+  - {version: "1.1.0", date: "2026-10-28", note: "Added domain-aware cleaning settings (record key, spellings, units, outlier policy)."}
+  - {version: "1.0.0", date: "2026-10-18", note: "Initial basic-coverage profile. Needs domain-expert validation."}
+fields:
+  event_id: {label: Event ID, type: identifier, required: true, aliases: [eventid, log_id, id]}
+  timestamp: {label: Timestamp, type: datetime, required: true, aliases: [time, event_time, "@timestamp"]}
+  source_host: {label: Source host, type: identifier, required: true, aliases: [host, hostname, source]}
+  log_source: {label: Log source, type: identifier, aliases: [source_system, collector, sensor]}
+  user: {label: User, type: identifier, aliases: [username, account, user_name]}
+  event_type: {label: Event type, type: category, required: true, aliases: [type, action, event_name]}
+  severity: {label: Severity, type: category, required: true, aliases: [level, priority, log_level]}
+  source_ip: {label: Source IP, type: text, aliases: [src_ip, ip, client_ip]}
+  bytes_out: {label: Bytes sent, type: number, aliases: [bytes_sent, out_bytes]}
+rules:
+  - id: SEC-001
+    name: Core event fields are present
+    type: required
+    fields: [event_id, timestamp, source_host, event_type, severity]
+    severity: High
+    explanation: A log event is missing a core field.
+    recommendation: Check the log parser or forwarder configuration.
+    rationale: Log schema completeness.
+  - id: SEC-002
+    name: Timestamps are valid
+    type: datetime
+    fields: [timestamp]
+    severity: High
+    explanation: The timestamp is not valid ISO format.
+    recommendation: Check the log format and time zone.
+    rationale: Timeline reconstruction needs valid times.
+  - id: SEC-003
+    name: Severity uses a known level
+    type: allowed_values
+    fields: [severity]
+    params: {values: [debug, info, notice, warning, error, low, medium, high, critical]}
+    severity: Medium
+    explanation: The severity is not a known level.
+    recommendation: Map the source's levels to your standard.
+    rationale: Alert routing relies on severity.
+  - id: SEC-004
+    name: Event IDs are unique
+    type: unique
+    fields: [event_id]
+    severity: Medium
+    explanation: The same event ID appears more than once.
+    recommendation: Check for duplicate forwarding.
+    rationale: Duplicate events distort counts.
+  - id: SEC-005
+    name: Possible duplicate events
+    type: duplicate_rows
+    fields: [timestamp, source_host, event_type, user, source_ip]
+    severity: Low
+    explanation: Several events are identical in time, host, type, user and address. Bursts of identical events can be genuine.
+    recommendation: Review before deduplicating; keep original evidence.
+    rationale: Duplicate logs.
+  - id: SEC-006
+    name: Source IP looks like an IPv4 or IPv6 address
+    type: regex
+    fields: [source_ip]
+    params: {pattern: '((25[0-5]|2[0-4]\d|1?\d?\d)\.){3}(25[0-5]|2[0-4]\d|1?\d?\d)|(?=.*:)[0-9a-fA-F:.]{2,45}'}
+    severity: Medium
+    explanation: The value does not look like an IP address.
+    recommendation: Check the parser; do not drop the event.
+    rationale: Format check only.
+  - id: SEC-007
+    name: Timestamps do not go backwards per log source
+    type: timestamp_order
+    fields: [timestamp]
+    params: {group_by: [log_source]}
+    severity: Low
+    explanation: An event is dated earlier than the previous one from the same source.
+    recommendation: Check collector buffering or clock skew.
+    rationale: Ordering.
+  - id: SEC-008
+    name: Silent log source (gap)
+    type: timestamp_gap
+    fields: [timestamp]
+    params: {group_by: [log_source], max_gap_seconds: 3600}
+    severity: Low
+    explanation: A log source was silent longer than the configured time. This can mean a logging failure or just no activity.
+    recommendation: Check the collector. Silence is not proof of an incident.
+    rationale: Log-source freshness.
+  - id: SEC-009
+    name: Authentication events name a user
+    type: required
+    fields: [user]
+    when: [{field: event_type, in: [login_success, login_failure]}]
+    severity: Medium
+    explanation: A login event has no user.
+    recommendation: Check the parser mapping.
+    rationale: Missing event fields.
+  - id: SEC-010
+    name: Timestamp not in the future
+    type: datetime_range
+    fields: [timestamp]
+    params: {not_after: as_of}
+    severity: Medium
+    explanation: The event is dated after the analysis time, which usually points to clock skew.
+    recommendation: Check the source clock.
+    rationale: Future timestamps break timelines.
+  - id: SEC-011
+    name: Data freshness (off by default)
+    type: freshness
+    fields: [timestamp]
+    params: {max_age_hours: 24}
+    severity: Medium
+    enabled: false
+    explanation: The newest event is older than the configured age.
+    recommendation: Check the log pipeline.
+    rationale: For live feeds only.
+  - id: SEC-012
+    name: Bytes-out screening per host (statistical)
+    type: statistical_anomaly
+    fields: [bytes_out]
+    params: {method: robust_z, threshold: 6.0, group_by: [source_host], min_samples: 10}
+    severity: Low
+    explanation: The transfer size differs strongly from the host's usual values. This is not a confirmed security incident.
+    recommendation: Pass to the security team with the original event as context.
+    rationale: Data-quality screening, not detection.

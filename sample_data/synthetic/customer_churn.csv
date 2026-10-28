@@ -1,0 +1,1201 @@
+customer_id,signup_date,age,region,contract,payment_method,has_partner,tenure_months,monthly_charges,usage_gb,support_tickets,cancellation_reason,churned
+CU10000,2025-05-07,68,North,One year,Bank transfer,yes,58,63.77,22.8,1,,no
+CU10001,2024-05-01,31,East,Month-to-month,Bank transfer,yes,12,64.69,14.3,2,,no
+CU10002,2023-03-05,56,East,Two year,Cash,no,41,70.14,42.8,0,,no
+CU10003,2023-07-23,26,South,Month-to-month,Card,no,,66.33,15.0,1,,no
+CU10004,2021-02-21,42,East,One year,Card,no,20,75.53,169.8,2,,no
+CU10005,2024-03-06,67,Central,One year,Card,yes,40,99.68,93.8,0,,no
+CU10006,2023-09-20,76,South,Month-to-month,Wallet,no,57,73.31,36.5,0,,no
+CU10007,2024-02-12,69,West,Month-to-month,Card,yes,2,49.8,40.4,4,,no
+CU10008,2024-11-28,20,South,Month-to-month,Card,yes,4,49.73,110.1,1,,no
+CU10009,2025-09-18,36,Central,Month-to-month,Cash,yes,43,41.16,55.9,1,,no
+CU10010,2021-12-16,35,East,Month-to-month,Card,yes,57,63.15,89.0,2,,no
+CU10011,2023-04-03,69,South,Month-to-month,Card,yes,7,62.53,66.2,2,,no
+CU10012,2023-01-23,79,West,One year,Card,no,62,97.25,12.8,1,,no
+CU10013,2021-09-18,57,Central,Month-to-month,Wallet,no,22,,102.7,4,,no
+CU10014,2024-11-17,32,Central,Month-to-month,Card,yes,44,73.06,87.1,2,,no
+CU10015,2022-11-03,58,South,One year,Bank transfer,no,52,50.0,42.1,0,,no
+CU10016,2025-10-02,66,Central,Month-to-month,Card,no,54,49.09,136.4,1,service,yes
+CU10017,2022-08-25,22,Central,Month-to-month,Wallet,yes,23,101.08,70.1,1,,no
+CU10018,2025-11-06,63,North,Month-to-month,Card,yes,40,89.73,64.5,1,,no
+CU10019,2023-01-05,53,,Two year,Cash,yes,13,82.1,50.7,0,,no
+CU10020,2024-11-05,65,West,Two year,Bank transfer,yes,55,51.75,41.2,1,,no
+CU10021,2025-03-14,37,North,Month-to-month,Card,yes,7,64.0,69.8,4,price,yes
+CU10022,2024-01-03,55,West,Month-to-month,Card,no,45,77.37,53.5,1,,no
+CU10023,2021-11-15,63,South,Two year,Card,no,,65.65,31.9,0,competitor,yes
+CU10024,2025-03-16,20,South,Two year,Card,yes,62,57.57,129.1,1,,no
+CU10025,2024-10-14,64,East,Two year,Wallet,yes,22,75.42,71.0,2,,no
+CU10026,2022-08-17,25,West,One year,Cash,no,11,87.54,318.8,2,,no
+CU10027,2023-01-30,21,North,Two year,Cash,yes,24,82.36,28.1,3,,no
+CU10028,2025-05-31,46,South,One year,Wallet,yes,34,76.36,41.4,1,,no
+CU10029,2025-10-27,34,North,Month-to-month,Card,yes,43,77.96,264.2,4,,no
+CU10030,2025-04-27,30,North,Two year,Card,yes,21,31.47,109.7,1,,no
+CU10031,2023-06-18,67,Central,Month-to-month,Wallet,yes,25,89.34,70.9,1,,no
+CU10032,2023-06-10,20,North,Two year,Card,yes,70,27.55,136.6,0,,no
+CU10033,2021-07-31,75,West,Month-to-month,Bank transfer,no,60,38.85,27.6,1,,no
+CU10034,2021-04-28,75,East,Month-to-month,Card,no,12,92.25,68.1,0,moved,yes
+CU10035,2024-11-22,72,Central,Month-to-month,Bank transfer,no,65,61.55,91.3,1,,no
+CU10036,2021-06-30,63,South,Two year,Bank transfer,no,44,57.35,71.2,0,,no
+CU10037,2021-05-13,57,West,One year,Wallet,no,33,53.42,56.1,2,,no
+CU10038,2023-09-16,46,North,Two year,Bank transfer,yes,48,76.22,110.1,0,,no
+CU10039,2021-04-17,67,East,Two year,Wallet,no,58,76.75,191.4,1,,no
+CU10040,2023-06-17,52,West,Month-to-month,Bank transfer,no,36,70.37,127.4,3,,no
+CU10041,2022-04-13,45,East,One year,Card,no,,41.18,42.9,1,,no
+CU10042,2022-02-04,63,East,Two year,Card,yes,54,28.06,38.3,1,,no
+CU10043,2023-08-26,29,East,Month-to-month,Wallet,yes,22,,31.7,3,service,yes
+CU10044,2024-11-12,42,West,Month-to-month,Card,no,6,76.52,102.6,1,,no
+CU10045,2022-06-11,22,East,One year,Bank transfer,no,67,41.84,102.7,3,,no
+CU10046,2021-04-04,79,South,One year,Wallet,yes,3,72.26,163.0,3,,no
+CU10047,2022-11-04,26,East,Month-to-month,Card,no,55,46.89,215.8,1,,no
+CU10048,2023-01-10,29,Central,Month-to-month,Bank transfer,no,54,71.26,178.9,1,,no
+CU10049,2022-11-23,63,Central,One year,Cash,yes,27,27.87,52.2,0,,no
+CU10050,2023-07-30,28,North,Two year,Card,no,25,104.56,188.1,2,,no
+CU10051,2024-05-10,30,West,One year,Card,no,5,49.74,15.1,4,,no
+CU10052,2022-05-29,45,North,Two year,Card,no,51,52.43,49.3,3,,no
+CU10053,2022-10-20,71,Central,Two year,Cash,yes,,83.76,55.1,0,,no
+CU10054,2021-07-03,36,Central,Month-to-month,Card,yes,33,88.79,67.9,1,,no
+CU10055,2022-01-23,48,East,One year,Bank transfer,yes,69,67.97,106.9,0,,no
+CU10056,2024-03-17,55,Central,One year,Bank transfer,no,9,101.45,43.9,1,,no
+CU10057,2024-08-11,70,South,Month-to-month,Bank transfer,yes,38,61.36,77.7,1,,no
+CU10058,2025-06-09,36,East,Month-to-month,Card,no,60,64.43,23.1,2,moved,yes
+CU10059,2022-03-08,46,North,Month-to-month,Wallet,no,62,55.6,21.8,0,,no
+CU10060,2022-06-28,66,South,Month-to-month,Bank transfer,yes,55,81.39,143.1,3,,no
+CU10061,2022-06-11,39,South,Month-to-month,Bank transfer,yes,64,104.19,127.6,2,,no
+CU10062,2021-03-30,38,East,Month-to-month,Card,yes,3,23.72,68.2,4,,no
+CU10063,2024-01-26,23,North,Month-to-month,Card,yes,58,59.14,15.4,3,,no
+CU10064,2025-11-06,34,South,Two year,Card,yes,14,85.72,79.8,0,,no
+CU10065,2023-05-12,77,West,One year,Bank transfer,no,63,46.89,95.7,1,,no
+CU10066,2022-07-05,47,East,One year,Card,yes,39,58.17,5.7,1,,no
+CU10067,2025-07-19,60,North,Two year,Card,no,70,28.99,28.7,1,,no
+CU10068,2025-05-31,72,West,Month-to-month,Wallet,yes,46,77.06,114.9,0,,no
+CU10069,2024-05-29,46,South,One year,Card,yes,12,,56.3,1,,no
+CU10070,2024-04-01,27,South,Month-to-month,Wallet,yes,,99.64,116.0,0,,no
+CU10071,2024-08-24,32,East,Month-to-month,Wallet,no,31,39.52,248.0,1,,no
+CU10072,2023-10-24,29,North,Two year,Card,no,16,74.18,54.3,2,,no
+CU10073,2025-11-04,74,South,Two year,Bank transfer,no,48,,91.1,1,,no
+CU10074,2022-01-06,36,West,Month-to-month,Card,yes,3,69.35,161.1,1,competitor,yes
+CU10075,2024-05-24,28,Central,Month-to-month,Card,no,16,58.09,47.0,0,service,yes
+CU10076,2024-12-25,62,North,Month-to-month,Wallet,no,11,31.89,62.6,0,,no
+CU10077,2023-06-07,72,West,Month-to-month,Cash,no,1,,186.0,0,,no
+CU10078,2021-05-11,34,North,Two year,Card,yes,4,21.01,76.3,1,,no
+CU10079,2021-08-26,22,Central,Month-to-month,Card,yes,47,53.16,75.0,1,,no
+CU10080,2021-07-10,24,South,Month-to-month,Bank transfer,yes,1,98.28,31.4,1,,no
+CU10081,2021-05-16,68,South,Month-to-month,Card,no,60,39.89,44.0,1,,no
+CU10082,2024-02-22,30,South,Month-to-month,Bank transfer,yes,,73.24,82.1,5,competitor,yes
+CU10083,2024-08-27,30,Central,Month-to-month,Card,no,65,78.83,41.7,3,,no
+CU10084,2022-04-27,71,East,Month-to-month,Bank transfer,yes,44,77.83,37.0,1,,no
+CU10085,2024-04-01,59,Central,Month-to-month,Bank transfer,yes,48,48.46,69.5,0,service,yes
+CU10086,2024-05-01,31,East,Month-to-month,Bank transfer,yes,31,48.72,149.3,2,,no
+CU10087,2021-06-02,63,Central,One year,Card,no,71,59.55,75.4,3,,no
+CU10088,2021-02-19,42,North,One year,Card,no,58,64.38,60.8,0,,no
+CU10089,2022-12-08,79,South,Month-to-month,Bank transfer,yes,,50.24,34.9,0,,no
+CU10090,2023-04-19,54,Central,Two year,Wallet,no,24,72.22,81.6,1,,no
+CU10091,2021-08-10,73,Central,One year,Wallet,yes,32,120.0,149.3,0,,no
+CU10092,2023-03-27,46,East,Month-to-month,Card,no,71,,187.6,1,,no
+CU10093,2024-09-28,77,East,Two year,Wallet,no,25,98.9,40.9,0,,no
+CU10094,2023-05-01,50,East,Month-to-month,Card,no,24,68.12,26.5,1,price,yes
+CU10095,2021-02-18,25,West,One year,Card,no,53,52.91,92.8,3,,no
+CU10096,2025-11-24,59,Central,Month-to-month,Card,yes,29,42.81,96.3,1,,no
+CU10097,2022-08-16,29,West,Month-to-month,Wallet,yes,71,46.22,92.1,1,,no
+CU10098,2025-11-23,51,South,One year,Card,yes,36,62.37,111.0,4,,no
+CU10099,2024-02-20,19,Central,Month-to-month,Card,no,28,61.81,126.7,0,,no
+CU10100,2025-10-14,52,North,One year,Cash,yes,58,20.76,182.6,1,,no
+CU10101,2021-07-29,33,West,Two year,Card,yes,72,63.91,41.5,2,,no
+CU10102,2025-10-16,34,South,Month-to-month,Bank transfer,yes,55,48.99,51.2,0,,no
+CU10103,2025-09-25,72,Central,Two year,Card,yes,32,44.11,125.3,1,,no
+CU10104,2023-03-01,33,South,Month-to-month,Bank transfer,no,40,86.94,170.8,1,,no
+CU10105,2023-03-06,26,South,One year,Bank transfer,yes,52,80.27,42.5,1,,no
+CU10106,2022-11-13,33,North,Month-to-month,Wallet,yes,14,81.33,112.9,1,,no
+CU10107,2022-12-01,58,North,Month-to-month,Card,no,27,47.45,50.4,1,,no
+CU10108,2024-11-27,35,South,Month-to-month,Card,yes,50,88.81,82.2,1,,no
+CU10109,2025-08-03,69,West,Two year,Bank transfer,no,50,18.0,176.7,3,,no
+CU10110,2021-05-20,29,East,Month-to-month,Bank transfer,yes,33,76.36,29.0,0,,no
+CU10111,2024-05-02,39,South,Month-to-month,Card,yes,60,48.26,17.9,0,,no
+CU10112,2025-06-14,49,South,One year,Card,no,14,37.39,98.1,0,,no
+CU10113,2021-08-10,59,Central,Two year,Bank transfer,no,46,55.97,112.9,0,,no
+CU10114,2024-12-09,29,West,Month-to-month,Card,no,26,72.09,13.9,3,competitor,yes
+CU10115,2023-06-12,48,West,Month-to-month,Wallet,yes,51,71.16,104.0,0,,no
+CU10116,2024-06-25,78,Central,Month-to-month,Cash,yes,46,73.09,85.5,1,,no
+CU10117,2021-08-18,48,North,Month-to-month,Bank transfer,no,63,66.33,61.1,1,,no
+CU10118,2021-04-24,44,North,Month-to-month,Cash,yes,43,88.3,27.3,3,,no
+CU10119,2023-05-08,66,Central,One year,Bank transfer,yes,,76.74,184.3,2,,no
+CU10120,2024-03-04,27,Central,Month-to-month,Card,no,63,81.93,146.3,3,,no
+CU10121,2021-07-18,59,South,Two year,Bank transfer,no,6,49.11,311.3,4,,no
+CU10122,2024-07-22,60,Central,Month-to-month,Bank transfer,yes,71,76.14,104.3,1,,no
+CU10123,2021-03-14,58,Central,Two year,Card,no,32,71.11,53.4,4,,no
+CU10124,2024-01-11,22,North,Two year,Wallet,no,2,55.78,23.8,2,,no
+CU10125,2022-09-19,55,North,Month-to-month,Bank transfer,no,58,71.16,76.5,0,,no
+CU10126,2025-08-29,38,East,Month-to-month,Bank transfer,no,50,61.11,15.5,0,,no
+CU10127,2024-11-18,45,West,Month-to-month,Card,yes,66,56.89,133.5,0,,no
+CU10128,2024-07-09,73,East,Month-to-month,Card,no,54,56.66,146.0,2,,no
+CU10129,2023-04-01,68,East,Month-to-month,Wallet,no,56,78.63,52.7,2,,no
+CU10130,2025-10-31,73,South,Month-to-month,Card,no,22,76.13,97.9,1,price,yes
+CU10131,2023-06-03,47,North,Month-to-month,Card,no,16,63.88,252.5,0,price,yes
+CU10132,2023-08-11,39,South,Month-to-month,Bank transfer,yes,28,60.02,61.7,1,competitor,yes
+CU10133,2023-09-17,47,East,One year,Card,no,72,73.65,166.4,1,,no
+CU10134,2025-11-03,33,Central,One year,Card,yes,18,57.57,44.0,1,competitor,yes
+CU10135,2023-02-07,25,North,Two year,Card,yes,15,87.64,25.7,3,,no
+CU10136,2023-04-21,53,Central,One year,Wallet,yes,62,75.08,59.4,1,,no
+CU10137,2021-12-10,37,North,Month-to-month,Wallet,yes,53,65.7,18.8,0,,no
+CU10138,2022-03-10,79,South,Month-to-month,Card,yes,38,80.44,47.6,3,,no
+CU10139,2023-03-24,19,Central,Month-to-month,Wallet,yes,39,47.01,145.1,3,,no
+CU10140,2022-08-14,48,Central,Month-to-month,Bank transfer,no,8,55.09,144.1,1,,no
+CU10141,2023-10-02,31,West,Month-to-month,Card,no,,95.57,92.6,0,,no
+CU10142,2024-05-25,62,,Month-to-month,Card,no,10,120.0,89.7,0,service,yes
+CU10143,2022-05-18,27,South,Two year,Card,no,67,35.83,152.2,1,,no
+CU10144,2021-05-04,20,North,Month-to-month,Card,yes,64,76.56,33.3,0,,no
+CU10145,2025-07-11,69,Central,Two year,Card,yes,28,67.44,88.0,1,,no
+CU10146,2021-02-03,42,Central,One year,Card,no,54,93.04,21.5,0,,no
+CU10147,2025-10-19,32,North,Two year,Card,yes,65,70.78,22.1,2,,no
+CU10148,2022-04-09,26,West,One year,Card,yes,9,78.25,76.5,3,,no
+CU10149,2021-09-11,78,North,Month-to-month,Bank transfer,no,46,65.27,43.8,2,,no
+CU10150,2023-10-24,52,South,Month-to-month,Card,no,39,44.84,72.8,1,,no
+CU10151,2025-04-13,39,East,Month-to-month,Card,yes,47,72.55,66.7,1,moved,yes
+CU10152,2024-07-04,58,West,Month-to-month,Wallet,yes,70,50.9,110.7,1,,no
+CU10153,2021-02-20,23,North,Month-to-month,Card,no,8,64.04,46.6,0,,no
+CU10154,2024-03-20,53,West,Two year,Card,yes,58,22.65,20.2,2,,no
+CU10155,2022-12-15,27,Central,Two year,Card,no,5,64.92,88.4,1,,no
+CU10156,2024-12-18,37,East,One year,Card,yes,51,87.42,58.5,1,,no
+CU10157,2023-12-31,61,East,Month-to-month,Card,yes,63,54.76,37.8,1,,no
+CU10158,2022-02-04,64,West,Month-to-month,Bank transfer,no,68,102.88,83.5,0,,no
+CU10159,2025-02-01,55,North,Month-to-month,Wallet,yes,1,57.26,169.6,0,moved,yes
+CU10160,2023-10-27,40,South,One year,Cash,no,58,67.25,35.0,2,,no
+CU10161,2025-11-27,53,South,Month-to-month,Card,no,26,91.75,90.6,3,,no
+CU10162,2021-11-26,36,West,Month-to-month,Card,no,27,112.27,113.2,2,,no
+CU10163,2023-10-01,51,Central,One year,Wallet,yes,23,82.37,51.0,1,moved,yes
+CU10164,2023-09-16,22,West,Two year,Bank transfer,yes,56,42.0,53.5,0,,no
+CU10165,2025-09-05,19,West,Month-to-month,Cash,no,44,40.66,9.0,1,service,yes
+CU10166,2021-09-18,67,South,Two year,Wallet,no,13,62.82,19.2,0,,no
+CU10167,2022-07-15,45,Central,One year,Bank transfer,no,3,62.78,30.6,0,,no
+CU10168,2022-12-06,45,North,Month-to-month,Bank transfer,no,44,76.06,74.9,3,,no
+CU10169,2022-10-18,32,West,One year,Cash,no,55,68.38,109.2,2,,no
+CU10170,2022-11-19,19,West,Month-to-month,Bank transfer,yes,27,91.33,80.3,0,competitor,yes
+CU10171,2021-12-10,45,Central,Month-to-month,Card,no,9,62.24,36.7,1,service,yes
+CU10172,2025-09-07,43,Central,One year,Cash,yes,48,60.39,57.2,2,,no
+CU10173,2022-03-11,58,South,One year,Card,no,19,,18.1,1,,no
+CU10174,2023-07-06,36,West,One year,Cash,yes,51,58.81,66.7,1,,no
+CU10175,2022-10-15,30,West,Two year,Card,no,24,50.17,153.6,1,,no
+CU10176,2023-12-20,23,South,One year,Bank transfer,no,31,65.49,52.5,1,,no
+CU10177,2022-12-23,70,Central,Month-to-month,Bank transfer,no,31,60.46,68.9,4,,no
+CU10178,2022-05-25,46,Central,Two year,Card,no,69,,126.4,1,,no
+CU10179,2022-11-07,29,South,One year,Bank transfer,yes,21,65.42,43.4,1,,no
+CU10180,2025-11-01,49,East,Month-to-month,Card,yes,52,77.03,234.9,2,,no
+CU10181,2024-10-26,73,Central,Two year,Card,no,60,60.48,88.5,0,,no
+CU10182,2021-08-04,61,Central,Month-to-month,Wallet,no,59,84.09,34.0,1,,no
+CU10183,2024-09-23,71,South,Month-to-month,Card,yes,34,93.32,149.8,0,,no
+CU10184,2021-07-24,20,Central,Month-to-month,Wallet,no,31,79.95,57.6,0,,no
+CU10185,2024-05-17,30,Central,Month-to-month,Card,no,50,86.74,65.7,1,,no
+CU10186,2024-02-26,68,East,One year,Card,no,7,70.13,32.9,2,,no
+CU10187,2023-02-15,19,Central,Two year,Bank transfer,no,22,54.9,85.4,0,,no
+CU10188,2023-10-12,51,East,Two year,Cash,no,20,55.47,157.7,1,,no
+CU10189,2022-08-14,60,South,Two year,Bank transfer,yes,43,,127.4,0,,no
+CU10190,2024-10-31,35,North,One year,Bank transfer,no,17,75.3,38.4,0,,no
+CU10191,2022-02-06,54,South,Two year,Bank transfer,yes,37,40.62,58.2,1,moved,yes
+CU10192,2024-01-01,24,West,Month-to-month,Bank transfer,no,34,58.05,38.9,1,,no
+CU10193,2025-09-26,30,West,Month-to-month,Card,no,35,50.31,55.1,1,competitor,yes
+CU10194,2025-08-29,78,East,Month-to-month,Card,yes,58,74.29,123.9,2,,no
+CU10195,2024-11-15,64,West,One year,Bank transfer,yes,,21.9,69.5,1,,no
+CU10196,2021-05-29,73,East,Month-to-month,Wallet,yes,6,,74.1,1,,no
+CU10197,2021-01-02,60,Central,One year,Card,yes,4,38.42,51.7,1,,no
+CU10198,2024-12-22,41,East,Month-to-month,Bank transfer,yes,2,57.19,95.0,0,,no
+CU10199,2021-11-01,19,Central,Month-to-month,Card,no,11,73.94,127.5,0,,no
+CU10200,2024-04-30,57,East,Two year,Card,yes,43,50.07,54.9,0,,no
+CU10201,2023-01-03,49,Central,Two year,Card,yes,24,90.97,92.6,4,,no
+CU10202,2025-04-22,20,East,Month-to-month,Bank transfer,yes,12,103.86,40.7,2,competitor,yes
+CU10203,2023-05-01,61,South,Month-to-month,Wallet,no,13,80.57,64.4,2,,no
+CU10204,2023-01-22,24,West,Two year,Bank transfer,yes,67,57.54,98.2,1,,no
+CU10205,2021-05-29,33,West,Month-to-month,Wallet,no,64,89.56,107.6,1,,no
+CU10206,2022-07-05,68,East,Two year,Bank transfer,yes,11,75.14,10.7,1,,no
+CU10207,2024-04-23,76,South,One year,Bank transfer,no,24,58.37,101.6,1,,no
+CU10208,2023-09-16,47,West,One year,Wallet,no,37,52.25,20.8,0,,no
+CU10209,2025-02-03,33,West,Month-to-month,Cash,no,42,60.43,88.0,1,,no
+CU10210,2024-02-26,35,South,Two year,Cash,no,15,77.82,225.2,1,,no
+CU10211,2023-08-03,78,West,Month-to-month,Wallet,yes,2,76.56,16.2,1,service,yes
+CU10212,2023-02-06,48,East,One year,Card,yes,66,28.65,45.1,1,,no
+CU10213,2021-07-16,51,East,Month-to-month,Wallet,yes,53,,48.4,3,competitor,yes
+CU10214,2025-07-06,55,Central,Two year,Wallet,no,72,75.77,138.5,1,,no
+CU10215,2024-06-16,29,West,Month-to-month,Bank transfer,yes,49,50.02,12.9,0,,no
+CU10216,2024-03-29,63,South,Month-to-month,Bank transfer,yes,49,53.39,69.1,2,,no
+CU10217,2024-11-14,30,East,Month-to-month,Card,yes,13,49.73,104.9,1,price,yes
+CU10218,2021-02-18,33,South,Two year,Wallet,no,7,70.64,73.5,3,,no
+CU10219,2022-05-09,39,West,One year,Bank transfer,no,11,50.9,17.4,2,,no
+CU10220,2021-05-25,73,North,Month-to-month,Wallet,no,12,50.88,72.9,1,,no
+CU10221,2024-06-10,42,West,Month-to-month,Wallet,no,5,,117.4,3,,no
+CU10222,2021-11-19,54,North,Month-to-month,Wallet,yes,61,58.59,75.3,0,,no
+CU10223,2021-06-06,73,East,Month-to-month,Bank transfer,yes,53,49.39,70.2,1,,no
+CU10224,2023-02-19,21,South,Month-to-month,Bank transfer,yes,51,33.4,6.9,1,,no
+CU10225,2024-10-12,31,East,Two year,Card,yes,1,44.9,15.7,0,,no
+CU10226,2021-08-25,64,Central,One year,Bank transfer,no,20,81.41,3.9,3,,no
+CU10227,2022-10-16,23,West,Month-to-month,Bank transfer,yes,44,45.91,107.7,0,,no
+CU10228,2025-05-29,22,East,One year,Wallet,no,33,69.45,90.3,1,,no
+CU10229,2024-06-19,31,West,One year,Wallet,no,5,116.02,163.7,2,,no
+CU10230,2024-06-12,21,South,One year,Card,no,5,61.7,83.5,1,service,yes
+CU10231,2024-11-02,45,East,One year,Bank transfer,yes,42,,153.7,1,,no
+CU10232,2023-04-09,72,Central,Two year,Card,yes,1,77.8,86.0,2,,no
+CU10233,2022-02-04,47,West,Two year,Card,yes,18,77.05,119.4,3,service,yes
+CU10234,2024-05-30,44,Central,Month-to-month,Cash,no,33,35.69,100.4,2,,no
+CU10235,2022-06-16,46,North,Month-to-month,Card,yes,66,41.99,92.9,1,,no
+CU10236,2022-04-29,34,East,Month-to-month,Wallet,no,49,70.02,78.4,2,,no
+CU10237,2021-09-08,76,East,One year,Card,no,32,94.25,108.8,2,,no
+CU10238,2022-08-31,76,North,Two year,Card,yes,66,44.39,60.9,2,,no
+CU10239,2023-06-02,44,North,Month-to-month,Card,no,57,65.66,74.3,2,,no
+CU10240,2024-06-02,69,East,Two year,Card,yes,38,48.19,320.3,1,,no
+CU10241,2024-10-12,39,South,One year,Card,yes,20,91.34,25.5,4,,no
+CU10242,2021-08-27,75,South,Month-to-month,Card,yes,16,50.55,60.3,3,,no
+CU10243,2023-03-08,79,East,Month-to-month,Bank transfer,no,9,40.05,105.1,0,,no
+CU10244,2025-06-07,23,South,Month-to-month,Card,no,25,55.86,50.2,2,,no
+CU10245,2025-11-06,42,South,Month-to-month,Card,no,68,46.36,18.7,1,,no
+CU10246,2024-01-25,67,Central,One year,Card,no,12,58.29,14.9,0,service,yes
+CU10247,2022-12-01,79,North,Month-to-month,Card,yes,13,38.99,147.9,2,,no
+CU10248,2022-11-14,70,Central,Month-to-month,Card,yes,68,107.54,52.7,3,,no
+CU10249,2025-08-06,68,North,Two year,Card,yes,31,48.98,32.1,1,,no
+CU10250,2023-10-07,70,East,Month-to-month,Bank transfer,no,51,44.9,8.7,1,,no
+CU10251,2021-11-23,29,East,Two year,Card,no,21,77.54,35.4,0,,no
+CU10252,2023-06-20,48,Central,Month-to-month,Card,no,12,49.07,161.7,0,competitor,yes
+CU10253,2022-12-15,31,East,Month-to-month,Wallet,yes,7,75.07,71.6,2,,no
+CU10254,2024-07-04,72,South,Month-to-month,Card,no,4,84.46,78.9,2,service,yes
+CU10255,2024-12-29,40,South,One year,Card,no,27,44.75,12.4,0,,no
+CU10256,2025-09-21,20,South,Month-to-month,Card,no,16,,73.5,2,,no
+CU10257,2021-12-19,72,Central,Month-to-month,Bank transfer,yes,52,57.58,144.0,0,,no
+CU10258,2024-08-24,57,West,Month-to-month,Bank transfer,no,68,80.58,124.3,1,,no
+CU10259,2021-02-27,27,South,Month-to-month,Bank transfer,no,66,51.84,36.6,1,,no
+CU10260,2021-05-03,25,East,One year,Card,no,52,76.79,53.8,3,,no
+CU10261,2021-06-05,76,South,Month-to-month,Card,yes,63,28.01,99.9,0,,no
+CU10262,2022-12-05,79,East,Month-to-month,Card,no,14,54.86,62.0,2,,no
+CU10263,2025-09-15,78,East,One year,Card,yes,44,95.6,88.9,0,,no
+CU10264,2021-06-12,19,South,Month-to-month,Wallet,yes,45,61.71,32.5,2,,no
+CU10265,2022-04-09,37,Central,Two year,Wallet,no,26,62.95,17.0,2,,no
+CU10266,2024-02-18,23,West,Month-to-month,Wallet,yes,35,49.63,88.6,0,,no
+CU10267,2021-04-11,41,East,Two year,Cash,yes,20,76.28,140.0,0,,no
+CU10268,2024-01-27,70,West,One year,Card,no,19,72.73,28.7,0,,no
+CU10269,2021-05-03,29,South,One year,Wallet,no,51,73.21,141.6,1,,no
+CU10270,2024-02-08,69,North,Two year,Card,no,31,46.32,59.2,3,,no
+CU10271,2024-02-01,78,West,Month-to-month,Wallet,no,37,71.06,379.5,0,,no
+CU10272,2024-07-26,28,North,Month-to-month,Wallet,no,39,18.0,60.6,0,,no
+CU10273,2023-03-13,77,South,Month-to-month,Card,no,36,70.15,153.3,2,competitor,yes
+CU10274,2023-10-07,58,North,Month-to-month,Cash,yes,68,83.58,101.4,2,,no
+CU10275,2022-05-13,43,Central,One year,Bank transfer,no,55,73.79,28.8,0,,no
+CU10276,2025-11-21,57,South,Month-to-month,Cash,yes,51,67.68,7.2,0,,no
+CU10277,2021-08-14,28,Central,Month-to-month,Wallet,yes,33,70.66,81.4,2,,no
+CU10278,2024-11-13,49,South,Month-to-month,Bank transfer,no,44,20.99,70.8,1,,no
+CU10279,2024-01-04,22,South,One year,Bank transfer,yes,27,49.14,2.1,1,,no
+CU10280,2021-04-25,58,East,Month-to-month,Wallet,no,2,53.44,37.9,2,,no
+CU10281,2025-09-16,40,South,Two year,Wallet,yes,6,53.76,30.0,0,,no
+CU10282,2024-01-05,59,West,One year,Bank transfer,yes,53,61.7,217.5,0,,no
+CU10283,2022-08-10,48,West,One year,Card,no,37,62.28,54.2,0,,no
+CU10284,2023-09-14,68,South,One year,Bank transfer,yes,32,,15.7,1,,no
+CU10285,2025-12-04,46,East,Month-to-month,Bank transfer,yes,10,73.66,43.6,0,competitor,yes
+CU10286,2024-09-14,21,East,Two year,Bank transfer,no,44,68.97,20.0,3,,no
+CU10287,2022-08-14,74,North,Month-to-month,Card,yes,7,120.0,18.1,1,service,yes
+CU10288,2021-08-07,49,North,One year,Card,yes,22,43.13,82.2,0,,no
+CU10289,2021-06-15,44,East,Month-to-month,Bank transfer,yes,17,82.68,56.8,0,,no
+CU10290,2023-03-25,36,East,Month-to-month,Card,yes,37,65.03,19.3,0,,no
+CU10291,2022-12-24,63,East,Two year,Bank transfer,yes,53,43.24,149.2,4,,no
+CU10292,2022-06-23,36,South,Two year,Bank transfer,no,4,,63.7,2,,no
+CU10293,2022-07-23,35,West,Month-to-month,Card,no,63,,302.1,3,,no
+CU10294,2024-02-11,41,East,One year,Bank transfer,no,47,107.61,12.1,0,,no
+CU10295,2024-01-29,59,,Month-to-month,Bank transfer,no,67,79.9,114.6,0,,no
+CU10296,2023-08-23,25,West,One year,Card,yes,10,70.62,109.2,1,,no
+CU10297,2021-02-14,22,West,Month-to-month,Card,yes,7,54.58,35.9,0,,no
+CU10298,2025-03-19,65,East,Month-to-month,Card,no,25,56.17,61.3,3,,no
+CU10299,2023-03-05,33,East,Two year,Wallet,yes,49,64.89,25.4,0,,no
+CU10300,2022-12-02,44,East,Month-to-month,Card,yes,63,60.43,69.6,2,,no
+CU10301,2022-01-17,48,West,One year,Card,yes,38,36.43,109.3,2,,no
+CU10302,2024-08-20,74,South,Month-to-month,Card,yes,67,56.21,50.9,4,,no
+CU10303,2023-12-29,49,South,Month-to-month,Wallet,yes,65,52.25,148.4,2,,no
+CU10304,2025-09-21,77,North,One year,Card,yes,14,80.61,25.5,1,moved,yes
+CU10305,2024-02-19,55,East,One year,Wallet,yes,18,79.53,85.6,1,,no
+CU10306,2025-01-30,77,East,Two year,Wallet,yes,64,43.41,134.4,2,,no
+CU10307,2024-06-10,23,South,One year,Cash,no,44,68.82,143.7,0,,no
+CU10308,2021-04-12,72,North,Month-to-month,Cash,no,52,106.93,117.9,2,,no
+CU10309,2021-01-06,77,West,Two year,Card,yes,13,50.08,19.4,3,competitor,yes
+CU10310,2024-05-04,41,West,Month-to-month,Card,no,21,18.0,88.2,1,price,yes
+CU10311,2025-08-28,22,South,Month-to-month,Bank transfer,no,58,86.53,45.9,1,,no
+CU10312,2024-04-18,42,South,Month-to-month,Wallet,no,42,77.64,74.4,1,,no
+CU10313,2021-12-11,52,East,Month-to-month,Card,no,65,65.13,118.6,3,moved,yes
+CU10314,2021-06-23,70,Central,Month-to-month,Card,no,68,64.57,86.5,1,,no
+CU10315,2022-06-06,23,Central,One year,Wallet,no,22,59.01,80.1,0,,no
+CU10316,2025-05-03,65,East,One year,Card,no,61,80.06,154.6,2,,no
+CU10317,2023-02-07,73,West,Month-to-month,Card,no,4,66.8,17.6,3,price,yes
+CU10318,2022-10-15,30,North,One year,Card,no,39,,39.3,0,,no
+CU10319,2022-11-13,62,North,Two year,Card,yes,41,76.11,53.1,2,,no
+CU10320,2025-05-09,45,East,Two year,Card,yes,19,36.67,219.9,3,,no
+CU10321,2025-02-19,67,South,Month-to-month,Bank transfer,no,67,65.21,169.1,1,,no
+CU10322,2023-11-16,34,North,Month-to-month,Card,yes,22,55.9,28.1,0,,no
+CU10323,2021-05-27,34,North,Month-to-month,Cash,no,64,22.5,128.6,0,,no
+CU10324,2021-11-27,68,Central,Month-to-month,Wallet,yes,62,67.75,132.7,1,,no
+CU10325,2023-01-11,35,East,Two year,Bank transfer,no,18,38.22,129.2,0,,no
+CU10326,2021-02-07,53,West,Month-to-month,Card,no,15,92.13,30.9,0,,no
+CU10327,2023-04-15,61,Central,Two year,Card,yes,53,57.64,13.2,1,,no
+CU10328,2024-01-03,31,South,Month-to-month,Bank transfer,yes,35,60.95,28.4,4,,no
+CU10329,2022-02-22,19,Central,Month-to-month,Bank transfer,no,46,53.84,86.1,2,,no
+CU10330,2023-05-16,76,Central,One year,Bank transfer,yes,40,36.65,67.6,2,,no
+CU10331,2023-08-17,54,East,Two year,Card,yes,49,68.66,67.7,1,,no
+CU10332,2021-01-14,68,East,Month-to-month,Card,no,8,86.6,65.9,0,,no
+CU10333,2023-04-24,63,North,One year,Card,no,58,82.6,191.2,5,service,yes
+CU10334,2024-05-04,72,Central,Month-to-month,Bank transfer,yes,57,55.09,16.3,2,,no
+CU10335,2021-07-25,66,South,Two year,Cash,yes,30,85.07,48.0,3,,no
+CU10336,2025-07-29,73,South,One year,Card,no,30,51.38,17.5,0,,no
+CU10337,2022-12-27,60,Central,Month-to-month,Card,yes,28,67.01,6.7,0,,no
+CU10338,2021-01-11,66,Central,Month-to-month,Card,yes,25,70.32,27.8,2,,no
+CU10339,2024-06-03,74,North,Month-to-month,Wallet,no,50,76.06,123.6,1,,no
+CU10340,2021-03-08,69,,Month-to-month,Card,no,47,83.35,70.9,0,,no
+CU10341,2021-01-09,20,East,Month-to-month,Wallet,no,55,64.66,78.6,4,,no
+CU10342,2022-03-07,37,East,Month-to-month,Card,yes,56,62.82,82.8,3,,no
+CU10343,2023-08-17,58,North,One year,Cash,yes,1,69.78,85.7,1,,no
+CU10344,2023-09-11,57,North,One year,Cash,yes,51,46.27,175.9,1,,no
+CU10345,2023-09-26,70,South,Month-to-month,Bank transfer,yes,6,71.61,96.5,0,,no
+CU10346,2023-10-01,61,North,One year,Card,no,41,25.19,37.1,1,,no
+CU10347,2025-10-26,63,East,Two year,Card,yes,50,89.26,111.7,2,,no
+CU10348,2021-12-15,41,,Month-to-month,Bank transfer,no,64,,87.8,1,,no
+CU10349,2025-07-08,42,East,Month-to-month,Bank transfer,yes,56,55.98,56.6,0,,no
+CU10350,2025-03-10,20,West,One year,Bank transfer,yes,24,39.72,126.4,0,,no
+CU10351,2021-11-13,65,Central,Month-to-month,Card,yes,21,65.12,57.7,1,competitor,yes
+CU10352,2021-02-22,24,South,One year,Card,no,50,74.27,21.7,3,,no
+CU10353,2021-07-22,27,East,Month-to-month,Cash,yes,11,54.11,12.5,1,,no
+CU10354,2024-01-29,74,North,Month-to-month,Card,no,36,54.31,268.1,2,competitor,yes
+CU10355,2024-07-29,34,South,One year,Wallet,yes,27,70.32,28.3,2,,no
+CU10356,2023-05-15,41,West,Month-to-month,Card,no,6,89.11,161.8,0,price,yes
+CU10357,2022-11-27,32,East,Month-to-month,Card,yes,68,74.92,36.2,1,,no
+CU10358,2023-03-02,78,East,Two year,Card,yes,46,64.07,31.4,1,,no
+CU10359,2025-03-18,63,South,Two year,Card,no,67,41.3,202.9,0,,no
+CU10360,2024-12-22,53,East,Month-to-month,Wallet,no,38,70.24,54.9,0,,no
+CU10361,2022-01-12,38,West,Two year,Card,yes,40,,10.3,2,,no
+CU10362,2024-05-14,53,North,Month-to-month,Wallet,no,22,75.27,42.7,0,,no
+CU10363,2021-07-08,73,West,Two year,Card,yes,70,21.02,24.1,2,,no
+CU10364,2023-08-04,25,East,One year,Card,yes,4,45.66,104.0,0,,no
+CU10365,2021-01-30,30,South,One year,Card,yes,57,75.86,60.4,1,,no
+CU10366,2025-11-02,41,South,Two year,Cash,yes,57,77.45,106.6,1,,no
+CU10367,2025-07-29,41,East,One year,Card,yes,49,66.05,121.7,1,,no
+CU10368,2021-01-20,37,North,Month-to-month,Bank transfer,yes,72,94.96,159.3,0,,no
+CU10369,2025-03-27,53,East,Month-to-month,Card,no,23,81.5,62.3,1,competitor,yes
+CU10370,2024-08-08,63,South,Month-to-month,Card,yes,34,36.04,66.8,0,,no
+CU10371,2023-01-10,48,West,Two year,Bank transfer,no,35,67.64,119.8,0,,no
+CU10372,2022-10-12,44,South,One year,Card,yes,39,51.39,22.2,0,,no
+CU10373,2021-09-11,37,North,One year,Bank transfer,no,35,18.0,65.0,1,,no
+CU10374,2021-06-06,63,East,Month-to-month,Cash,no,70,65.09,16.9,1,,no
+CU10375,2023-11-20,50,Central,Month-to-month,Bank transfer,yes,71,62.41,50.7,0,,no
+CU10376,2023-06-03,36,Central,One year,Cash,no,1,52.03,201.9,5,,no
+CU10377,2021-12-01,32,North,Month-to-month,Wallet,no,1,78.79,42.1,0,moved,yes
+CU10378,2025-08-10,19,West,One year,Wallet,no,55,57.45,20.6,3,,no
+CU10379,2023-02-16,63,East,Month-to-month,Wallet,yes,55,66.59,91.2,0,,no
+CU10380,2025-01-05,36,,Month-to-month,Card,no,3,74.7,137.7,2,,no
+CU10381,2023-05-18,52,Central,Month-to-month,Wallet,no,63,66.33,81.5,1,,no
+CU10382,2025-06-28,55,East,Month-to-month,Cash,yes,3,86.69,31.6,0,,no
+CU10383,2021-10-25,54,North,Month-to-month,Bank transfer,no,52,83.34,66.2,2,,no
+CU10384,2023-02-10,79,East,Month-to-month,Card,no,30,111.58,51.0,0,,no
+CU10385,2022-04-14,79,West,Two year,Card,no,1,84.24,47.1,1,,no
+CU10386,2024-05-02,63,Central,Month-to-month,Card,yes,,71.68,104.5,2,,no
+CU10387,2022-05-22,38,West,Two year,Card,no,69,58.89,45.4,0,,no
+CU10388,2022-05-06,32,West,Two year,Card,no,15,88.73,53.6,2,,no
+CU10389,2021-12-01,33,North,Month-to-month,Card,yes,59,86.84,110.7,1,,no
+CU10390,2022-04-18,77,South,Month-to-month,Card,no,1,55.73,25.2,0,,no
+CU10391,2021-09-05,77,East,Month-to-month,Wallet,no,46,63.4,63.9,1,,no
+CU10392,2023-04-01,61,Central,Month-to-month,Bank transfer,no,19,46.84,43.2,1,,no
+CU10393,2023-12-10,69,Central,Month-to-month,Card,yes,28,75.83,102.5,2,,no
+CU10394,2022-05-07,32,East,Month-to-month,Wallet,yes,4,29.89,63.1,1,,no
+CU10395,2021-08-30,38,East,Two year,Wallet,yes,71,54.27,17.3,3,,no
+CU10396,2021-11-04,78,East,Month-to-month,Card,yes,64,77.06,118.0,0,,no
+CU10397,2023-05-10,29,West,Month-to-month,Card,no,59,47.97,109.0,1,,no
+CU10398,2022-03-16,38,,Month-to-month,Card,no,11,95.11,62.0,0,,no
+CU10399,2023-08-17,69,East,Month-to-month,Card,no,15,80.04,32.9,1,,no
+CU10400,2023-09-19,51,East,Two year,Card,no,40,28.99,32.2,1,,no
+CU10401,2023-05-21,22,Central,Month-to-month,Card,no,22,72.01,194.3,1,,no
+CU10402,2025-07-23,61,East,One year,Card,no,2,54.25,108.0,0,,no
+CU10403,2022-11-30,37,North,One year,Wallet,no,6,55.98,74.7,1,,no
+CU10404,2025-10-01,32,South,Month-to-month,Bank transfer,no,66,91.57,28.3,1,,no
+CU10405,2024-06-06,55,North,Month-to-month,Cash,no,4,51.5,72.8,1,service,yes
+CU10406,2025-06-11,38,North,Month-to-month,Wallet,yes,15,101.29,58.3,0,,no
+CU10407,2025-01-26,46,North,Month-to-month,Bank transfer,yes,55,91.19,116.2,0,,no
+CU10408,2025-05-31,37,South,Month-to-month,Cash,yes,24,,153.1,4,price,yes
+CU10409,2021-09-09,76,West,Month-to-month,Cash,yes,13,52.3,59.5,0,,no
+CU10410,2021-01-21,20,South,Month-to-month,Card,no,34,56.16,72.9,1,,no
+CU10411,2021-09-16,31,East,Month-to-month,Card,yes,26,53.63,66.2,3,,no
+CU10412,2021-12-04,54,West,Two year,Wallet,yes,19,82.15,59.8,2,,no
+CU10413,2024-11-12,50,West,One year,Wallet,yes,4,,53.0,1,,no
+CU10414,2025-09-01,20,South,One year,Card,yes,55,97.68,52.3,0,,no
+CU10415,2024-11-19,63,Central,One year,Card,yes,51,67.45,28.7,2,price,yes
+CU10416,2025-10-07,63,West,Two year,Card,yes,1,30.2,44.1,1,,no
+CU10417,2023-09-23,63,South,One year,Wallet,yes,69,52.19,112.7,0,,no
+CU10418,2022-04-23,74,East,Month-to-month,Card,no,5,80.35,132.7,1,,no
+CU10419,2024-08-07,25,North,Month-to-month,Bank transfer,no,59,,39.2,0,,no
+CU10420,2021-06-28,34,North,Month-to-month,Card,no,53,34.26,94.6,3,,no
+CU10421,2024-08-23,76,East,Two year,Bank transfer,no,56,86.17,163.9,1,,no
+CU10422,2021-04-15,66,North,One year,Card,yes,72,41.5,142.9,2,,no
+CU10423,2025-12-02,30,West,Two year,Card,yes,55,56.89,123.8,1,,no
+CU10424,2022-06-07,70,North,Two year,Cash,yes,54,66.13,22.6,2,,no
+CU10425,2025-04-04,29,Central,Month-to-month,Card,no,71,18.0,20.2,2,,no
+CU10426,2025-03-18,66,Central,Two year,Wallet,no,,97.56,50.2,0,,no
+CU10427,2024-08-27,57,East,Two year,Card,no,19,54.72,20.0,1,,no
+CU10428,2024-09-21,65,North,One year,Wallet,yes,47,82.01,84.4,0,,no
+CU10429,2022-01-14,54,South,Two year,Cash,no,5,49.98,29.6,2,,no
+CU10430,2021-08-17,50,Central,Month-to-month,Card,yes,42,47.38,49.1,0,,no
+CU10431,2023-03-20,34,West,Two year,Card,yes,25,84.49,68.7,2,,no
+CU10432,2024-01-08,62,North,Month-to-month,Bank transfer,yes,34,42.08,159.1,0,,no
+CU10433,2022-01-07,68,North,Two year,Card,no,23,39.41,25.8,1,,no
+CU10434,2022-05-10,67,South,Month-to-month,Bank transfer,no,20,93.08,30.0,2,,no
+CU10435,2024-01-01,71,,Month-to-month,Wallet,yes,29,73.93,195.2,2,,no
+CU10436,2025-08-14,21,South,Month-to-month,Bank transfer,yes,31,73.63,42.3,1,,no
+CU10437,2024-09-09,68,West,Month-to-month,Bank transfer,yes,17,78.26,95.3,0,,no
+CU10438,2022-09-10,31,East,Month-to-month,Bank transfer,no,17,55.63,185.2,0,moved,yes
+CU10439,2023-11-05,21,South,Month-to-month,Bank transfer,yes,42,65.22,85.6,4,price,yes
+CU10440,2023-02-08,49,North,Two year,Wallet,yes,58,71.89,125.7,0,,no
+CU10441,2022-11-28,33,East,One year,Bank transfer,yes,31,82.25,196.1,0,,no
+CU10442,2024-06-23,62,South,Two year,Wallet,no,14,38.44,56.6,2,moved,yes
+CU10443,2024-07-16,54,South,One year,Card,no,13,76.73,64.8,2,,no
+CU10444,2021-04-12,55,West,Month-to-month,Card,yes,34,64.8,100.3,3,competitor,yes
+CU10445,2021-03-26,49,North,Two year,Wallet,yes,72,70.95,34.7,0,,no
+CU10446,2022-01-30,33,East,Month-to-month,Card,yes,1,88.7,63.3,1,competitor,yes
+CU10447,2021-09-10,27,North,Two year,Card,yes,36,52.18,49.2,0,,no
+CU10448,2023-12-07,24,West,Month-to-month,Card,yes,72,58.0,137.6,1,,no
+CU10449,2022-10-20,23,West,Month-to-month,Bank transfer,no,47,65.0,43.1,1,service,yes
+CU10450,2024-06-02,25,East,Month-to-month,Card,no,34,52.91,57.2,1,moved,yes
+CU10451,2022-10-21,55,East,Month-to-month,Bank transfer,yes,35,54.23,59.1,2,,no
+CU10452,2022-03-25,44,North,Month-to-month,Card,no,11,,25.7,1,,no
+CU10453,2022-02-24,40,North,One year,Cash,no,65,78.32,77.9,1,,no
+CU10454,2022-02-23,61,North,Two year,Wallet,no,43,76.65,117.3,2,,no
+CU10455,2024-04-03,72,North,One year,Wallet,no,43,78.8,49.6,2,,no
+CU10456,2021-12-03,33,South,Two year,Card,yes,27,55.62,114.2,2,,no
+CU10457,2021-04-27,67,Central,Month-to-month,Bank transfer,no,59,60.58,44.3,1,,no
+CU10458,2024-08-29,40,East,Month-to-month,Card,no,65,69.27,15.8,2,,no
+CU10459,2022-09-02,61,Central,Month-to-month,Bank transfer,yes,29,72.93,70.2,1,,no
+CU10460,2024-03-04,51,West,One year,Card,no,51,18.0,80.2,0,,no
+CU10461,2021-12-24,29,South,Month-to-month,Bank transfer,yes,36,,67.8,2,,no
+CU10462,2024-06-25,28,North,One year,Card,yes,12,89.71,45.9,2,,no
+CU10463,2024-01-25,55,West,One year,Wallet,yes,29,75.08,225.7,0,,no
+CU10464,2022-03-22,55,East,Month-to-month,Wallet,no,5,66.08,192.6,2,,no
+CU10465,2023-07-24,19,North,Month-to-month,Bank transfer,yes,51,87.79,125.8,1,price,yes
+CU10466,2024-11-12,24,East,Two year,Bank transfer,no,60,67.46,130.6,2,,no
+CU10467,2021-11-24,69,Central,One year,Bank transfer,yes,62,65.69,53.7,0,,no
+CU10468,2024-03-28,69,West,Two year,Bank transfer,yes,72,73.37,105.9,0,,no
+CU10469,2025-03-05,68,West,Month-to-month,Wallet,yes,33,42.83,91.5,0,,no
+CU10470,2023-06-23,46,South,Month-to-month,Card,no,,43.56,155.4,2,,no
+CU10471,2024-07-10,60,South,Month-to-month,Card,no,68,57.31,264.4,0,,no
+CU10472,2022-07-03,56,South,Two year,Bank transfer,yes,,84.34,85.6,0,,no
+CU10473,2023-06-06,48,West,Month-to-month,Card,yes,50,70.11,124.3,3,,no
+CU10474,2024-06-28,40,North,Month-to-month,Bank transfer,yes,39,76.64,87.9,4,moved,yes
+CU10475,2023-07-23,43,Central,Month-to-month,Bank transfer,yes,37,78.03,141.4,1,,no
+CU10476,2023-05-16,20,North,One year,Card,no,47,78.36,29.3,0,,no
+CU10477,2022-01-02,39,North,Month-to-month,Wallet,yes,11,62.59,48.0,3,competitor,yes
+CU10478,2023-11-19,69,East,Two year,Card,no,3,,121.0,1,,no
+CU10479,2021-03-20,48,South,Month-to-month,Card,yes,37,24.87,21.7,1,,no
+CU10480,2024-08-19,60,West,Month-to-month,Bank transfer,yes,42,42.45,29.3,0,,no
+CU10481,2025-04-24,65,South,Two year,Bank transfer,no,38,65.86,100.6,3,,no
+CU10482,2022-03-09,42,East,Month-to-month,Card,yes,71,93.76,52.0,1,,no
+CU10483,2023-12-07,48,South,Month-to-month,Wallet,no,19,63.31,37.7,0,,no
+CU10484,2022-12-10,44,West,Two year,Wallet,no,17,71.01,127.6,0,,no
+CU10485,2024-05-18,56,South,Month-to-month,Bank transfer,no,8,76.45,162.0,0,moved,yes
+CU10486,2023-06-10,52,Central,Month-to-month,Card,no,10,37.64,141.7,2,,no
+CU10487,2024-08-22,45,East,One year,Card,no,48,60.52,25.0,1,,no
+CU10488,2025-12-01,27,Central,Two year,Bank transfer,no,8,74.09,49.4,0,,no
+CU10489,2024-01-12,49,East,Month-to-month,Card,no,17,41.61,48.6,0,price,yes
+CU10490,2021-07-12,58,East,Month-to-month,Card,no,72,80.17,21.6,0,,no
+CU10491,2021-03-28,30,North,Month-to-month,Bank transfer,yes,53,22.35,85.5,2,,no
+CU10492,2023-03-27,65,North,Month-to-month,Card,yes,65,87.71,42.1,0,,no
+CU10493,2024-11-23,55,East,Two year,Cash,yes,72,55.16,5.0,1,,no
+CU10494,2022-03-06,26,Central,Two year,Cash,no,69,76.8,58.3,2,,no
+CU10495,2021-12-14,64,North,Month-to-month,Wallet,no,3,79.31,81.8,2,service,yes
+CU10496,2022-07-20,51,Central,Two year,Bank transfer,yes,31,75.24,37.4,2,,no
+CU10497,2023-01-16,51,North,Two year,Card,yes,38,78.79,137.2,1,,no
+CU10498,2023-09-18,33,East,Month-to-month,Cash,yes,65,84.3,54.8,3,,no
+CU10499,2025-11-12,42,North,One year,Card,no,18,73.55,94.9,1,,no
+CU10500,2024-08-19,33,North,Month-to-month,Wallet,no,41,61.83,83.4,3,,no
+CU10501,2025-01-12,67,Central,Month-to-month,Cash,no,45,55.11,11.1,2,,no
+CU10502,2025-03-05,58,Central,Month-to-month,Card,yes,68,57.78,77.2,0,,no
+CU10503,2021-06-12,66,Central,Two year,Card,no,14,58.99,47.1,0,,no
+CU10504,2022-11-01,66,West,Month-to-month,Card,no,42,67.88,29.4,0,,no
+CU10505,2024-09-15,44,East,Month-to-month,Bank transfer,no,25,58.48,67.0,2,,no
+CU10506,2024-08-16,30,West,Month-to-month,Wallet,yes,9,70.88,42.3,2,,no
+CU10507,2021-04-26,43,West,One year,Wallet,yes,2,49.51,138.8,1,,no
+CU10508,2022-08-01,28,Central,Month-to-month,Cash,yes,14,54.2,26.2,2,,no
+CU10509,2024-02-08,71,West,Month-to-month,Bank transfer,yes,13,57.88,56.6,3,,no
+CU10510,2022-01-03,61,Central,Month-to-month,Bank transfer,no,43,36.4,79.1,1,,no
+CU10511,2021-09-06,28,West,Month-to-month,Wallet,no,43,92.14,55.5,2,,no
+CU10512,2023-12-03,72,Central,One year,Card,no,14,79.17,13.5,2,,no
+CU10513,2024-04-03,60,East,Month-to-month,Cash,yes,47,87.38,16.7,0,,no
+CU10514,2021-05-15,35,West,One year,Bank transfer,no,63,63.11,9.9,1,,no
+CU10515,2021-07-23,54,North,Month-to-month,Bank transfer,no,46,88.07,61.7,2,,no
+CU10516,2023-05-07,44,Central,Month-to-month,Cash,yes,43,71.48,208.0,2,,no
+CU10517,2021-08-17,23,South,Month-to-month,Wallet,yes,16,24.28,77.8,1,,no
+CU10518,2023-11-27,49,West,One year,Wallet,yes,70,46.4,80.2,1,,no
+CU10519,2021-11-01,20,East,Two year,Bank transfer,yes,30,85.77,50.8,0,,no
+CU10520,2024-08-30,42,Central,Two year,Bank transfer,yes,60,62.27,49.9,4,,no
+CU10521,2025-09-09,65,East,Two year,Bank transfer,no,25,44.84,58.9,2,,no
+CU10522,2021-06-27,24,Central,Month-to-month,Card,no,24,85.04,48.2,1,service,yes
+CU10523,2024-03-20,46,East,Two year,Bank transfer,no,45,31.08,15.3,0,,no
+CU10524,2025-07-10,36,East,Month-to-month,Card,no,3,109.61,58.6,1,service,yes
+CU10525,2023-02-02,74,West,Month-to-month,Bank transfer,no,3,61.09,101.5,0,,no
+CU10526,2022-10-14,57,East,Month-to-month,Bank transfer,yes,,65.95,11.8,0,,no
+CU10527,2025-10-16,36,Central,Month-to-month,Card,yes,47,75.24,41.3,1,,no
+CU10528,2024-05-10,20,West,Two year,Card,no,54,35.94,107.1,2,,no
+CU10529,2025-09-18,49,Central,Month-to-month,Card,yes,10,64.99,14.6,2,,no
+CU10530,2025-11-22,73,South,Two year,Cash,no,31,99.94,33.2,1,,no
+CU10531,2022-02-04,27,West,Two year,Wallet,no,,80.01,102.7,2,,no
+CU10532,2023-02-19,68,South,Month-to-month,Wallet,no,12,32.82,29.5,1,,no
+CU10533,2024-03-02,76,South,Two year,Wallet,no,25,73.23,6.6,2,,no
+CU10534,2022-11-02,45,Central,One year,Bank transfer,no,69,58.64,17.5,0,,no
+CU10535,2023-01-02,54,East,Two year,Card,no,36,54.27,28.0,1,,no
+CU10536,2024-02-21,24,East,Month-to-month,Card,no,65,87.3,88.2,1,,no
+CU10537,2024-10-22,56,North,One year,Wallet,yes,20,78.46,55.4,3,,no
+CU10538,2023-12-13,76,South,One year,Card,yes,56,86.55,67.7,2,,no
+CU10539,2025-06-12,51,North,Month-to-month,Card,no,22,67.57,28.2,0,,no
+CU10540,2022-06-29,21,South,Month-to-month,Cash,yes,15,77.87,30.6,1,,no
+CU10541,2024-11-19,61,West,Month-to-month,Card,no,61,67.69,15.0,3,,no
+CU10542,2022-12-31,32,Central,Month-to-month,Card,yes,6,39.99,79.2,1,,no
+CU10543,2024-03-28,68,South,Month-to-month,Bank transfer,no,53,79.92,30.7,2,,no
+CU10544,2021-09-23,62,East,One year,Card,no,53,48.22,30.2,2,,no
+CU10545,2024-04-24,39,North,Month-to-month,Bank transfer,no,71,44.92,108.2,0,,no
+CU10546,2025-08-15,74,East,Month-to-month,Wallet,no,24,53.32,69.2,1,,no
+CU10547,2021-06-14,45,North,One year,Wallet,no,1,40.61,87.5,1,,no
+CU10548,2021-08-12,41,North,Month-to-month,Wallet,no,49,51.33,29.0,0,,no
+CU10549,2025-01-19,47,North,One year,Cash,no,71,92.79,65.3,1,,no
+CU10550,2023-09-17,32,East,Month-to-month,Card,yes,23,57.84,51.1,0,,no
+CU10551,2023-07-25,58,Central,One year,Bank transfer,yes,68,52.09,134.1,3,,no
+CU10552,2022-07-14,79,West,One year,Card,no,59,61.18,71.8,3,,no
+CU10553,2021-12-26,51,West,Two year,Bank transfer,yes,62,55.97,69.0,0,,no
+CU10554,2024-01-14,48,North,Month-to-month,Card,yes,26,59.3,104.4,3,price,yes
+CU10555,2023-06-26,71,East,One year,Bank transfer,yes,1,54.73,7.6,0,,no
+CU10556,2022-11-02,26,East,Two year,Card,no,41,84.47,120.6,2,,no
+CU10557,2025-03-14,76,West,Month-to-month,Wallet,yes,43,39.13,101.0,1,,no
+CU10558,2022-04-06,47,North,One year,Bank transfer,no,8,106.23,57.6,1,,no
+CU10559,2024-03-16,27,West,Month-to-month,Bank transfer,no,45,,117.5,0,,no
+CU10560,2025-08-13,28,West,Two year,Card,yes,30,113.52,94.7,2,,no
+CU10561,2025-09-07,67,West,Two year,Card,no,16,23.26,91.2,0,,no
+CU10562,2021-12-07,52,East,One year,Cash,yes,68,47.69,72.7,1,,no
+CU10563,2023-06-19,66,Central,Month-to-month,Card,yes,9,83.5,257.4,0,,no
+CU10564,2022-08-27,65,West,Month-to-month,Cash,yes,37,54.02,82.2,0,,no
+CU10565,2022-02-10,56,Central,Month-to-month,Bank transfer,yes,65,63.77,58.5,1,,no
+CU10566,2021-07-27,57,South,One year,Wallet,yes,22,63.8,83.9,2,,no
+CU10567,2022-01-08,49,North,Two year,Bank transfer,no,64,56.42,29.9,2,,no
+CU10568,2021-03-07,59,Central,Month-to-month,Bank transfer,no,34,76.09,52.9,0,competitor,yes
+CU10569,2022-03-13,56,East,Two year,Card,yes,42,49.51,54.7,3,,no
+CU10570,2024-11-08,45,South,Month-to-month,Bank transfer,yes,50,65.39,44.4,1,,no
+CU10571,2023-11-10,49,Central,Month-to-month,Card,yes,10,48.6,51.1,0,,no
+CU10572,2023-07-06,32,North,Two year,Wallet,yes,27,73.33,61.8,1,,no
+CU10573,2025-04-13,43,Central,Month-to-month,Card,no,44,55.45,86.7,1,moved,yes
+CU10574,2024-12-07,65,North,One year,Card,no,43,41.13,62.6,1,,no
+CU10575,2024-11-12,63,,Month-to-month,Card,no,12,79.15,33.6,1,service,yes
+CU10576,2025-11-07,37,Central,Two year,Card,yes,28,65.48,61.2,0,,no
+CU10577,2025-10-13,59,West,Month-to-month,Wallet,yes,65,43.21,83.0,2,,no
+CU10578,2021-06-10,37,East,Month-to-month,Card,yes,46,64.93,43.3,1,,no
+CU10579,2023-05-06,27,West,One year,Card,yes,17,100.79,81.8,2,price,yes
+CU10580,2024-08-13,68,West,Month-to-month,Card,no,57,41.83,54.5,0,,no
+CU10581,2023-12-19,36,North,Month-to-month,Bank transfer,no,2,54.86,116.2,2,,no
+CU10582,2022-08-17,59,East,Two year,Card,no,7,51.8,16.1,1,,no
+CU10583,2025-02-10,71,East,Two year,Card,yes,64,67.92,36.9,1,,no
+CU10584,2024-09-03,21,Central,Month-to-month,Bank transfer,no,33,77.33,95.8,4,,no
+CU10585,2025-07-18,42,North,One year,Cash,yes,57,45.67,57.8,0,,no
+CU10586,2023-01-16,73,Central,Month-to-month,Card,yes,18,69.23,42.9,0,,no
+CU10587,2025-10-14,67,North,Two year,Card,no,9,44.85,35.3,1,,no
+CU10588,2025-12-01,28,North,Month-to-month,Wallet,yes,36,78.02,71.7,0,price,yes
+CU10589,2022-07-28,56,South,Month-to-month,Wallet,yes,12,41.12,52.4,1,,no
+CU10590,2024-10-18,53,East,Month-to-month,Bank transfer,no,2,56.34,74.5,2,price,yes
+CU10591,2022-04-23,51,West,Month-to-month,Card,no,35,53.55,102.2,1,,no
+CU10592,2021-04-06,75,South,Month-to-month,Cash,no,68,66.5,52.4,2,,no
+CU10593,2023-09-30,77,North,Month-to-month,Card,yes,28,70.48,100.0,1,,no
+CU10594,2024-11-05,44,South,Two year,Wallet,yes,49,38.96,55.1,2,,no
+CU10595,2021-12-08,58,Central,Month-to-month,Card,no,65,35.68,48.6,0,,no
+CU10596,2025-04-10,49,West,Month-to-month,Bank transfer,no,64,79.03,150.4,1,,no
+CU10597,2025-10-18,19,North,Month-to-month,Wallet,no,57,18.0,46.9,1,,no
+CU10598,2023-09-11,25,Central,Month-to-month,Bank transfer,yes,19,61.01,146.2,2,price,yes
+CU10599,2025-07-26,65,North,Month-to-month,Bank transfer,yes,9,61.76,51.3,3,,no
+CU10600,2022-04-27,27,North,Month-to-month,Card,yes,16,78.7,81.4,1,,no
+CU10601,2024-01-19,44,Central,Month-to-month,Wallet,no,71,75.61,74.4,0,,no
+CU10602,2023-01-31,39,Central,Two year,Card,no,44,56.34,20.8,0,,no
+CU10603,2021-08-07,59,East,Two year,Card,yes,46,44.0,98.6,2,,no
+CU10604,2023-09-15,69,West,Two year,Bank transfer,yes,69,18.0,95.1,0,,no
+CU10605,2023-08-30,78,Central,Month-to-month,Bank transfer,yes,15,56.86,156.2,2,,no
+CU10606,2022-12-17,73,South,Month-to-month,Bank transfer,yes,71,87.45,71.9,1,,no
+CU10607,2025-08-02,33,Central,Two year,Wallet,yes,24,41.93,46.7,3,,no
+CU10608,2023-03-16,38,West,Month-to-month,Card,no,57,70.54,61.6,1,,no
+CU10609,2022-05-17,21,North,Month-to-month,Bank transfer,yes,8,58.19,26.6,0,,no
+CU10610,2021-10-03,31,South,One year,Bank transfer,no,71,68.87,36.8,2,,no
+CU10611,2021-03-20,49,North,Month-to-month,Bank transfer,yes,66,68.86,71.6,1,,no
+CU10612,2025-06-01,55,South,Month-to-month,Card,yes,63,74.65,118.1,1,,no
+CU10613,2021-01-16,48,East,One year,Wallet,no,30,61.27,2.1,1,,no
+CU10614,2023-05-03,56,North,Month-to-month,Card,yes,48,77.49,18.6,1,,no
+CU10615,2025-08-03,48,,One year,Card,no,21,82.83,16.2,2,,no
+CU10616,2023-02-21,67,Central,One year,Wallet,yes,58,70.88,94.9,1,,no
+CU10617,2022-06-25,68,East,Two year,Card,no,46,77.35,72.4,3,,no
+CU10618,2021-11-14,53,South,Two year,Bank transfer,yes,42,67.38,26.9,0,,no
+CU10619,2023-09-27,71,West,Month-to-month,Bank transfer,no,55,79.25,115.7,3,moved,yes
+CU10620,2022-02-25,33,East,Two year,Bank transfer,yes,20,80.66,50.8,1,,no
+CU10621,2022-04-13,77,East,One year,Card,yes,32,77.72,152.6,2,,no
+CU10622,2021-11-28,68,Central,Month-to-month,Bank transfer,yes,,54.66,47.7,1,,no
+CU10623,2022-11-07,20,North,One year,Bank transfer,no,59,57.95,147.6,0,,no
+CU10624,2025-01-29,44,North,Month-to-month,Wallet,yes,63,72.15,171.0,5,,no
+CU10625,2023-01-31,62,East,Month-to-month,Bank transfer,no,18,51.18,73.3,2,,no
+CU10626,2024-02-08,52,South,Two year,Card,yes,69,74.26,52.8,0,,no
+CU10627,2024-12-25,78,Central,One year,Bank transfer,no,51,81.17,58.5,1,,no
+CU10628,2022-10-30,39,East,One year,Bank transfer,no,4,72.63,18.5,3,,no
+CU10629,2023-05-04,31,East,Two year,Card,no,45,42.89,162.5,0,,no
+CU10630,2022-06-27,79,East,One year,Wallet,no,17,71.01,104.1,1,,no
+CU10631,2025-11-28,31,East,One year,Card,yes,27,81.1,28.3,0,,no
+CU10632,2022-09-25,33,West,One year,Bank transfer,no,50,59.21,14.4,0,,no
+CU10633,2021-05-31,46,South,Month-to-month,Card,no,3,65.15,80.0,1,,no
+CU10634,2024-03-31,37,West,Month-to-month,Wallet,yes,27,74.52,162.0,1,,no
+CU10635,2024-11-03,36,East,One year,Cash,yes,58,79.68,74.4,1,,no
+CU10636,2024-04-25,79,North,Month-to-month,Wallet,yes,64,66.28,42.5,1,,no
+CU10637,2021-03-07,51,North,Month-to-month,Bank transfer,no,30,76.32,212.5,1,,no
+CU10638,2025-09-21,75,North,Two year,Cash,no,18,28.67,85.9,1,,no
+CU10639,2022-10-10,77,North,Month-to-month,Bank transfer,yes,33,71.2,56.5,1,moved,yes
+CU10640,2024-03-16,54,West,Two year,Card,no,3,82.92,74.4,2,,no
+CU10641,2025-05-18,21,Central,One year,Card,no,34,47.31,199.3,1,,no
+CU10642,2025-09-30,40,East,Month-to-month,Card,yes,11,54.25,33.5,1,,no
+CU10643,2024-05-27,71,Central,Two year,Bank transfer,no,2,,143.1,2,,no
+CU10644,2022-10-22,60,West,Month-to-month,Bank transfer,yes,57,78.32,88.2,1,,no
+CU10645,2021-02-16,33,North,One year,Wallet,yes,71,45.35,133.2,1,,no
+CU10646,2023-01-28,57,South,Two year,Bank transfer,yes,36,50.32,156.6,0,,no
+CU10647,2023-09-22,67,Central,One year,Card,yes,59,69.57,33.0,3,,no
+CU10648,2021-04-07,39,North,Two year,Card,no,14,53.37,62.1,1,,no
+CU10649,2025-09-22,20,North,Month-to-month,Bank transfer,yes,39,,71.7,1,,no
+CU10650,2023-06-12,28,North,One year,Card,yes,,75.48,71.0,2,,no
+CU10651,2025-10-16,61,East,Month-to-month,Card,no,11,73.63,14.5,1,competitor,yes
+CU10652,2021-04-20,54,East,Month-to-month,Wallet,yes,4,94.86,86.8,1,,no
+CU10653,2023-11-21,26,East,One year,Wallet,no,56,42.3,87.9,1,,no
+CU10654,2024-02-06,68,South,Two year,Wallet,no,59,40.44,87.1,2,,no
+CU10655,2025-03-14,31,West,One year,Bank transfer,yes,48,68.19,105.5,2,,no
+CU10656,2021-01-24,52,South,Two year,Bank transfer,yes,66,71.52,30.9,0,,no
+CU10657,2025-10-25,45,East,Month-to-month,Wallet,no,23,70.28,248.0,0,,no
+CU10658,2023-06-14,78,North,Month-to-month,Bank transfer,no,71,45.15,75.7,1,,no
+CU10659,2021-03-14,44,North,Month-to-month,Bank transfer,yes,71,63.6,149.2,2,,no
+CU10660,2023-10-15,51,South,Two year,Bank transfer,no,64,91.51,55.9,0,,no
+CU10661,2021-03-10,77,Central,Month-to-month,Card,yes,46,56.15,7.2,2,,no
+CU10662,2023-06-06,65,North,One year,Card,yes,8,55.57,54.9,1,,no
+CU10663,2025-07-08,63,West,One year,Wallet,yes,3,58.96,58.5,0,,no
+CU10664,2023-06-24,25,North,One year,Cash,yes,38,32.12,53.3,1,,no
+CU10665,2023-09-07,79,West,Month-to-month,Bank transfer,no,48,85.82,7.1,1,,no
+CU10666,2022-12-04,75,South,Month-to-month,Card,no,37,53.5,35.0,0,,no
+CU10667,2023-11-25,66,East,One year,Bank transfer,yes,4,58.31,69.4,0,,no
+CU10668,2022-10-25,74,West,One year,Wallet,no,33,72.79,93.7,2,,no
+CU10669,2024-09-29,69,East,Month-to-month,Card,yes,63,69.29,78.6,0,,no
+CU10670,2022-12-01,62,West,Month-to-month,Card,yes,50,48.78,29.2,1,,no
+CU10671,2022-04-05,50,South,One year,Card,no,34,60.75,149.7,4,,no
+CU10672,2025-07-08,57,East,Two year,Card,yes,38,65.78,26.6,1,,no
+CU10673,2025-06-01,57,Central,Two year,Card,no,39,53.39,78.5,0,,no
+CU10674,2021-01-07,68,North,One year,Bank transfer,yes,35,74.11,35.3,2,,no
+CU10675,2022-10-04,34,North,Month-to-month,Cash,no,12,20.66,33.7,3,,no
+CU10676,2024-06-29,34,East,Month-to-month,Wallet,yes,21,45.25,36.7,4,price,yes
+CU10677,2022-12-31,72,Central,One year,Card,yes,66,78.25,99.7,1,,no
+CU10678,2021-10-21,78,Central,Month-to-month,Card,no,68,64.64,11.4,1,,no
+CU10679,2023-06-29,50,North,Month-to-month,Bank transfer,yes,62,73.11,36.7,1,,no
+CU10680,2023-03-22,49,South,Month-to-month,Bank transfer,yes,55,33.85,25.4,2,,no
+CU10681,2024-02-05,49,North,Two year,Wallet,yes,9,77.87,61.3,1,,no
+CU10682,2022-06-04,30,South,Month-to-month,Card,yes,38,67.91,118.8,2,,no
+CU10683,2023-09-23,30,South,Month-to-month,Wallet,yes,16,73.83,24.8,2,,no
+CU10684,2025-02-12,74,West,Two year,Wallet,yes,18,70.39,151.5,0,,no
+CU10685,2024-06-24,31,South,Month-to-month,Bank transfer,no,18,56.78,190.4,3,,no
+CU10686,2024-04-15,44,West,Month-to-month,Bank transfer,yes,27,72.35,12.3,1,,no
+CU10687,2021-02-05,77,South,Month-to-month,Bank transfer,yes,36,74.78,150.9,0,,no
+CU10688,2021-11-12,78,West,Month-to-month,Card,yes,40,80.14,188.3,3,,no
+CU10689,2024-06-14,38,East,Two year,Wallet,no,68,54.59,55.2,1,,no
+CU10690,2023-03-31,22,Central,One year,Bank transfer,yes,36,25.48,84.0,1,,no
+CU10691,2025-11-22,71,Central,Month-to-month,Card,yes,36,85.82,55.8,1,,no
+CU10692,2025-09-10,54,East,Month-to-month,Bank transfer,no,68,30.09,129.9,2,,no
+CU10693,2021-01-07,23,North,One year,Card,yes,27,80.56,7.7,1,,no
+CU10694,2023-03-05,61,Central,One year,Bank transfer,yes,11,61.33,37.4,3,,no
+CU10695,2022-07-04,40,North,Month-to-month,Card,yes,44,73.74,157.0,2,,no
+CU10696,2024-02-20,25,East,Month-to-month,Card,no,35,45.14,35.9,1,moved,yes
+CU10697,2025-11-25,52,North,Two year,Card,no,57,59.2,16.9,2,,no
+CU10698,2021-08-18,56,East,Two year,Bank transfer,yes,66,53.92,143.7,1,,no
+CU10699,2025-08-02,39,West,One year,Card,no,42,70.53,78.9,0,,no
+CU10700,2023-05-11,37,West,Two year,Card,yes,1,62.77,46.0,1,,no
+CU10701,2023-09-24,48,East,Month-to-month,Bank transfer,no,19,64.07,45.4,2,moved,yes
+CU10702,2023-12-25,58,North,Month-to-month,Cash,yes,51,72.98,35.3,2,,no
+CU10703,2023-10-26,78,,Month-to-month,Bank transfer,yes,61,64.79,58.1,1,,no
+CU10704,2025-05-17,31,Central,Month-to-month,Card,yes,16,42.21,111.5,0,service,yes
+CU10705,2025-10-07,74,North,Two year,Card,no,35,95.42,71.4,1,,no
+CU10706,2025-09-16,77,East,Month-to-month,Bank transfer,yes,68,74.31,100.6,2,,no
+CU10707,2021-03-06,52,East,Month-to-month,Wallet,no,3,115.82,282.8,1,service,yes
+CU10708,2022-12-26,56,West,Month-to-month,Cash,yes,41,51.14,176.3,1,,no
+CU10709,2024-11-10,53,West,Month-to-month,Card,yes,55,70.59,38.6,0,,no
+CU10710,2021-03-31,62,Central,Two year,Bank transfer,no,23,72.06,77.4,2,,no
+CU10711,2022-01-26,19,South,Two year,Cash,no,42,84.28,39.4,1,,no
+CU10712,2025-05-09,31,Central,Month-to-month,Wallet,yes,25,39.29,51.2,0,,no
+CU10713,2022-03-30,41,South,Two year,Card,no,2,40.61,75.2,1,,no
+CU10714,2024-01-08,79,East,Month-to-month,Card,yes,43,51.86,39.3,0,,no
+CU10715,2025-05-01,25,North,Month-to-month,Wallet,yes,37,57.24,61.3,0,,no
+CU10716,2022-08-03,19,Central,Month-to-month,Cash,yes,12,71.75,70.2,0,,no
+CU10717,2021-10-08,19,South,Month-to-month,Cash,no,51,64.5,9.2,2,,no
+CU10718,2024-11-20,26,West,Month-to-month,Cash,no,19,93.27,70.2,0,,no
+CU10719,2025-01-10,54,East,Month-to-month,Cash,yes,34,65.72,16.8,2,,no
+CU10720,2022-01-05,60,Central,Two year,Bank transfer,no,18,79.04,133.6,0,,no
+CU10721,2021-04-30,19,South,Two year,Card,yes,,39.76,43.9,0,,no
+CU10722,2023-11-10,58,West,Two year,Bank transfer,yes,64,79.42,121.7,0,,no
+CU10723,2022-01-10,39,South,One year,Cash,yes,40,79.41,143.9,0,,no
+CU10724,2022-05-17,23,North,One year,Wallet,yes,50,76.91,31.1,0,,no
+CU10725,2025-03-25,30,South,One year,Card,yes,61,61.28,46.2,1,,no
+CU10726,2022-05-22,29,East,One year,Wallet,no,19,43.39,47.9,2,,no
+CU10727,2023-09-13,28,Central,Two year,Bank transfer,yes,10,48.86,66.6,3,competitor,yes
+CU10728,2022-05-17,63,West,Month-to-month,Cash,no,72,44.16,228.8,1,,no
+CU10729,2023-07-08,55,South,Month-to-month,Cash,yes,68,69.66,51.7,0,,no
+CU10730,2022-06-21,74,North,Month-to-month,Card,no,28,78.32,67.2,2,,no
+CU10731,2025-09-14,78,East,Two year,Wallet,no,49,78.97,77.1,1,,no
+CU10732,2022-03-27,47,East,Month-to-month,Wallet,yes,34,51.32,9.2,2,,no
+CU10733,2022-06-17,28,East,One year,Cash,yes,69,88.8,279.6,1,,no
+CU10734,2021-12-30,22,North,Month-to-month,Bank transfer,yes,31,45.46,183.2,1,service,yes
+CU10735,2023-12-01,31,South,Month-to-month,Card,yes,16,96.35,106.7,0,,no
+CU10736,2023-05-22,49,North,Two year,Card,yes,67,38.44,329.6,1,,no
+CU10737,2022-08-16,35,South,Month-to-month,Wallet,no,70,60.86,41.7,1,,no
+CU10738,2022-05-04,60,East,Month-to-month,Bank transfer,yes,22,36.85,25.4,2,,no
+CU10739,2022-04-20,47,North,Two year,Card,no,10,61.76,103.5,0,,no
+CU10740,2022-06-01,68,West,Month-to-month,Card,no,66,74.71,73.5,2,,no
+CU10741,2021-10-28,26,West,Month-to-month,Card,no,66,72.2,121.4,1,,no
+CU10742,2025-01-21,19,East,Month-to-month,Bank transfer,yes,38,67.51,121.3,4,,no
+CU10743,2021-07-21,24,Central,Two year,Bank transfer,yes,40,68.17,140.6,1,,no
+CU10744,2024-09-09,35,West,One year,Cash,yes,10,87.51,71.9,1,,no
+CU10745,2021-07-13,22,West,Month-to-month,Bank transfer,no,28,54.61,109.4,3,,no
+CU10746,2021-12-28,60,North,Month-to-month,Bank transfer,yes,39,54.79,27.9,2,,no
+CU10747,2021-12-22,51,East,Month-to-month,Bank transfer,no,62,74.81,186.1,1,,no
+CU10748,2024-07-13,20,West,Month-to-month,Card,yes,15,52.6,86.6,0,,no
+CU10749,2025-09-21,78,West,Month-to-month,Card,yes,3,83.2,46.7,2,moved,yes
+CU10750,2022-10-10,66,East,Month-to-month,Card,no,16,,69.0,2,service,yes
+CU10751,2024-02-14,41,West,One year,Bank transfer,yes,27,78.96,52.8,1,,no
+CU10752,2024-01-14,45,North,Month-to-month,Wallet,no,47,83.64,36.8,0,,no
+CU10753,2024-04-30,72,East,Month-to-month,Card,no,58,78.15,116.6,4,,no
+CU10754,2024-02-13,52,South,Month-to-month,Card,yes,9,72.19,126.3,0,,no
+CU10755,2024-09-11,28,South,Month-to-month,Wallet,yes,2,75.11,76.9,1,,no
+CU10756,2022-08-09,53,Central,Month-to-month,Card,no,46,46.61,97.1,2,,no
+CU10757,2023-06-27,25,South,One year,Card,yes,15,90.33,114.4,3,moved,yes
+CU10758,2025-05-30,35,North,Month-to-month,Bank transfer,no,3,18.0,18.6,2,competitor,yes
+CU10759,2024-01-19,21,South,One year,Wallet,no,61,70.38,39.0,3,,no
+CU10760,2025-05-29,32,Central,Month-to-month,Wallet,no,31,66.18,31.3,1,,no
+CU10761,2022-02-10,67,North,Month-to-month,Bank transfer,yes,27,103.27,104.6,0,,no
+CU10762,2024-04-17,34,East,Month-to-month,Card,no,10,24.27,88.8,2,,no
+CU10763,2021-01-10,35,North,Month-to-month,Bank transfer,no,57,31.5,97.8,1,,no
+CU10764,2024-11-25,19,West,Two year,Wallet,yes,30,61.76,48.9,1,,no
+CU10765,2023-12-15,62,North,One year,Bank transfer,yes,34,61.52,87.3,1,,no
+CU10766,2023-05-06,50,Central,Month-to-month,Wallet,no,69,70.21,111.1,0,,no
+CU10767,2022-09-14,44,North,Month-to-month,Card,yes,48,25.9,43.4,2,,no
+CU10768,2022-07-09,77,South,Month-to-month,Card,no,39,64.78,43.4,1,,no
+CU10769,2023-12-22,59,North,Month-to-month,Wallet,yes,21,82.3,251.0,0,,no
+CU10770,2021-01-30,38,North,Month-to-month,Bank transfer,no,24,94.72,74.6,2,,no
+CU10771,2024-01-25,35,Central,Month-to-month,Wallet,yes,28,74.94,78.5,0,price,yes
+CU10772,2022-03-05,75,West,Two year,Bank transfer,no,40,75.19,32.0,1,,no
+CU10773,2025-03-31,71,,Month-to-month,Bank transfer,yes,14,65.78,182.0,4,service,yes
+CU10774,2022-07-09,35,North,Month-to-month,Bank transfer,yes,2,,154.5,1,,no
+CU10775,2023-02-02,79,South,One year,Cash,yes,22,70.49,45.0,2,,no
+CU10776,2021-05-29,34,South,Month-to-month,Card,yes,,65.0,56.8,2,moved,yes
+CU10777,2021-11-20,27,East,Two year,Bank transfer,no,1,49.98,52.3,1,,no
+CU10778,2024-02-05,58,East,Month-to-month,Bank transfer,no,5,42.17,47.8,3,,no
+CU10779,2023-04-05,75,South,Month-to-month,Card,yes,71,86.97,24.2,0,,no
+CU10780,2022-03-22,57,Central,Month-to-month,Card,yes,26,73.98,65.0,5,service,yes
+CU10781,2023-12-21,51,East,Two year,Cash,no,68,106.35,86.8,1,,no
+CU10782,2025-10-31,46,Central,One year,Bank transfer,yes,70,56.02,37.0,0,,no
+CU10783,2021-04-11,37,South,Month-to-month,Wallet,yes,37,,63.2,3,,no
+CU10784,2024-05-23,46,West,Month-to-month,Card,yes,35,83.44,37.0,0,,no
+CU10785,2022-02-16,51,Central,Two year,Card,no,21,69.0,128.6,0,,no
+CU10786,2022-12-30,72,West,One year,Cash,yes,64,83.5,29.2,3,,no
+CU10787,2022-02-24,70,South,Two year,Card,yes,54,54.09,55.5,2,,no
+CU10788,2025-01-30,45,East,Month-to-month,Card,no,61,86.67,78.1,0,,no
+CU10789,2022-09-28,75,North,Month-to-month,Card,yes,46,,115.8,1,,no
+CU10790,2025-02-13,64,South,One year,Wallet,yes,23,95.29,82.1,1,,no
+CU10791,2024-10-20,60,North,Two year,Card,no,70,54.07,118.7,0,,no
+CU10792,2023-07-08,68,South,Two year,Cash,no,68,77.42,126.4,1,,no
+CU10793,2025-08-26,34,Central,Month-to-month,Card,yes,3,68.34,42.5,2,,no
+CU10794,2024-12-27,76,South,Month-to-month,Card,no,59,58.43,186.9,1,,no
+CU10795,2024-10-26,42,Central,One year,Bank transfer,no,36,66.56,119.1,3,,no
+CU10796,2022-03-27,28,East,Two year,Wallet,yes,23,88.21,109.8,1,,no
+CU10797,2021-07-28,50,West,One year,Wallet,yes,69,34.68,56.6,2,,no
+CU10798,2022-10-10,19,South,Month-to-month,Bank transfer,yes,12,71.66,13.0,2,service,yes
+CU10799,2024-07-07,58,Central,Two year,Bank transfer,yes,39,87.14,275.3,1,,no
+CU10800,2023-05-16,77,Central,One year,Bank transfer,no,20,58.58,30.5,0,,no
+CU10801,2025-05-09,74,,One year,Card,no,35,87.06,82.8,3,,no
+CU10802,2023-12-17,64,South,One year,Wallet,no,17,69.48,16.9,0,,no
+CU10803,2023-04-09,30,Central,Two year,Card,yes,26,79.07,152.0,1,,no
+CU10804,2024-06-01,65,Central,Month-to-month,Wallet,no,,55.28,82.8,0,,no
+CU10805,2024-07-14,70,North,One year,Bank transfer,yes,26,54.5,61.5,0,,no
+CU10806,2025-07-17,61,East,Month-to-month,Card,yes,37,41.88,155.5,2,,no
+CU10807,2023-11-02,72,North,Two year,Card,yes,19,61.29,35.4,0,,no
+CU10808,2022-01-16,25,Central,Month-to-month,Bank transfer,yes,13,73.38,154.4,2,,no
+CU10809,2025-03-09,22,North,Month-to-month,Bank transfer,no,42,62.98,26.6,2,,no
+CU10810,2023-10-07,22,East,Month-to-month,Bank transfer,no,64,86.32,29.5,1,,no
+CU10811,2022-05-07,29,North,One year,Bank transfer,no,27,45.09,14.1,2,,no
+CU10812,2021-11-24,34,North,Month-to-month,Bank transfer,no,36,54.74,79.8,0,,no
+CU10813,2024-04-04,47,East,Month-to-month,Card,yes,64,77.37,115.4,0,,no
+CU10814,2021-02-28,38,North,One year,Card,no,60,,55.8,0,,no
+CU10815,2021-02-11,20,West,Month-to-month,Card,yes,69,54.93,65.7,1,,no
+CU10816,2021-09-22,77,South,Two year,Cash,no,31,,42.7,1,,no
+CU10817,2024-06-20,64,Central,Month-to-month,Card,yes,68,69.07,36.7,2,,no
+CU10818,2023-01-23,26,East,One year,Cash,yes,31,62.24,15.7,1,,no
+CU10819,2021-11-01,32,,Month-to-month,Card,no,14,85.47,237.2,0,,no
+CU10820,2023-10-31,68,South,Two year,Cash,no,15,49.45,204.9,2,,no
+CU10821,2025-10-31,42,East,Month-to-month,Wallet,no,,85.42,17.0,3,,no
+CU10822,2024-03-06,56,Central,Two year,Card,yes,46,64.11,77.3,1,,no
+CU10823,2022-08-31,20,Central,Month-to-month,Card,no,,62.59,62.9,1,,no
+CU10824,2025-03-11,68,East,Month-to-month,Card,no,28,106.29,111.4,2,,no
+CU10825,2024-05-09,41,South,Two year,Card,yes,48,30.42,98.0,2,,no
+CU10826,2025-03-27,75,Central,Two year,Cash,yes,63,95.07,135.9,2,,no
+CU10827,2021-08-24,40,North,Two year,Wallet,no,35,70.6,84.0,3,,no
+CU10828,2025-07-13,52,South,Month-to-month,Wallet,yes,2,66.96,33.3,2,,no
+CU10829,2024-03-17,62,South,Month-to-month,Bank transfer,no,9,62.62,99.9,2,,no
+CU10830,2022-10-07,66,Central,One year,Bank transfer,no,47,54.52,23.2,1,,no
+CU10831,2024-03-20,41,West,Month-to-month,Wallet,no,62,78.26,57.7,2,service,yes
+CU10832,2022-03-06,20,West,Month-to-month,Bank transfer,yes,59,72.06,4.8,2,,no
+CU10833,2023-05-02,40,North,Month-to-month,Bank transfer,no,2,39.61,54.5,2,competitor,yes
+CU10834,2025-07-05,30,East,Month-to-month,Wallet,yes,47,65.29,67.0,2,,no
+CU10835,2024-10-25,69,North,One year,Bank transfer,no,48,31.69,97.7,2,,no
+CU10836,2022-02-22,25,Central,One year,Wallet,no,30,,27.8,0,,no
+CU10837,2021-04-14,43,East,Month-to-month,Bank transfer,yes,65,48.98,26.0,5,,no
+CU10838,2025-11-19,50,East,Two year,Bank transfer,no,65,65.82,7.1,2,,no
+CU10839,2023-08-02,40,West,Month-to-month,Bank transfer,yes,14,105.63,140.1,0,,no
+CU10840,2023-05-11,48,West,Month-to-month,Bank transfer,yes,47,83.41,70.3,2,,no
+CU10841,2024-03-07,19,North,One year,Bank transfer,yes,21,81.7,113.5,1,,no
+CU10842,2024-02-19,48,West,One year,Wallet,yes,41,79.98,110.4,1,,no
+CU10843,2024-01-05,61,Central,Month-to-month,Bank transfer,no,47,73.39,78.3,0,,no
+CU10844,2022-06-02,25,East,One year,Bank transfer,no,8,60.21,43.9,0,,no
+CU10845,2024-01-27,24,Central,Month-to-month,Card,yes,41,92.97,11.3,4,,no
+CU10846,2025-07-07,62,North,Month-to-month,Card,no,24,73.68,33.2,3,,no
+CU10847,2021-11-06,54,Central,One year,Bank transfer,yes,60,80.85,178.7,2,,no
+CU10848,2023-03-22,62,Central,Month-to-month,Bank transfer,no,35,52.63,41.6,2,,no
+CU10849,2022-12-03,68,East,One year,Wallet,yes,55,56.05,36.8,0,,no
+CU10850,2022-01-19,27,East,Month-to-month,Bank transfer,yes,32,76.4,38.3,1,,no
+CU10851,2022-03-13,55,West,Month-to-month,Card,no,66,87.72,54.1,2,,no
+CU10852,2023-01-11,67,West,Month-to-month,Card,yes,49,70.52,122.5,2,,no
+CU10853,2021-02-02,42,North,Month-to-month,Wallet,no,42,76.31,57.8,3,,no
+CU10854,2022-09-21,65,North,Month-to-month,Card,yes,46,56.82,57.3,1,,no
+CU10855,2022-11-22,77,North,Month-to-month,Wallet,no,57,,113.3,2,competitor,yes
+CU10856,2021-05-17,65,South,Two year,Bank transfer,no,2,70.17,28.0,3,,no
+CU10857,2021-09-19,39,South,Two year,Wallet,no,12,112.43,109.6,0,,no
+CU10858,2021-04-22,74,West,Month-to-month,Bank transfer,no,25,94.65,19.0,2,moved,yes
+CU10859,2022-07-24,58,Central,Month-to-month,Bank transfer,no,39,60.53,35.0,2,,no
+CU10860,2022-01-10,42,South,Month-to-month,Cash,yes,50,70.74,80.4,2,,no
+CU10861,2025-08-07,42,North,Month-to-month,Card,no,23,92.46,247.8,1,,no
+CU10862,2024-01-08,72,East,One year,Card,no,33,89.24,22.9,3,price,yes
+CU10863,2022-10-12,49,South,Month-to-month,Bank transfer,yes,36,39.81,89.6,1,,no
+CU10864,2025-07-01,42,South,Month-to-month,Bank transfer,no,31,84.13,64.1,4,competitor,yes
+CU10865,2021-04-17,70,West,One year,Wallet,no,38,37.59,28.2,2,,no
+CU10866,2025-01-23,28,North,Two year,Card,yes,71,28.9,57.9,2,,no
+CU10867,2023-02-12,22,North,Month-to-month,Bank transfer,no,43,70.87,119.9,1,,no
+CU10868,2021-04-03,74,South,Month-to-month,Bank transfer,no,19,44.76,120.5,1,,no
+CU10869,2023-06-12,71,Central,Month-to-month,Card,no,47,95.16,66.4,2,,no
+CU10870,2023-05-20,57,North,Month-to-month,Card,yes,2,60.82,111.5,1,,no
+CU10871,2021-04-26,76,South,Month-to-month,Card,no,29,32.01,150.5,1,,no
+CU10872,2024-02-17,55,West,Month-to-month,Wallet,no,62,96.55,29.3,1,price,yes
+CU10873,2021-04-23,33,West,Two year,Bank transfer,yes,11,68.58,37.6,3,,no
+CU10874,2022-07-25,78,Central,Month-to-month,Wallet,yes,42,45.27,80.6,0,,no
+CU10875,2024-10-28,78,East,Month-to-month,Cash,yes,62,38.54,219.5,3,,no
+CU10876,2024-08-18,63,South,Month-to-month,Bank transfer,yes,39,84.64,75.6,1,,no
+CU10877,2022-05-02,23,East,Month-to-month,Card,yes,6,75.15,19.1,0,,no
+CU10878,2023-06-26,25,East,Two year,Card,yes,17,45.09,74.1,2,,no
+CU10879,2023-02-15,55,West,One year,Bank transfer,no,40,69.74,88.9,1,,no
+CU10880,2023-03-17,43,East,Month-to-month,Bank transfer,yes,2,68.3,92.8,0,,no
+CU10881,2025-08-13,57,East,Month-to-month,Bank transfer,no,45,65.15,30.2,1,,no
+CU10882,2025-06-11,77,North,Month-to-month,Wallet,no,23,41.85,60.9,1,moved,yes
+CU10883,2024-05-05,68,Central,Two year,Wallet,no,18,41.09,43.4,1,,no
+CU10884,2021-09-30,69,West,Two year,Bank transfer,yes,66,84.78,10.9,0,,no
+CU10885,2024-03-17,19,West,Month-to-month,Cash,yes,39,81.53,33.7,1,,no
+CU10886,2021-02-14,66,East,Month-to-month,Card,no,46,70.89,21.7,0,,no
+CU10887,2022-05-28,25,West,Month-to-month,Cash,no,59,38.36,105.3,4,,no
+CU10888,2021-03-29,57,South,One year,Wallet,no,57,46.95,83.0,2,,no
+CU10889,2024-11-19,64,Central,Month-to-month,Card,no,50,87.27,17.1,1,,no
+CU10890,2024-06-07,47,South,Month-to-month,Bank transfer,no,8,69.2,197.4,0,,no
+CU10891,2023-08-17,70,South,One year,Bank transfer,no,19,80.02,28.6,3,,no
+CU10892,2024-03-16,46,North,One year,Card,yes,35,26.14,34.8,3,,no
+CU10893,2021-01-26,45,East,Two year,Card,no,25,96.6,125.7,2,,no
+CU10894,2021-09-09,71,West,Month-to-month,Wallet,no,35,59.24,115.3,1,,no
+CU10895,2022-09-11,64,West,Month-to-month,Cash,yes,10,50.19,135.5,2,,no
+CU10896,2022-12-16,78,North,Two year,Wallet,yes,48,59.71,22.9,2,,no
+CU10897,2024-07-31,22,South,One year,Card,yes,68,53.57,97.9,3,,no
+CU10898,2023-10-12,65,East,Month-to-month,Bank transfer,yes,13,95.17,31.3,0,,no
+CU10899,2024-07-13,41,West,Two year,Cash,no,13,55.64,122.9,1,price,yes
+CU10900,2025-04-20,29,East,Month-to-month,Bank transfer,yes,28,70.47,77.1,0,,no
+CU10901,2021-05-03,37,East,Month-to-month,Wallet,no,3,65.35,29.5,1,moved,yes
+CU10902,2025-08-10,30,West,Month-to-month,Card,yes,36,57.16,219.9,1,,no
+CU10903,2021-04-15,60,South,Two year,Cash,no,24,80.81,155.7,2,,no
+CU10904,2022-08-28,59,North,Month-to-month,Wallet,yes,55,75.34,276.8,1,,no
+CU10905,2021-04-02,43,South,Month-to-month,Card,yes,21,75.47,107.3,1,,no
+CU10906,2024-09-24,29,Central,One year,Card,no,16,49.86,105.5,1,,no
+CU10907,2022-12-12,25,East,Month-to-month,Bank transfer,no,29,59.87,99.9,0,,no
+CU10908,2022-07-27,72,North,Month-to-month,Card,no,16,48.54,122.6,0,,no
+CU10909,2023-12-12,37,North,Month-to-month,Bank transfer,no,52,62.91,56.1,2,,no
+CU10910,2021-08-12,61,South,Month-to-month,Wallet,yes,35,74.95,163.2,2,,no
+CU10911,2025-04-14,40,West,Two year,Card,yes,51,54.2,24.5,2,,no
+CU10912,2024-12-18,74,West,Month-to-month,Wallet,yes,1,68.22,130.6,4,service,yes
+CU10913,2025-09-20,75,Central,One year,Wallet,no,57,47.05,48.4,1,,no
+CU10914,2022-11-05,24,Central,Two year,Card,yes,54,44.56,134.0,1,,no
+CU10915,2021-11-23,75,Central,Month-to-month,Wallet,yes,20,71.2,81.6,1,,no
+CU10916,2025-03-21,54,North,Month-to-month,Card,no,49,42.95,45.6,0,,no
+CU10917,2021-05-31,66,East,Two year,Cash,yes,22,33.36,142.5,3,,no
+CU10918,2024-02-06,59,Central,Month-to-month,Card,no,60,18.0,13.6,1,,no
+CU10919,2024-01-02,63,South,Two year,Cash,no,57,98.36,157.7,2,,no
+CU10920,2022-01-14,64,North,Two year,Bank transfer,no,,63.32,64.3,0,,no
+CU10921,2023-09-18,32,North,Month-to-month,Card,no,68,57.2,37.6,2,,no
+CU10922,2024-05-26,40,Central,Month-to-month,Card,yes,55,39.49,98.4,1,,no
+CU10923,2022-03-05,43,North,Month-to-month,Card,no,9,62.4,30.5,1,price,yes
+CU10924,2024-01-24,37,East,Two year,Card,yes,24,87.49,82.3,1,,no
+CU10925,2021-12-13,37,Central,Two year,Cash,no,29,67.38,34.8,1,,no
+CU10926,2023-05-01,40,West,Month-to-month,Wallet,yes,1,55.58,223.3,1,moved,yes
+CU10927,2022-05-24,32,North,Month-to-month,Bank transfer,no,4,80.86,58.8,1,,no
+CU10928,2023-09-21,62,Central,One year,Card,no,70,,23.0,1,,no
+CU10929,2024-04-13,62,South,Month-to-month,Card,yes,35,52.74,55.8,1,,no
+CU10930,2023-09-26,38,South,Month-to-month,Wallet,yes,,49.33,47.9,2,competitor,yes
+CU10931,2025-02-25,28,South,One year,Card,yes,20,57.86,64.7,2,,no
+CU10932,2022-04-13,60,Central,Month-to-month,Card,yes,5,94.44,122.9,1,,no
+CU10933,2022-05-03,45,South,One year,Card,no,30,26.22,106.5,2,,no
+CU10934,2024-11-03,19,North,Month-to-month,Cash,yes,68,43.58,48.5,1,,no
+CU10935,2023-06-01,20,Central,Two year,Bank transfer,yes,59,72.46,68.0,0,,no
+CU10936,2023-01-17,32,East,Two year,Cash,yes,35,59.21,120.3,0,,no
+CU10937,2025-06-23,35,West,Two year,Bank transfer,yes,49,51.76,27.1,2,,no
+CU10938,2021-09-17,52,Central,Month-to-month,Bank transfer,yes,57,50.84,55.7,0,,no
+CU10939,2025-03-30,57,Central,Month-to-month,Card,yes,16,61.78,148.3,0,,no
+CU10940,2022-12-01,21,South,Month-to-month,Card,no,65,85.75,37.8,1,,no
+CU10941,2023-08-31,37,North,Month-to-month,Card,no,2,20.65,177.5,2,,no
+CU10942,2023-07-12,27,West,Month-to-month,Cash,no,16,67.33,78.5,1,,no
+CU10943,2023-10-28,28,North,Month-to-month,Card,no,49,106.42,73.8,0,,no
+CU10944,2022-02-09,61,North,Month-to-month,Card,no,20,35.23,90.4,0,,no
+CU10945,2023-09-13,19,Central,Two year,Bank transfer,no,8,83.09,24.4,1,,no
+CU10946,2021-05-15,34,West,Month-to-month,Wallet,no,59,72.79,165.8,1,service,yes
+CU10947,2024-01-26,37,South,One year,Card,no,62,77.77,231.2,3,,no
+CU10948,2023-02-14,19,East,Month-to-month,Card,yes,10,88.83,113.7,0,price,yes
+CU10949,2021-04-14,39,North,Month-to-month,Card,yes,26,63.74,206.7,0,price,yes
+CU10950,2023-03-06,59,South,Month-to-month,Wallet,no,29,44.46,34.8,2,,no
+CU10951,2025-02-17,54,South,Month-to-month,Card,yes,71,65.08,180.1,0,,no
+CU10952,2024-08-06,29,West,One year,Wallet,yes,58,34.78,24.8,2,,no
+CU10953,2024-05-27,78,West,One year,Bank transfer,yes,35,72.99,25.1,2,,no
+CU10954,2024-01-25,46,South,One year,Cash,no,25,41.86,19.3,0,,no
+CU10955,2023-05-31,19,East,Month-to-month,Card,no,59,59.31,20.5,3,,no
+CU10956,2024-04-25,36,Central,Month-to-month,Card,yes,65,75.22,42.7,2,,no
+CU10957,2025-11-12,51,South,One year,Bank transfer,no,34,100.81,63.9,3,,no
+CU10958,2023-04-01,52,Central,One year,Card,no,54,111.2,53.6,0,,no
+CU10959,2023-06-12,49,Central,Month-to-month,Card,yes,18,74.65,54.3,0,,no
+CU10960,2025-04-24,31,East,Two year,Card,no,8,81.99,100.8,1,,no
+CU10961,2022-07-31,26,West,Two year,Bank transfer,no,58,108.19,61.5,2,,no
+CU10962,2021-10-11,40,West,Month-to-month,Bank transfer,no,25,,142.3,1,price,yes
+CU10963,2023-11-29,44,Central,Two year,Bank transfer,no,51,84.61,46.6,1,,no
+CU10964,2021-01-24,39,East,Month-to-month,Bank transfer,no,65,25.42,76.4,0,,no
+CU10965,2023-04-17,49,West,Month-to-month,Cash,yes,27,41.24,83.9,1,,no
+CU10966,2025-01-01,59,West,Two year,Card,no,13,56.95,34.1,0,,no
+CU10967,2021-12-14,68,West,Two year,Bank transfer,yes,37,68.06,221.1,1,,no
+CU10968,2022-11-18,61,North,Two year,Bank transfer,no,22,91.19,54.8,1,,no
+CU10969,2023-12-05,57,North,Month-to-month,Card,yes,40,94.19,49.7,1,,no
+CU10970,2021-08-31,49,North,Month-to-month,Card,yes,64,59.3,10.1,1,,no
+CU10971,2021-01-25,21,East,Month-to-month,Bank transfer,yes,40,71.54,58.0,0,,no
+CU10972,2023-05-05,62,West,One year,Cash,yes,9,59.81,108.1,1,competitor,yes
+CU10973,2023-08-15,59,South,One year,Wallet,yes,16,38.79,75.4,1,,no
+CU10974,2024-04-11,59,West,One year,Card,yes,63,118.48,9.3,1,,no
+CU10975,2025-05-20,74,East,One year,Bank transfer,no,57,24.2,48.9,0,,no
+CU10976,2025-04-25,30,South,One year,Wallet,yes,16,100.05,33.1,2,,no
+CU10977,2022-07-25,66,South,Month-to-month,Wallet,no,51,62.71,102.8,3,,no
+CU10978,2021-07-05,38,East,Month-to-month,Bank transfer,yes,26,57.3,115.7,2,,no
+CU10979,2023-03-03,44,East,Month-to-month,Bank transfer,no,22,38.6,26.3,2,,no
+CU10980,2024-10-10,53,South,Two year,Bank transfer,yes,23,55.56,28.2,1,,no
+CU10981,2025-10-19,62,South,Month-to-month,Wallet,yes,8,76.1,144.7,0,,no
+CU10982,2024-02-06,53,West,Month-to-month,Wallet,yes,8,84.19,68.3,1,price,yes
+CU10983,2024-07-01,62,Central,Two year,Card,no,2,74.22,70.0,2,,no
+CU10984,2024-11-18,28,East,Month-to-month,Wallet,no,51,70.86,23.2,1,,no
+CU10985,2022-02-25,68,South,One year,Card,yes,66,52.15,127.2,0,,no
+CU10986,2025-04-08,36,Central,Month-to-month,Card,no,71,92.9,60.6,1,,no
+CU10987,2025-10-01,35,Central,Month-to-month,Cash,no,44,107.37,15.4,2,,no
+CU10988,2022-05-27,21,East,Month-to-month,Bank transfer,yes,30,,70.3,0,,no
+CU10989,2022-07-25,66,,Month-to-month,Bank transfer,no,35,95.61,81.1,1,,no
+CU10990,2025-10-02,20,West,Month-to-month,Bank transfer,no,26,31.39,33.9,1,,no
+CU10991,2021-03-17,70,East,Month-to-month,Wallet,no,41,52.04,115.5,1,,no
+CU10992,2022-05-02,25,South,Two year,Bank transfer,yes,47,44.41,80.6,3,,no
+CU10993,2021-01-25,74,South,Month-to-month,Cash,yes,15,49.51,186.9,3,,no
+CU10994,2023-10-06,35,West,One year,Wallet,yes,56,40.65,125.1,0,,no
+CU10995,2023-07-22,74,North,Month-to-month,Cash,no,34,55.77,192.6,2,,no
+CU10996,2021-06-15,60,West,Month-to-month,Bank transfer,yes,8,45.03,46.1,3,,no
+CU10997,2023-09-20,22,Central,One year,Card,yes,51,50.05,69.3,0,,no
+CU10998,2021-04-21,35,West,Month-to-month,Wallet,yes,67,25.04,62.5,2,,no
+CU10999,2024-09-21,45,South,Month-to-month,Bank transfer,no,64,48.79,318.0,0,,no
+CU11000,2023-11-03,77,Central,Two year,Wallet,yes,14,,70.4,0,,no
+CU11001,2023-03-14,60,Central,Two year,Wallet,no,48,77.32,164.8,1,,no
+CU11002,2024-02-12,33,South,Two year,Card,no,3,47.15,18.9,0,,no
+CU11003,2023-10-27,68,South,Two year,Card,no,70,79.99,105.0,2,,no
+CU11004,2021-07-29,73,North,Month-to-month,Card,no,70,37.21,76.8,3,,no
+CU11005,2021-06-03,61,West,One year,Card,yes,6,61.02,101.6,0,,no
+CU11006,2023-05-11,61,North,Month-to-month,Wallet,yes,70,68.01,23.0,0,,no
+CU11007,2023-05-21,61,North,Month-to-month,Card,no,72,69.9,72.9,0,,no
+CU11008,2023-09-07,23,Central,Month-to-month,Wallet,no,68,31.97,52.4,1,,no
+CU11009,2022-05-15,64,West,One year,Bank transfer,no,38,99.59,3.3,0,,no
+CU11010,2025-01-03,67,South,Month-to-month,Card,yes,30,18.0,15.7,1,,no
+CU11011,2024-12-21,79,East,Month-to-month,Wallet,no,57,92.86,144.1,3,,no
+CU11012,2021-08-24,20,West,One year,Bank transfer,no,38,63.63,5.0,3,,no
+CU11013,2024-11-26,69,Central,Month-to-month,Wallet,no,56,88.98,51.4,3,,no
+CU11014,2021-05-17,41,West,Month-to-month,Cash,no,10,42.38,176.1,0,,no
+CU11015,2023-11-23,74,North,Month-to-month,Wallet,no,55,,160.3,0,,no
+CU11016,2025-01-08,37,West,One year,Bank transfer,yes,3,,48.7,2,,no
+CU11017,2021-10-25,75,,Month-to-month,Bank transfer,yes,,73.26,72.2,1,,no
+CU11018,2025-07-09,36,South,Two year,Wallet,no,60,,45.1,0,,no
+CU11019,2025-05-29,35,Central,Month-to-month,Bank transfer,yes,22,67.43,33.2,1,,no
+CU11020,2022-01-24,72,South,Month-to-month,Card,yes,61,29.66,48.6,1,,no
+CU11021,2023-07-18,51,South,Two year,Card,yes,62,78.56,5.2,2,,no
+CU11022,2022-02-12,44,South,Month-to-month,Wallet,yes,36,97.5,166.5,0,,no
+CU11023,2025-04-21,77,Central,Two year,Wallet,no,58,50.91,186.4,1,,no
+CU11024,2024-10-27,22,Central,Month-to-month,Wallet,no,24,65.12,25.9,0,moved,yes
+CU11025,2021-06-07,51,East,Two year,Card,yes,42,79.4,38.6,2,,no
+CU11026,2024-05-07,23,East,Two year,Card,yes,20,98.9,51.1,1,price,yes
+CU11027,2024-07-04,28,West,Month-to-month,Bank transfer,no,25,56.88,39.2,0,,no
+CU11028,2024-06-25,27,North,Month-to-month,Wallet,yes,45,,65.2,0,,no
+CU11029,2024-03-30,36,Central,Month-to-month,Card,yes,60,120.0,45.5,0,,no
+CU11030,2024-07-10,30,West,One year,Wallet,yes,65,55.84,61.6,0,,no
+CU11031,2021-03-21,21,Central,One year,Card,yes,47,76.28,170.9,1,,no
+CU11032,2023-10-07,39,East,Two year,Bank transfer,yes,33,56.03,41.2,3,,no
+CU11033,2021-03-27,52,South,One year,Card,no,32,69.06,94.4,0,price,yes
+CU11034,2023-05-03,71,East,Two year,Card,no,28,95.33,175.6,0,,no
+CU11035,2025-06-23,77,Central,Month-to-month,Card,yes,43,70.33,3.0,1,,no
+CU11036,2022-11-25,51,North,Month-to-month,Cash,no,63,74.94,42.2,3,competitor,yes
+CU11037,2023-11-26,50,West,Month-to-month,Cash,no,23,47.3,29.0,1,,no
+CU11038,2024-10-10,63,Central,Two year,Card,yes,59,89.09,73.2,4,,no
+CU11039,2024-12-23,76,East,One year,Wallet,no,35,85.92,53.2,1,,no
+CU11040,2024-05-20,47,North,Month-to-month,Card,no,53,60.72,101.6,3,,no
+CU11041,2021-07-23,72,West,Month-to-month,Card,no,1,57.26,14.7,2,service,yes
+CU11042,2025-04-17,68,East,Two year,Card,no,7,18.0,95.8,2,,no
+CU11043,2025-10-25,59,North,Month-to-month,Cash,no,26,46.72,33.2,1,,no
+CU11044,2025-09-02,71,West,Month-to-month,Cash,yes,12,73.62,27.4,3,,no
+CU11045,2022-06-21,31,West,One year,Bank transfer,yes,56,68.04,42.6,1,,no
+CU11046,2025-01-22,77,North,Month-to-month,Bank transfer,no,,56.29,48.7,2,competitor,yes
+CU11047,2022-08-10,79,West,One year,Wallet,yes,13,71.46,42.7,2,,no
+CU11048,2022-07-22,38,West,One year,Bank transfer,yes,57,61.37,170.1,1,,no
+CU11049,2021-02-19,79,East,Month-to-month,Card,yes,44,,7.6,2,,no
+CU11050,2024-03-19,26,South,Two year,Bank transfer,yes,26,72.45,160.6,0,,no
+CU11051,2023-12-05,64,North,Two year,Bank transfer,yes,55,52.62,81.5,3,,no
+CU11052,2021-03-02,38,West,Two year,Bank transfer,no,16,64.39,120.0,2,,no
+CU11053,2023-11-17,57,West,One year,Bank transfer,no,14,68.49,124.1,1,,no
+CU11054,2021-06-10,27,West,Month-to-month,Bank transfer,no,26,70.87,41.3,0,,no
+CU11055,2021-05-22,33,West,Two year,Cash,yes,8,42.24,302.1,1,,no
+CU11056,2021-03-16,63,West,One year,Card,yes,67,88.27,51.9,1,,no
+CU11057,2024-11-25,68,West,Month-to-month,Card,yes,7,,105.2,2,competitor,yes
+CU11058,2023-09-04,79,Central,Month-to-month,Card,no,62,41.9,49.5,0,,no
+CU11059,2023-09-12,22,West,Two year,Bank transfer,no,2,85.29,124.6,0,,no
+CU11060,2022-04-04,45,Central,Month-to-month,Cash,yes,61,72.79,17.2,0,moved,yes
+CU11061,2022-06-15,56,West,One year,Card,yes,56,65.15,13.6,1,,no
+CU11062,2021-01-16,70,North,Two year,Cash,yes,36,44.53,50.2,4,,no
+CU11063,2022-02-03,63,East,Month-to-month,Card,yes,36,69.93,118.6,0,,no
+CU11064,2021-02-06,66,Central,Month-to-month,Bank transfer,no,65,61.21,88.6,0,,no
+CU11065,2024-07-18,29,Central,Two year,Card,no,46,18.33,53.1,1,,no
+CU11066,2023-10-27,61,North,Month-to-month,Bank transfer,no,4,83.47,43.4,0,,no
+CU11067,2021-05-11,44,East,One year,Card,yes,53,67.18,46.2,0,,no
+CU11068,2024-02-12,76,West,One year,Card,no,3,70.92,41.2,0,,no
+CU11069,2021-08-12,54,East,Month-to-month,Card,yes,54,,99.3,2,,no
+CU11070,2025-07-17,63,East,One year,Bank transfer,no,31,40.97,161.8,1,,no
+CU11071,2022-10-26,33,East,One year,Card,yes,1,21.35,126.2,1,,no
+CU11072,2023-03-08,46,North,Month-to-month,Bank transfer,yes,53,60.04,85.6,1,,no
+CU11073,2021-01-11,53,South,Month-to-month,Wallet,no,6,40.24,154.1,1,,no
+CU11074,2024-07-12,33,Central,Two year,Card,yes,38,39.71,174.6,2,,no
+CU11075,2021-04-19,66,East,One year,Wallet,yes,60,79.13,86.0,3,,no
+CU11076,2021-06-23,45,South,Two year,Cash,no,43,73.48,38.3,1,,no
+CU11077,2023-05-02,46,South,One year,Cash,no,60,85.64,55.1,3,moved,yes
+CU11078,2025-01-18,52,Central,Month-to-month,Bank transfer,yes,44,55.84,69.8,2,,no
+CU11079,2025-03-30,57,Central,Month-to-month,Bank transfer,yes,47,86.43,159.8,1,,no
+CU11080,2025-09-03,62,Central,Month-to-month,Card,yes,4,69.59,19.6,0,,no
+CU11081,2024-05-30,33,West,Month-to-month,Card,yes,54,,73.7,0,,no
+CU11082,2025-09-06,65,East,Month-to-month,Bank transfer,no,52,81.33,80.4,1,,no
+CU11083,2023-01-08,43,Central,Month-to-month,Wallet,no,23,47.52,130.7,1,moved,yes
+CU11084,2023-01-30,38,South,Month-to-month,Cash,yes,14,109.99,7.6,1,,no
+CU11085,2023-09-10,33,South,Month-to-month,Wallet,no,28,100.21,106.7,0,,no
+CU11086,2024-05-16,72,Central,Month-to-month,Cash,yes,4,78.09,35.7,2,,no
+CU11087,2025-12-01,69,East,Month-to-month,Cash,no,7,59.94,23.3,1,competitor,yes
+CU11088,2021-10-20,62,Central,Month-to-month,Wallet,yes,62,93.65,119.6,1,,no
+CU11089,2021-09-20,25,East,One year,Bank transfer,yes,30,18.0,49.6,0,,no
+CU11090,2025-05-10,26,East,One year,Bank transfer,yes,31,51.34,106.2,0,,no
+CU11091,2023-11-06,25,West,One year,Cash,yes,16,70.29,26.8,0,,no
+CU11092,2022-03-01,56,South,One year,Card,no,49,73.07,25.8,4,,no
+CU11093,2022-07-10,66,South,Month-to-month,Wallet,no,31,32.64,78.4,2,,no
+CU11094,2024-01-28,48,West,Month-to-month,Wallet,no,64,48.56,48.6,1,,no
+CU11095,2022-01-18,76,North,Month-to-month,Bank transfer,no,63,62.84,48.7,3,,no
+CU11096,2023-10-16,73,North,Two year,Card,no,27,53.65,29.3,1,,no
+CU11097,2022-08-01,20,Central,Month-to-month,Card,no,3,53.77,42.5,2,,no
+CU11098,2024-07-17,56,East,One year,Card,yes,9,72.73,140.4,0,,no
+CU11099,2023-01-25,36,East,Month-to-month,Card,no,8,96.84,47.4,0,,no
+CU11100,2022-12-29,65,West,One year,Wallet,yes,31,,56.1,0,,no
+CU11101,2024-07-12,25,East,Month-to-month,Bank transfer,no,42,100.95,78.1,0,,no
+CU11102,2022-01-02,21,East,Month-to-month,Card,no,14,59.07,206.4,0,,no
+CU11103,2021-01-02,46,South,Month-to-month,Card,no,56,88.62,92.4,0,,no
+CU11104,2023-05-02,67,North,One year,Card,yes,45,73.78,52.9,4,,no
+CU11105,2025-04-02,31,Central,Two year,Bank transfer,no,34,53.92,124.1,0,,no
+CU11106,2023-02-18,78,East,Two year,Card,yes,2,27.42,45.9,0,,no
+CU11107,2021-08-27,27,West,One year,Card,yes,63,68.04,65.2,1,,no
+CU11108,2022-06-20,72,,Two year,Card,yes,18,99.19,44.3,2,,no
+CU11109,2022-11-03,70,Central,Two year,Bank transfer,no,3,28.89,24.6,1,,no
+CU11110,2023-01-19,32,West,Month-to-month,Bank transfer,no,47,66.87,359.9,2,,no
+CU11111,2025-04-04,31,East,Month-to-month,Card,yes,58,52.24,56.4,2,,no
+CU11112,2021-04-29,31,South,Month-to-month,Card,yes,51,55.67,64.4,0,,no
+CU11113,2022-01-02,29,West,One year,Wallet,no,26,48.53,7.7,0,,no
+CU11114,2023-02-06,79,North,Two year,Card,no,57,67.66,98.1,0,,no
+CU11115,2022-07-01,32,North,Two year,Wallet,no,37,87.58,134.0,4,,no
+CU11116,2022-10-14,49,West,One year,Card,no,33,41.04,58.6,0,,no
+CU11117,2024-02-04,45,West,One year,Bank transfer,yes,47,81.75,56.1,4,,no
+CU11118,2023-05-17,60,West,Two year,Card,yes,23,91.88,152.9,2,,no
+CU11119,2023-04-28,24,Central,One year,Bank transfer,no,38,49.6,55.4,1,,no
+CU11120,2022-12-03,58,South,Two year,Cash,no,61,53.74,43.3,2,,no
+CU11121,2025-05-06,32,South,One year,Bank transfer,yes,19,61.27,64.5,1,,no
+CU11122,2022-08-18,24,Central,Two year,Cash,no,42,118.89,44.7,0,,no
+CU11123,2024-07-12,34,South,Two year,Wallet,no,69,48.87,199.2,1,,no
+CU11124,2021-10-11,37,West,One year,Card,yes,45,48.94,104.6,1,,no
+CU11125,2021-03-25,34,North,Two year,Card,yes,53,,132.4,1,,no
+CU11126,2025-07-17,50,East,Month-to-month,Bank transfer,no,58,53.2,257.0,2,,no
+CU11127,2025-01-29,71,West,One year,Wallet,no,33,34.13,84.6,1,,no
+CU11128,2025-05-17,40,Central,Two year,Card,yes,57,65.93,105.1,2,,no
+CU11129,2022-02-10,34,South,One year,Card,yes,43,,65.3,0,,no
+CU11130,2023-04-21,29,South,Month-to-month,Cash,no,61,45.83,79.4,1,,no
+CU11131,2024-10-28,36,West,Month-to-month,Wallet,no,49,62.25,19.6,1,,no
+CU11132,2022-09-09,58,West,Month-to-month,Card,yes,68,56.59,111.2,0,,no
+CU11133,2023-07-09,23,South,One year,Card,yes,21,52.85,140.2,0,,no
+CU11134,2025-03-02,30,South,Two year,Card,yes,16,72.61,20.1,2,,no
+CU11135,2023-08-09,23,Central,One year,Card,yes,57,55.98,44.1,2,,no
+CU11136,2022-06-01,19,North,Two year,Card,yes,9,51.97,146.4,0,,no
+CU11137,2021-07-19,70,West,Month-to-month,Card,yes,47,33.85,27.3,0,,no
+CU11138,2022-05-31,49,Central,One year,Card,yes,68,63.32,59.0,0,,no
+CU11139,2021-04-25,56,Central,Month-to-month,Bank transfer,yes,57,67.0,78.4,2,,no
+CU11140,2025-04-15,19,East,One year,Wallet,no,65,78.67,74.3,2,,no
+CU11141,2023-02-21,72,West,One year,Bank transfer,yes,66,47.28,17.2,2,,no
+CU11142,2021-01-08,70,Central,One year,Card,yes,71,66.72,85.8,3,,no
+CU11143,2023-01-09,68,South,Month-to-month,Card,no,7,75.55,75.2,0,,no
+CU11144,2025-03-28,75,South,Month-to-month,Wallet,no,1,77.67,189.7,1,,no
+CU11145,2022-02-04,76,East,One year,Cash,no,22,66.48,44.1,0,,no
+CU11146,2023-01-25,73,Central,Two year,Wallet,no,61,18.0,55.5,1,,no
+CU11147,2025-09-24,21,Central,Month-to-month,Card,yes,43,36.49,122.8,1,,no
+CU11148,2023-05-22,71,South,One year,Card,yes,15,23.81,64.7,1,,no
+CU11149,2024-03-10,21,Central,One year,Card,yes,64,101.82,63.0,1,,no
+CU11150,2021-07-16,23,Central,Month-to-month,Wallet,no,36,82.14,94.5,1,,no
+CU11151,2024-05-15,43,South,Month-to-month,Cash,no,63,41.76,57.7,0,,no
+CU11152,2025-06-16,22,South,Month-to-month,Card,yes,3,65.62,103.6,1,,no
+CU11153,2024-06-12,51,North,One year,Wallet,no,65,64.14,120.1,0,,no
+CU11154,2025-05-03,27,West,One year,Bank transfer,yes,40,78.66,187.6,0,,no
+CU11155,2025-11-13,38,Central,Month-to-month,Card,no,43,53.57,45.8,0,,no
+CU11156,2022-12-13,24,South,Month-to-month,Bank transfer,yes,4,26.47,20.8,1,,no
+CU11157,2024-02-14,49,North,One year,Card,no,12,45.7,93.5,1,,no
+CU11158,2025-08-05,25,South,One year,Wallet,yes,12,71.48,6.5,0,,no
+CU11159,2022-11-29,65,North,One year,Bank transfer,no,3,,41.7,0,,no
+CU11160,2024-01-31,23,North,Two year,Card,no,37,44.13,37.0,1,,no
+CU11161,2023-07-31,28,East,Two year,Wallet,no,21,64.99,84.7,4,,no
+CU11162,2021-02-06,62,North,Month-to-month,Bank transfer,no,16,69.63,102.1,1,competitor,yes
+CU11163,2024-11-23,52,Central,Month-to-month,Wallet,no,26,93.21,72.9,0,,no
+CU11164,2022-09-24,65,South,One year,Bank transfer,yes,63,,45.8,2,,no
+CU11165,2024-11-20,70,East,One year,Bank transfer,no,27,45.47,80.3,1,,no
+CU11166,2023-06-16,27,North,Two year,Bank transfer,no,49,108.57,161.8,1,,no
+CU11167,2024-06-21,60,South,Month-to-month,Card,yes,55,56.27,87.0,1,,no
+CU11168,2021-06-09,25,East,Month-to-month,Card,yes,31,88.15,131.3,2,,no
+CU11169,2024-12-15,77,Central,Month-to-month,Bank transfer,no,29,72.36,108.7,1,,no
+CU11170,2024-07-29,71,East,Month-to-month,Wallet,yes,30,58.31,163.4,1,,no
+CU11171,2025-03-21,52,South,Month-to-month,Card,no,,71.44,20.6,0,,no
+CU11172,2022-01-23,77,South,Two year,Bank transfer,no,68,35.95,118.6,1,,no
+CU11173,2021-07-17,55,North,Month-to-month,Bank transfer,yes,52,64.68,28.0,0,,no
+CU11174,2022-06-27,31,North,Month-to-month,Card,yes,36,84.24,43.0,1,,no
+CU11175,2025-02-27,74,West,Two year,Cash,yes,61,38.2,144.9,1,,no
+CU11176,2021-08-13,47,Central,Month-to-month,Cash,yes,71,71.0,83.9,1,,no
+CU11177,2023-09-10,37,South,One year,Card,yes,1,69.1,22.0,2,,no
+CU11178,2021-09-28,73,Central,Month-to-month,Bank transfer,no,10,,52.2,3,,no
+CU11179,2024-02-10,58,,Two year,Bank transfer,yes,3,,285.8,0,price,yes
+CU11180,2025-07-31,29,North,Month-to-month,Bank transfer,no,1,70.28,27.1,1,moved,yes
+CU11181,2025-11-14,30,West,One year,Bank transfer,no,9,66.01,14.2,0,,no
+CU11182,2021-04-05,44,North,One year,Wallet,no,33,53.13,72.6,2,,no
+CU11183,2021-01-15,30,Central,Two year,Bank transfer,yes,24,99.78,158.8,3,,no
+CU11184,2021-07-23,74,South,Two year,Wallet,no,38,33.72,82.3,0,,no
+CU11185,2024-08-10,72,South,Month-to-month,Wallet,yes,28,36.72,81.4,1,,no
+CU11186,2022-03-04,67,South,Month-to-month,Card,yes,14,70.47,70.6,1,,no
+CU11187,2022-06-03,60,North,Month-to-month,Card,yes,1,100.07,50.2,3,service,yes
+CU11188,2022-07-14,60,North,Two year,Cash,no,61,27.89,4.9,1,,no
+CU11189,2024-09-23,27,South,One year,Card,no,26,43.07,119.5,1,,no
+CU11190,2022-07-23,32,North,One year,Cash,no,27,80.68,64.3,2,moved,yes
+CU11191,2022-03-10,67,West,Two year,Card,no,45,49.55,28.4,1,,no
+CU11192,2023-02-04,73,Central,One year,Card,no,64,62.82,84.3,1,,no
+CU11193,2021-04-04,73,South,Two year,Card,yes,30,78.03,12.7,0,,no
+CU11194,2025-11-09,53,North,Month-to-month,Bank transfer,yes,70,70.35,84.9,0,,no
+CU11195,2022-11-17,79,Central,Month-to-month,Card,no,25,52.37,27.2,0,,no
+CU11196,2021-12-29,56,North,Month-to-month,Bank transfer,no,4,70.62,98.7,1,,no
+CU11197,2021-04-28,62,East,Month-to-month,Card,yes,40,61.06,94.6,1,,no
+CU11198,2023-06-16,32,West,Month-to-month,Cash,yes,20,21.79,16.5,0,,no
+CU11199,2023-06-19,23,West,One year,Card,no,64,75.95,223.4,3,,no

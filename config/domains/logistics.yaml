@@ -1,0 +1,143 @@
+profile_id: logistics
+name: Logistics and supply chain
+version: "1.1.0"
+owner: Nexora (educational prototype)
+coverage: basic
+description: >
+  Shipment tracking checks: shipment references, scan sequence, milestone events, delivery dates and weight units.
+guardrail: >
+  Account for time zones, reroutes, split shipments and legitimate delays. Basic coverage; needs expert validation.
+settings:
+  datetime_formats: ["ISO8601"]
+  cleaning:
+    duplicates: {key: [shipment_id, event_time, event_type], rationale: "One scan event per shipment, time and event type; identical rows are repeated feeds."}
+    normalize_case:
+      event_type: {mode: upper, map: {"PICKED UP": PICKED_UP, PICKUP: PICKED_UP, "IN TRANSIT": IN_TRANSIT, "AT HUB": AT_HUB, "OUT FOR DELIVERY": OUT_FOR_DELIVERY}}
+    units:
+      - {label: weight, value_field: weight, unit_field: weight_unit, target_unit: kg,
+         conversions: {kg: [1, 0], g: [0.001, 0], lb: [0.45359237, 0], lbs: [0.45359237, 0]},
+         rationale: "Exact conversions to kilograms (1 lb = 0.45359237 kg)."}
+    outliers: {policy: review, rationale: "Very heavy parcels may be freight or a unit mix-up; check the unit first."}
+scoring_weights: {completeness: 1, validity: 1, uniqueness: 1, consistency: 1, freshness: 1}
+changelog:
+  - {version: "1.1.0", date: "2026-10-28", note: "Added domain-aware cleaning settings (record key, spellings, units, outlier policy)."}
+  - {version: "1.0.0", date: "2026-10-18", note: "Initial basic-coverage profile. Needs domain-expert validation."}
+fields:
+  shipment_id: {label: Shipment ID, type: identifier, required: true, aliases: [tracking_number, shipmentid, consignment_id]}
+  event_time: {label: Event time, type: datetime, required: true, aliases: [scan_time, timestamp, event_timestamp]}
+  event_type: {label: Event type, type: category, required: true, aliases: [status, milestone, scan_type]}
+  scan_seq: {label: Scan sequence number, type: integer, aliases: [sequence, scan_no, seq]}
+  origin: {label: Origin, type: text, aliases: [origin_hub, from, origin_city]}
+  destination: {label: Destination, type: text, aliases: [dest, to, destination_city]}
+  weight: {label: Weight, type: number, aliases: [weight_value, gross_weight]}
+  weight_unit: {label: Weight unit, type: category, aliases: [unit, uom, weight_uom]}
+  pickup_date: {label: Pickup date, type: datetime, aliases: [picked_up_at, pickup_time]}
+  promised_date: {label: Promised delivery date, type: datetime, aliases: [eta, promised_delivery]}
+  delivered_date: {label: Delivered date, type: datetime, aliases: [delivery_date, delivered_at]}
+rules:
+  - id: LOG-001
+    name: Shipment, event time and event type are present
+    type: required
+    fields: [shipment_id, event_time, event_type]
+    severity: High
+    explanation: A scan record lacks a shipment reference, time or event type.
+    recommendation: Check the scanner export.
+    rationale: Needed to place the scan in a shipment timeline.
+  - id: LOG-002
+    name: Dates are valid
+    type: datetime
+    fields: [event_time, pickup_date, promised_date, delivered_date]
+    severity: High
+    explanation: The date is not valid ISO format.
+    recommendation: Check export format and time zone.
+    rationale: Date checks depend on valid dates.
+  - id: LOG-003
+    name: Event type is in the configured list
+    type: allowed_values
+    fields: [event_type]
+    params: {values: [PICKED_UP, IN_TRANSIT, AT_HUB, OUT_FOR_DELIVERY, DELIVERED, EXCEPTION, RETURNED]}
+    severity: Medium
+    explanation: The event type is not in the configured list.
+    recommendation: Map to a known milestone or extend the list.
+    rationale: Milestone logic needs clean event types.
+  - id: LOG-004
+    name: Scan sequence has no gaps
+    type: sequence
+    fields: [scan_seq]
+    params: {group_by: [shipment_id], step: 1}
+    severity: Medium
+    explanation: Scan sequence numbers skip values, which suggests a missed scan or a missing record.
+    recommendation: Check scanner logs for the missing scan.
+    rationale: Missing milestone events.
+  - id: LOG-005
+    name: Scan times do not go backwards
+    type: timestamp_order
+    fields: [event_time]
+    params: {group_by: [shipment_id]}
+    severity: Medium
+    explanation: An event is dated earlier than the previous one for the same shipment.
+    recommendation: Check scanner clocks and time zones.
+    rationale: Timeline consistency.
+  - id: LOG-006
+    name: Delivered on or after pickup
+    type: date_order
+    fields: [pickup_date, delivered_date]
+    severity: High
+    explanation: The delivery date is earlier than the pickup date.
+    recommendation: Check both dates and time zones.
+    rationale: A shipment cannot be delivered before pickup.
+  - id: LOG-007
+    name: Delivered shipments have a delivery date
+    type: required
+    fields: [delivered_date]
+    when: [{field: event_type, in: [DELIVERED]}]
+    severity: High
+    explanation: A DELIVERED event has no delivery date.
+    recommendation: Add the delivery timestamp from the proof of delivery.
+    rationale: Delivery-date consistency.
+  - id: LOG-008
+    name: Weight unit is expected and consistent per shipment
+    type: unit_consistency
+    fields: [weight_unit]
+    params: {expected_units: [kg, lb, g], group_by: [shipment_id]}
+    severity: High
+    explanation: The weight unit is unexpected or changes within a shipment.
+    recommendation: Confirm the unit before summing weights.
+    rationale: Unit mismatches distort load calculations.
+  - id: LOG-009
+    name: Weight is numeric and not negative
+    type: range
+    fields: [weight]
+    params: {min: 0}
+    category: Invalid
+    severity: High
+    explanation: The weight is negative.
+    recommendation: Check the weighing system.
+    rationale: Logical lower bound.
+  - id: LOG-010
+    name: Weight values are numeric
+    type: numeric
+    fields: [weight]
+    severity: High
+    explanation: The weight is not a plain number.
+    recommendation: Check for units attached to the value.
+    rationale: Numeric checks need numbers.
+  - id: LOG-011
+    name: Origin and destination differ
+    type: compare
+    fields: [origin, destination]
+    params: {op: "!=", kind: text}
+    category: Suspicious
+    severity: Low
+    explanation: Origin and destination are identical. Returns to sender or local deliveries can do this.
+    recommendation: Check the shipment details.
+    rationale: Origin/destination consistency with business exceptions.
+  - id: LOG-012
+    name: Long gap between scans
+    type: timestamp_gap
+    fields: [event_time]
+    params: {group_by: [shipment_id], max_gap_seconds: 432000}
+    severity: Low
+    explanation: More than five days passed between scans of the same shipment. Customs holds and weekends are common causes.
+    recommendation: Check for exceptions or lost scans.
+    rationale: Missing milestone events.

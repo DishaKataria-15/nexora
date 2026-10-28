@@ -1,0 +1,158 @@
+profile_id: real_estate
+name: Real estate and property
+version: "1.1.0"
+owner: Nexora (educational prototype)
+coverage: basic
+description: >
+  Property listing checks: property/listing references, area-unit consistency, price and area validity, listing dates and duplicate listing candidates.
+guardrail: >
+  Market outliers can be genuine. Verify units, property type and location before flagging. Basic coverage.
+settings:
+  datetime_formats: ["ISO8601"]
+  cleaning:
+    duplicates: {key: [listing_id], rationale: "A listing ID identifies one listing; identical rows are a repeated feed."}
+    normalize_case: {property_type: upper, currency: upper}
+    units:
+      - {label: floor area, value_field: area, unit_field: area_unit, target_unit: sqm,
+         conversions: {sqm: [1, 0], m2: [1, 0], sqft: [0.09290304, 0], ft2: [0.09290304, 0]},
+         rationale: "Exact conversion to square metres (1 sq ft = 0.09290304 m2), so price per area can be compared."}
+    outliers: {policy: review, rationale: "Luxury and distressed properties produce genuine extreme prices; check for typing errors only."}
+scoring_weights: {completeness: 1, validity: 1, uniqueness: 1, consistency: 1, freshness: 1}
+changelog:
+  - {version: "1.1.0", date: "2026-10-28", note: "Added domain-aware cleaning settings (record key, spellings, units, outlier policy)."}
+  - {version: "1.0.0", date: "2026-10-18", note: "Initial basic-coverage profile. Needs domain-expert validation."}
+fields:
+  property_id: {label: Property ID, type: identifier, required: true, aliases: [propertyid, parcel_id, property_ref]}
+  listing_id: {label: Listing ID, type: identifier, required: true, aliases: [listingid, listing_ref, mls_id]}
+  listing_date: {label: Listing date, type: datetime, aliases: [listed_on, date_listed]}
+  sale_date: {label: Sale date, type: datetime, aliases: [sold_on, date_sold]}
+  price: {label: Price, type: number, required: true, aliases: [list_price, asking_price]}
+  currency: {label: Currency, type: category, aliases: [ccy, currency_code]}
+  area: {label: Area, type: number, required: true, aliases: [size, floor_area, area_value]}
+  area_unit: {label: Area unit, type: category, required: true, aliases: [size_unit, area_uom, unit]}
+  property_type: {label: Property type, type: category, aliases: [type, category]}
+  postcode: {label: Postcode, type: text, aliases: [postal_code, zip, pin_code]}
+  address: {label: Address, type: text, aliases: [street_address, location]}
+  bedrooms: {label: Bedrooms, type: integer, aliases: [beds, bedroom_count]}
+rules:
+  - id: RE-001
+    name: Property, listing, price, area and unit are present
+    type: required
+    fields: [property_id, listing_id, price, area, area_unit]
+    severity: High
+    explanation: A mandatory listing field is empty.
+    recommendation: Obtain the value from the listing system.
+    rationale: Mandatory fields.
+  - id: RE-002
+    name: Listing IDs are unique
+    type: unique
+    fields: [listing_id]
+    severity: High
+    explanation: The same listing ID appears more than once.
+    recommendation: Check for duplicates.
+    rationale: Record integrity.
+  - id: RE-003
+    name: Possible duplicate listings
+    type: duplicate_rows
+    fields: [address, postcode, property_type, area]
+    severity: Medium
+    explanation: Several listings share address, postcode, type and area. Relisting is common.
+    recommendation: Review whether it is a relisting or a duplicate.
+    rationale: Duplicate listings.
+  - id: RE-004
+    name: Dates are valid
+    type: datetime
+    fields: [listing_date, sale_date]
+    severity: High
+    explanation: The date is not valid ISO format.
+    recommendation: Check the export format.
+    rationale: Date checks depend on valid dates.
+  - id: RE-005
+    name: Sale is not before listing
+    type: date_order
+    fields: [listing_date, sale_date]
+    severity: Medium
+    explanation: The sale date is earlier than the listing date. Off-market sales exist.
+    recommendation: Check both dates.
+    rationale: Date consistency.
+  - id: RE-006
+    name: Listing date not in the future
+    type: datetime_range
+    fields: [listing_date]
+    params: {not_after: as_of}
+    severity: Medium
+    explanation: The listing date is after the analysis date.
+    recommendation: Check the date.
+    rationale: Listing-date check.
+  - id: RE-007
+    name: Price, area and bedrooms are numeric
+    type: numeric
+    fields: [price, area, bedrooms]
+    severity: High
+    explanation: The value is not a plain number.
+    recommendation: Check for currency symbols or units in the value.
+    rationale: Numeric checks need numbers.
+  - id: RE-008
+    name: Price and area are not negative
+    type: range
+    fields: [price, area]
+    params: {min: 0}
+    category: Invalid
+    severity: High
+    explanation: A negative price or area is not valid.
+    recommendation: Check the listing record.
+    rationale: Logical lower bound.
+  - id: RE-009
+    name: One area unit across the file
+    type: unit_consistency
+    fields: [area_unit]
+    params: {expected_units: [sqft, sqm], dataset_wide: true}
+    severity: High
+    explanation: The area unit is unexpected, or square feet and square metres are mixed in one file.
+    recommendation: Confirm the unit per listing before comparing prices per area.
+    rationale: Area-unit consistency.
+  - id: RE-010
+    name: Postcode format
+    type: regex
+    fields: [postcode]
+    params: {pattern: '[A-Za-z0-9 -]{3,10}'}
+    severity: Low
+    explanation: The postcode does not match the generic pattern.
+    recommendation: Set the pattern for your country and check the value.
+    rationale: Address format.
+  - id: RE-011
+    name: Property type is in the configured list
+    type: allowed_values
+    fields: [property_type]
+    params: {values: [HOUSE, APARTMENT, LAND, COMMERCIAL, OTHER]}
+    severity: Low
+    explanation: The property type is not in the configured list.
+    recommendation: Map to a known type.
+    rationale: Type hygiene.
+  - id: RE-012
+    name: Bedroom count is plausible
+    type: range
+    fields: [bedrooms]
+    params: {min: 0, max: 20}
+    severity: Low
+    explanation: The bedroom count is outside 0-20; large estates exist.
+    recommendation: Check the listing.
+    rationale: Configurable plausibility.
+  - id: RE-013
+    name: Currency format
+    type: regex
+    fields: [currency]
+    params: {pattern: '[A-Z]{3}'}
+    severity: Low
+    explanation: The currency does not look like a three-letter code.
+    recommendation: Replace with a valid code.
+    rationale: Format check only.
+  - id: RE-014
+    name: Price screening by property type (statistical)
+    type: statistical_anomaly
+    fields: [price]
+    params: {method: iqr, k: 3.0, group_by: [property_type], min_samples: 10}
+    severity: Low
+    explanation: The price is far from typical prices for the same property type in this file. Market outliers can be genuine.
+    recommendation: Check units, type and location before concluding anything.
+    rationale: Screening aid.

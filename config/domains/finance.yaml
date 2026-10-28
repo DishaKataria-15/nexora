@@ -1,0 +1,143 @@
+profile_id: finance
+name: Finance and banking
+version: "1.0.0"
+owner: Nexora (educational prototype)
+coverage: tested_end_to_end
+description: >
+  Transaction-level checks: identifiers, currency codes, signed-amount ledger arithmetic, duplicate
+  posting candidates and refund/reversal references.
+guardrail: >
+  Large or unusual transactions are review signals, not proof of fraud. Synthetic data only. This is not
+  a compliance, AML or fraud-detection system.
+settings:
+  datetime_formats: ["ISO8601"]
+  cleaning:
+    normalize_case: {currency: upper, txn_type: upper}
+    duplicates:
+      key: [transaction_id]
+      rationale: "A transaction ID identifies one posting. Identical repeats of the whole row are a repeated load."
+scoring_weights: {completeness: 1, validity: 1, uniqueness: 1, consistency: 1, freshness: 1}
+changelog:
+  - {version: "1.0.0", date: "2026-10-18", note: "Initial profile"}
+fields:
+  transaction_id: {label: Transaction ID, type: identifier, required: true, aliases: [txn_id, transaction_ref, reference, txnid]}
+  account_id: {label: Account ID, type: identifier, required: true, aliases: [account, acct_id, accountnumber]}
+  posting_date: {label: Posting date, type: datetime, required: true, aliases: [date, posted_at, value_date, transaction_date]}
+  amount: {label: Amount (signed), type: number, required: true, aliases: [txn_amount, transaction_amount]}
+  currency: {label: Currency, type: category, required: true, aliases: [ccy, currency_code]}
+  txn_type: {label: Transaction type, type: category, aliases: [type, transaction_type]}
+  balance_before: {label: Balance before, type: number, aliases: [opening_balance, prev_balance]}
+  balance_after: {label: Balance after, type: number, aliases: [closing_balance, running_balance]}
+  original_transaction_id: {label: Original transaction ID, type: identifier, aliases: [original_txn_id, reverses, related_transaction_id]}
+rules:
+  - id: FIN-001
+    name: Key transaction fields are present
+    type: required
+    fields: [transaction_id, account_id, posting_date, amount, currency]
+    severity: High
+    explanation: A mandatory field is empty, so the posting cannot be reconciled.
+    recommendation: Obtain the value from the source ledger.
+    rationale: Mandatory fields for any posting.
+  - id: FIN-002
+    name: Transaction IDs are unique
+    type: unique
+    fields: [transaction_id]
+    severity: High
+    explanation: The same transaction ID appears more than once.
+    recommendation: Check whether this is a double export or two different postings sharing a reference.
+    rationale: Duplicate IDs break reconciliation.
+  - id: FIN-003
+    name: Amounts and balances are numeric
+    type: numeric
+    fields: [amount, balance_before, balance_after]
+    severity: High
+    explanation: The value is not a plain number (it may contain a currency symbol, text or a thousands separator).
+    recommendation: Check the export format. Do not strip characters without confirming the meaning.
+    rationale: Numeric checks need numeric values.
+  - id: FIN-004
+    name: Posting dates are valid
+    type: datetime
+    fields: [posting_date]
+    severity: High
+    explanation: The posting date is not a valid ISO date or timestamp.
+    recommendation: Correct the format at the source.
+    rationale: Date errors break period reporting.
+  - id: FIN-005
+    name: Currency is a three-letter uppercase code
+    type: regex
+    fields: [currency]
+    params: {pattern: '[A-Z]{3}', format_hint: "ISO 4217 style codes look like USD, EUR, INR."}
+    severity: Medium
+    explanation: The currency does not look like a three-letter code.
+    recommendation: Replace with the correct currency code after confirming the intended currency.
+    rationale: Currency format check only; it does not verify the code exists.
+  - id: FIN-006
+    name: Transaction type is in the configured list
+    type: allowed_values
+    fields: [txn_type]
+    params: {values: [DEBIT, CREDIT, REFUND, REVERSAL, FEE, TRANSFER]}
+    severity: Medium
+    explanation: The transaction type is not in the configured list.
+    recommendation: Map to a known type or extend the list in the profile.
+    rationale: Business rules depend on the type.
+  - id: FIN-007
+    name: Balance after = balance before + amount
+    type: expression_equals
+    params: {target: balance_after, expression: "balance_before + amount", tolerance_abs: 0.01}
+    severity: High
+    explanation: The running balance does not equal the previous balance plus the signed amount (this profile assumes credits are positive and debits negative).
+    recommendation: Check for a missing posting, a wrong sign, or a different amount convention. Edit the expression if your file uses another convention.
+    rationale: Ledger arithmetic should reconcile.
+  - id: FIN-008
+    name: Possible duplicate postings
+    type: duplicate_rows
+    fields: [account_id, posting_date, amount, currency, txn_type]
+    severity: Medium
+    explanation: Several postings share account, date, amount, currency and type. Repeated identical payments can be genuine (for example subscriptions).
+    recommendation: Review the pair and keep both if each is genuine.
+    rationale: Duplicate postings are a common feed error.
+  - id: FIN-009
+    name: Refunds and reversals reference an original transaction
+    type: required
+    fields: [original_transaction_id]
+    when: [{field: txn_type, in: [REFUND, REVERSAL]}]
+    severity: High
+    explanation: A refund or reversal has no reference to the transaction it reverses.
+    recommendation: Find the original transaction ID.
+    rationale: Reversals must be traceable.
+  - id: FIN-010
+    name: Original transaction exists in this file
+    type: referential
+    fields: [original_transaction_id]
+    params: {reference_field: transaction_id}
+    severity: Medium
+    explanation: The referenced original transaction is not in this file. It may be in an earlier period.
+    recommendation: Check earlier extracts before treating this as an error.
+    rationale: Referential integrity within the supplied data.
+  - id: FIN-011
+    name: Amount above configured review threshold
+    type: range
+    fields: [amount]
+    params: {min: -1000000, max: 1000000}
+    severity: Low
+    explanation: The amount is above the configured review threshold. Large transactions can be perfectly legitimate.
+    recommendation: Review with the account owner; no action is needed if it is genuine.
+    rationale: A review signal, never a finding of fraud. Set the threshold to your business context.
+  - id: FIN-012
+    name: Posting date is not in the future
+    type: datetime_range
+    fields: [posting_date]
+    params: {not_after: as_of}
+    severity: Medium
+    explanation: The posting date is after the date of this analysis. Future-dated entries exist but need confirmation.
+    recommendation: Confirm whether this is a scheduled item.
+    rationale: Future dates often indicate a typo or time-zone issue.
+  - id: FIN-013
+    name: Amount screening by currency (statistical)
+    type: statistical_anomaly
+    fields: [amount]
+    params: {method: iqr, k: 3.0, group_by: [currency], min_samples: 10}
+    severity: Low
+    explanation: The amount is far from typical amounts in the same currency in this file.
+    recommendation: Review only; legitimate large payments are common.
+    rationale: Optional screening, not a fraud model.

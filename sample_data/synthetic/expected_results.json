@@ -1,0 +1,74 @@
+{
+  "finance": {
+    "balance_mismatch_rows": [
+      41,
+      92,
+      102
+    ],
+    "exact_duplicate_copies": 4,
+    "missing_transaction_id_rows": [
+      59,
+      70
+    ],
+    "rows": 154
+  },
+  "manufacturing": {
+    "exact_duplicate_copies": 4,
+    "fahrenheit_rows": [
+      67,
+      68,
+      69,
+      70,
+      71,
+      72,
+      73,
+      74,
+      75,
+      76,
+      77,
+      78
+    ],
+    "missing_temperature_rows": [
+      132,
+      133,
+      134,
+      135,
+      136
+    ],
+    "rows": 180,
+    "state_case_variants": 6,
+    "vibration_spike_row": 35
+  },
+  "retail": {
+    "ambiguous_ship_date_rows": [
+      43,
+      97,
+      143,
+      145,
+      147,
+      160
+    ],
+    "exact_duplicate_copies": 5,
+    "missing_order_id_rows": [
+      31,
+      99,
+      100
+    ],
+    "near_duplicate_rows": 3,
+    "negative_price_rows": [
+      117,
+      137
+    ],
+    "rows": 228,
+    "total_mismatch_rows": [
+      41,
+      50,
+      75,
+      86
+    ],
+    "unreadable_quantity_rows": [
+      165,
+      207
+    ]
+  }
+}

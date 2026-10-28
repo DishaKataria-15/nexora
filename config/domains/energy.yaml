@@ -1,0 +1,126 @@
+profile_id: energy
+name: Energy and utilities
+version: "1.1.0"
+owner: Nexora (educational prototype)
+coverage: basic
+description: >
+  Meter data checks: meter references, interval continuity, unit consistency, cumulative readings and meter rollover.
+guardrail: >
+  Spikes may come from real usage, outages, meter faults or rollover. Nothing is auto-corrected. Basic coverage.
+settings:
+  datetime_formats: ["ISO8601"]
+  cleaning:
+    duplicates: {key: [meter_id, timestamp], rationale: "One reading per meter and interval; an identical row is the same reading recorded twice."}
+    units:
+      - {label: energy, value_field: interval_consumption, also_fields: [cumulative_reading], unit_field: unit, target_unit: kWh,
+         conversions: {kWh: [1, 0], MWh: [1000, 0], Wh: [0.001, 0]},
+         rationale: "Exact SI conversions (1 MWh = 1000 kWh, 1 Wh = 0.001 kWh), applied to both the interval and the cumulative reading so they stay consistent."}
+    outliers: {policy: review, rationale: "Consumption spikes can be meter faults or genuine peak demand; confirm with the meter history before treating them."}
+scoring_weights: {completeness: 1, validity: 1, uniqueness: 1, consistency: 1, freshness: 1}
+changelog:
+  - {version: "1.1.0", date: "2026-10-28", note: "Added domain-aware cleaning settings (record key, spellings, units, outlier policy)."}
+  - {version: "1.0.0", date: "2026-10-18", note: "Initial basic-coverage profile. Needs domain-expert validation."}
+fields:
+  meter_id: {label: Meter ID, type: identifier, required: true, aliases: [meterid, meter_no, meter_number]}
+  timestamp: {label: Reading time, type: datetime, required: true, aliases: [time, reading_time, read_at]}
+  cumulative_reading: {label: Cumulative reading, type: number, aliases: [reading, register_value, meter_reading]}
+  interval_consumption: {label: Interval consumption, type: number, aliases: [consumption, usage, kwh]}
+  unit: {label: Unit, type: category, aliases: [uom, units, reading_unit]}
+rules:
+  - id: ENE-001
+    name: Meter and time are present
+    type: required
+    fields: [meter_id, timestamp]
+    severity: High
+    explanation: A reading has no meter or time.
+    recommendation: Check the head-end export.
+    rationale: Traceability.
+  - id: ENE-002
+    name: Reading times are valid
+    type: datetime
+    fields: [timestamp]
+    severity: High
+    explanation: The timestamp is not valid ISO format.
+    recommendation: Check the export format and time zone.
+    rationale: Interval checks need valid times.
+  - id: ENE-003
+    name: Readings are numeric
+    type: numeric
+    fields: [cumulative_reading, interval_consumption]
+    severity: High
+    explanation: The value is not a plain number.
+    recommendation: Check the meter interface for error codes.
+    rationale: Numeric checks need numbers.
+  - id: ENE-004
+    name: One reading per meter and time
+    type: unique
+    fields: [meter_id, timestamp]
+    severity: Medium
+    explanation: More than one reading exists for the same meter and time.
+    recommendation: Check for duplicate delivery.
+    rationale: Duplicates double count usage.
+  - id: ENE-005
+    name: Gaps in meter intervals
+    type: timestamp_gap
+    fields: [timestamp]
+    params: {group_by: [meter_id], max_gap_seconds: 1800}
+    severity: Medium
+    explanation: Readings are further apart than the configured interval.
+    recommendation: Check communications or outages. Set the maximum from the real reading interval.
+    rationale: Interval continuity.
+  - id: ENE-006
+    name: Timestamps do not go backwards
+    type: timestamp_order
+    fields: [timestamp]
+    params: {group_by: [meter_id]}
+    severity: Medium
+    explanation: A reading is dated earlier than the previous one for the same meter.
+    recommendation: Check sort order and meter clock.
+    rationale: Timeline consistency.
+  - id: ENE-007
+    name: Cumulative reading does not decrease (rollover aware)
+    type: monotonic
+    fields: [cumulative_reading]
+    params: {group_by: [meter_id], order_by: timestamp, rollover_max: 99999}
+    severity: High
+    explanation: The cumulative reading dropped. Drops that look like a rollover are reported as information only.
+    recommendation: Check for meter reset, replacement or data errors. Confirm rollovers with the meter record.
+    rationale: Cumulative registers only increase, except at rollover or replacement.
+  - id: ENE-008
+    name: Unit is expected and consistent per meter
+    type: unit_consistency
+    fields: [unit]
+    params: {expected_units: [kWh, MWh, Wh], group_by: [meter_id]}
+    severity: High
+    explanation: The unit is unexpected or changes within a meter.
+    recommendation: Confirm the unit before aggregating.
+    rationale: Unit consistency.
+  - id: ENE-009
+    name: Negative consumption
+    type: range
+    fields: [interval_consumption]
+    params: {min: 0}
+    category: Suspicious
+    severity: Medium
+    explanation: Negative consumption can be export from solar generation or a correction, or a meter fault.
+    recommendation: Check the meter type and tariff.
+    rationale: Business-context dependent.
+  - id: ENE-010
+    name: Consumption screening per meter (statistical)
+    type: statistical_anomaly
+    fields: [interval_consumption]
+    params: {method: iqr, k: 3.0, group_by: [meter_id], min_samples: 10}
+    severity: Low
+    explanation: The consumption is far from the same meter's usual consumption.
+    recommendation: Review only; spikes can be real usage or outages.
+    rationale: Screening aid.
+  - id: ENE-011
+    name: Data freshness (off by default)
+    type: freshness
+    fields: [timestamp]
+    params: {max_age_hours: 6}
+    severity: Medium
+    enabled: false
+    explanation: The newest reading is older than the configured age.
+    recommendation: Check the head-end system.
+    rationale: For live feeds only.

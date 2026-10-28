@@ -1,0 +1,17 @@
+profile_id: generic
+name: Generic (no domain rules)
+version: "1.0.0"
+owner: Nexora
+coverage: template
+description: >
+  Domain-independent preparation only: placeholders, whitespace, spelling variants, number and date types,
+  and identical repeated rows. No domain rules are applied.
+guardrail: >
+  Without a domain profile Nexora cannot judge what a value should be, so it only fixes representation problems
+  and reports everything else.
+settings:
+  datetime_formats: ["ISO8601"]
+fields: {}
+rules: []
+changelog:
+  - {version: "1.0.0", date: "2026-10-26", note: "Initial profile"}

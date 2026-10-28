@@ -1,0 +1,166 @@
+profile_id: manufacturing
+name: Manufacturing and industrial IoT
+version: "1.0.0"
+owner: Nexora (educational prototype)
+coverage: tested_end_to_end
+description: >
+  Machine telemetry checks: device references, timestamp gaps, device-state consistency, calibration metadata,
+  unit consistency and configurable operating ranges.
+guardrail: >
+  A spike may be a real fault or a real event. Readings are retained and escalated for review, never removed.
+  Operating ranges are example values to be replaced by engineering-approved limits.
+settings:
+  datetime_formats: ["ISO8601"]
+  cleaning:
+    normalize_case: {machine_state: upper, temperature_unit: upper}
+    units:
+      - label: temperature
+        value_field: temperature
+        unit_field: temperature_unit
+        target_unit: C
+        conversions: {C: [1, 0], F: [0.5555555555555556, -17.77777777777778], K: [1, -273.15]}
+        rationale: "Standard conversions to degrees Celsius (F: (x-32)x5/9, K: x-273.15). Readings with a missing or unknown unit are left unchanged."
+    duplicates:
+      key: [device_id, timestamp]
+      rationale: "One reading per device and timestamp: an identical row is the same reading recorded twice."
+scoring_weights: {completeness: 1, validity: 1, uniqueness: 1, consistency: 1, freshness: 1}
+changelog:
+  - {version: "1.0.0", date: "2026-10-18", note: "Initial profile"}
+fields:
+  device_id: {label: Device ID, type: identifier, required: true, aliases: [machine_id, sensor_id, equipment_id, asset_id]}
+  timestamp: {label: Timestamp, type: datetime, required: true, aliases: [time, ts, recorded_at, reading_time]}
+  temperature: {label: Temperature, type: number, aliases: [temp, temperature_value]}
+  temperature_unit: {label: Temperature unit, type: category, aliases: [temp_unit, temperature_uom]}
+  vibration: {label: Vibration (mm/s), type: number, aliases: [vibration_mm_s, vib]}
+  machine_state: {label: Machine state, type: category, aliases: [state, status, device_state]}
+  output_count: {label: Units produced in interval, type: integer, aliases: [output, units_produced, count]}
+  last_calibration_date: {label: Last calibration date, type: datetime, aliases: [calibration_date, calibrated_on]}
+rules:
+  - id: MFG-001
+    name: Device and timestamp are present
+    type: required
+    fields: [device_id, timestamp]
+    severity: High
+    explanation: A reading without a device or time cannot be attributed.
+    recommendation: Check the gateway export.
+    rationale: Basic traceability.
+  - id: MFG-002
+    name: Timestamps and calibration dates are valid
+    type: datetime
+    fields: [timestamp, last_calibration_date]
+    severity: High
+    explanation: The date or time is not valid ISO format.
+    recommendation: Check the data logger's time format.
+    rationale: Time checks depend on valid timestamps.
+  - id: MFG-003
+    name: Sensor values are numeric
+    type: numeric
+    fields: [temperature, vibration, output_count]
+    severity: High
+    explanation: The value is not a plain number.
+    recommendation: Check for error strings from the sensor interface; keep the original value.
+    rationale: Non-numeric telemetry cannot be analysed.
+  - id: MFG-004
+    name: One reading per device and time
+    type: unique
+    fields: [device_id, timestamp]
+    severity: Medium
+    explanation: More than one row exists for the same device and timestamp.
+    recommendation: Check for a duplicate feed.
+    rationale: Duplicates skew averages.
+  - id: MFG-005
+    name: Gaps in device readings
+    type: timestamp_gap
+    fields: [timestamp]
+    params: {group_by: [device_id], max_gap_seconds: 120}
+    severity: Medium
+    explanation: Readings are further apart than the configured maximum interval.
+    recommendation: Check network or sensor outages. Set the maximum from the real polling interval.
+    rationale: Gaps indicate lost data or offline devices.
+  - id: MFG-006
+    name: Timestamps do not go backwards (timestamp drift)
+    type: timestamp_order
+    fields: [timestamp]
+    params: {group_by: [device_id]}
+    severity: Medium
+    explanation: A timestamp is earlier than the previous one for the same device.
+    recommendation: Check device clock synchronisation.
+    rationale: Clock drift disturbs sequences.
+  - id: MFG-007
+    name: Machine state is in the configured list
+    type: allowed_values
+    fields: [machine_state]
+    params: {values: [RUNNING, IDLE, STOPPED, FAULT, MAINTENANCE]}
+    severity: Medium
+    explanation: The machine state is not in the configured list.
+    recommendation: Map to a known state or extend the list.
+    rationale: State-based rules need clean states.
+  - id: MFG-008
+    name: Calibration date is recorded
+    type: required
+    fields: [last_calibration_date]
+    severity: Medium
+    explanation: Calibration metadata is missing, so reading trustworthiness cannot be judged.
+    recommendation: Add the calibration record for the device.
+    rationale: Calibration metadata supports traceability.
+  - id: MFG-009
+    name: Calibration is not dated after the reading
+    type: compare
+    fields: [last_calibration_date, timestamp]
+    params: {op: "<=", kind: datetime}
+    severity: Medium
+    explanation: The calibration date is later than the reading it belongs to.
+    recommendation: Check the calibration record.
+    rationale: Calibration metadata should be consistent with the timeline.
+  - id: MFG-010
+    name: Stopped or maintenance machines report no output
+    type: range
+    fields: [output_count]
+    params: {max: 0}
+    when: [{field: machine_state, in: [STOPPED, MAINTENANCE]}]
+    category: Inconsistent
+    severity: High
+    explanation: A machine reported as stopped or in maintenance also reports production.
+    recommendation: Check whether the state or the count is wrong.
+    rationale: Device-state consistency.
+  - id: MFG-011
+    name: One temperature unit per device
+    type: unit_consistency
+    fields: [temperature_unit]
+    params: {expected_units: [C, F], group_by: [device_id]}
+    severity: High
+    explanation: The temperature unit is unexpected or changes within a device.
+    recommendation: Confirm the unit before comparing temperatures.
+    rationale: C/F mixing is a frequent cause of false alarms.
+  - id: MFG-012
+    name: Temperature within configured operating range
+    type: range
+    fields: [temperature]
+    params:
+      unit_field: temperature_unit
+      ranges_by_unit:
+        C: {min: 0, max: 120}
+        F: {min: 32, max: 248}
+    severity: Medium
+    explanation: The temperature is outside the configured operating range for its unit.
+    recommendation: Treat as a possible real event; retain the reading and ask the maintenance team.
+    rationale: Example operating range; replace with engineering-approved values.
+  - id: MFG-013
+    name: Per-device temperature and vibration screening (statistical)
+    type: statistical_anomaly
+    fields: [temperature, vibration]
+    params: {method: iqr, k: 3.0, group_by: [device_id], min_samples: 10}
+    severity: Low
+    explanation: The value differs strongly from the same device's other readings.
+    recommendation: Review. Spikes can be real faults.
+    rationale: Screening aid only.
+  - id: MFG-014
+    name: Data freshness (off by default)
+    type: freshness
+    fields: [timestamp]
+    params: {max_age_hours: 1}
+    severity: Medium
+    enabled: false
+    explanation: The newest reading is older than the configured age.
+    recommendation: Check the gateway.
+    rationale: For live feeds only.
