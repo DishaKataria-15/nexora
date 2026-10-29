@@ -25,7 +25,13 @@ def summary(df: pd.DataFrame) -> str:
             f"{miss:.1f}% of cells missing")
 
 
+def _close_popover() -> None:
+    # Streamlit has no "close" call for popovers; giving it a new key on the next run renders it closed
+    st.session_state["_pop_n"] = st.session_state.get("_pop_n", 0) + 1
+
+
 def _open_saved(dataset_id: str, version_id: str | None) -> None:
+    _close_popover()
     state.set_dataset(state.ws().open_dataset(dataset_id))
     st.session_state["version_id"] = version_id
     state.clear_frames()
@@ -33,6 +39,7 @@ def _open_saved(dataset_id: str, version_id: str | None) -> None:
 
 def _open_sample(fname: str) -> None:
     meta = next(s for s in SAMPLES if s["file"] == fname)
+    _close_popover()
     state.set_dataset(state.ws().load_sample(fname))
     st.session_state["profile_id"] = meta["domain"]
     st.session_state["goal"] = meta["goal"]
@@ -44,12 +51,12 @@ def picker(key: str) -> None:
     rows = w.repo.list_datasets()
     src = st.radio("Source", ["Saved datasets", "Sample data"] if rows else ["Sample data"], horizontal=True, key=f"pk_src_{key}")
     if src == "Saved datasets":
-        ids = {f"{r['name']} ({r['rows']:,} rows, {r['created_at'][:16].replace('T', ' ')})": r["id"] for r in rows}
+        ids = {f"{r['name']} ({r['rows']:,} rows, {theme.local_time(r['created_at'])})": r["id"] for r in rows}
         pick = st.selectbox("Dataset", list(ids), key=f"pk_ds_{key}")
         vers = w.repo.list_versions(ids[pick])
-        vopts = {"Raw data (as uploaded)": None} | {f"Prepared {v['created_at'][:16].replace('T', ' ')}: {v['rows']:,} rows": v["id"] for v in vers}
+        vopts = {"Raw data (as uploaded)": None} | {f"Prepared {theme.local_time(v['created_at'])}: {v['rows']:,} rows": v["id"] for v in vers}
         vk = list(vopts)
-        vpick = st.selectbox("Version", vk, index=len(vk) - 1, key=f"pk_v_{key}",
+        vpick = st.selectbox("Version", vk, index=1 if vers else 0, key=f"pk_v_{key}",      # versions are newest first
                              help="Prepared versions come from Prepare Data. The newest one is preselected; the raw file is always kept.")
         if st.button("Open", type="primary", key=f"pk_open_{key}"):
             _open_saved(ids[pick], vopts[vpick])
@@ -90,10 +97,15 @@ def dataset_bar(key: str, *, raw: bool = False, empty_body: str = "") -> tuple[p
         badge = theme.chip("Prepared data", "ok") if prepared else theme.chip("Not prepared" if not raw else "Raw file", "warn" if not raw else "info")
         c1.markdown(f"**Dataset:** {theme.esc(h.name)} &nbsp; {badge}" + (f" &nbsp; {theme.sample_badge()}" if h.source == "sample" else ""),
                     unsafe_allow_html=True)
-        c1.caption(summary(df) + " · " + note + ("" if prepared or raw else ". For trustworthy results, run Prepare Data first."))
-        with c2.popover("Change dataset", width="stretch"):
+        c1.caption(summary(state.typed_raw() if raw else df) + (" (types detected automatically)" if raw else "") + " · " + note
+                   + ("" if prepared or raw else ". For trustworthy results, run Prepare Data first."))
+        with c2.popover("Change dataset", width="stretch", key=f"chg_pop_{key}_{st.session_state.get('_pop_n', 0)}"):
             st.caption("Switching resets unfinished work on this page. Saved experiments and prepared versions stay in Reports.")
             picker(f"bar_{key}")
+        if not prepared and not raw and key not in ("prepare",):
+            if c2.button("Prepare it first", key=f"bar_prep_{key}", width="stretch", help="Open Prepare Data for this dataset."):
+                state.goto("Prepare Data")
+                st.rerun()
     return df, note
 
 

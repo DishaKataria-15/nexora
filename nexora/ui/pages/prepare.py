@@ -15,6 +15,11 @@ from .. import components, state, theme
 STEPS = ["Profile", "Goal and domain", "Review plan", "Result"]
 
 
+def _extra_copies(raw: pd.DataFrame) -> int:
+    """Rows identical to an earlier row (the first occurrence is not counted), the same rule the plan uses."""
+    return int(raw.astype(str).apply(lambda s: s.str.strip()).duplicated(keep="first").sum()) if len(raw) else 0
+
+
 def _go(step: int) -> None:
     st.session_state["prep_step"] = step
 
@@ -29,7 +34,7 @@ def render() -> None:
         step = st.session_state["prep_step"] = 0
     if step == 2 and st.session_state.get("plan") is None:
         step = st.session_state["prep_step"] = 1
-    theme.stepper(STEPS, step)
+    theme.stepper(STEPS, step, key="prep")
     {0: _profile, 1: _goal, 2: _plan, 3: _result}[step](h)
 
 
@@ -42,7 +47,7 @@ def _profile(h) -> None:
     miss = sum(c.missing_count for c in sp.columns)
     cells = max(h.raw.shape[0] * h.raw.shape[1], 1)
     st.markdown(f"**{len(h.raw):,} rows** and **{h.raw.shape[1]} columns**. About **{100 * miss / cells:.1f}%** of cells are empty or placeholders, "
-                f"and **{int(sp.duplicate_rows):,}** row(s) repeat an earlier row exactly.")
+                f"and **{_extra_copies(h.raw):,}** row(s) repeat an earlier row exactly.")
     rows = [{"Column": c.name, "Looks like": c.inferred_type, "Missing %": round(100 * c.missing_pct, 1), "Distinct values": c.unique_count,
              "Example": (str(c.samples[0]) if c.samples else ""), "Note": "; ".join(c.issues[:2])} for c in sp.columns]
     st.dataframe(pd.DataFrame(rows), hide_index=True, width="stretch")
@@ -340,7 +345,7 @@ def _result(h) -> None:
                 cols = [c for c in ("rule_id", "row_ref", "columns", "explanation") if c in fa.columns]
                 st.dataframe(fa[cols].head(200).astype(str), hide_index=True, width="stretch")
     st.markdown("#### Prepared data")
-    st.dataframe(res.prepared.head(50), width="stretch")
+    st.dataframe(theme.display_frame(res.prepared.head(50)), width="stretch")
     files = state.ws().preparation_exports(res, h, plan)
     st.markdown("#### Downloads")
     cols = st.columns(5)

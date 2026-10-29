@@ -92,7 +92,7 @@ Steps are shown at the top and adapt to your goal.
    model-based, L1). For clustering only target-free selection is offered.
    For classification you also see class balance and options (class weights, random over/under-sampling, SMOTE) with reasons when an option is unavailable.
    Balancing is applied to training data only, and inside each fold during cross-validation.
-5. **Models**: *Recommended model* (trains the top suggestion), *Choose a model*, or *Compare models* (same split, same preparation, same metric).
+5. **Models**: *Compare models* (the default: starts with the top 3 suggestions; same split, same preparation, same metric), *Recommended model* (trains only the top suggestion), or *Choose a model*.
    Models that cannot run on your data are explained (for example a support vector machine above its row limit, or Multinomial Naive Bayes with PCA).
    Optional models (XGBoost, LightGBM) appear when installed. *Model settings* lets you change each model's main settings within safe ranges.
    *Validation and tuning*: fold strategy (automatic, k-fold, stratified, repeated, group, time-series with a gap), folds and repeats; tuning by grid,

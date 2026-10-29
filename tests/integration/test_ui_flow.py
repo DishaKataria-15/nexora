@@ -139,18 +139,18 @@ def _ml(app, task_label, fname):
 
 def test_ml_classification_path_with_leakage_and_single_test_evaluation(app):
     _ml(app, "Predict a category (classification)", "customer_churn.csv")
-    assert any("not been prepared" in w.value for w in app.warning)
+    caps = " ".join(c.value for c in app.caption)
+    assert caps.count("run Prepare Data first") == 1 and not any("not been prepared" in w.value for w in app.warning)   # said once, in the dataset bar
     click(app, "Next: Target")
     assert app.session_state["ml"]["target"] == "churned"
-    assert any("cancellation_reason" in e.value for e in app.error)                  # leakage is called out
-    click(app, "Exclude suspected leaky")
+    assert any("Excluded automatically" in e.value and "cancellation_reason" in e.value for e in app.error)   # leakage excluded by default
     assert app.session_state["ml"]["exclude"] == ["cancellation_reason"]
     click(app, "Next: Split")
     click(app, "Next: Preparation")
     assert any("recommended" in o for o in app.radio(key="ml_w_imb").options)
     click(app, "Next: Models")
-    app.radio(key="ml_w_mode").set_value("Compare models").run()
-    assert len(app.session_state["ml"]["models"]) == 4
+    assert app.radio(key="ml_w_mode").value == "Compare models"                                 # comparing is the default
+    assert len(app.session_state["ml"]["models"]) == 3                                           # the top 3 suggestions
     assert app.radio(key="ml_w_comp").options == ["Automatic (recommended)", "CPU"]              # no GPU offered when none is detected
     click(app, "Next: Train")
     click(app, "Start training")

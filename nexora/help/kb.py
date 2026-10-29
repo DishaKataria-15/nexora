@@ -149,9 +149,11 @@ KB: list[dict] = [
      "a": "**ML Studio**: choose a **Goal** (predict a number, predict a category, discover groups), the **Target**, a **Split**, **Preparation** options, "
           "**Models**, then **Start training**. Results compare models on validation data; finally evaluate the chosen model **once** on the test set."},
     {"id": "task", "page": P_ML,
-     "q": ["Regression or classification?", "which goal", "predict a number vs category", "what is clustering"],
+     "q": ["Regression or classification?", "which goal", "predict a number vs category", "what is clustering", "suggested goal", "group names"],
      "a": "**Regression** predicts a number (price, quantity). **Classification** predicts a label (yes/no, type). **Clustering** finds groups of similar "
-          "rows without a target; groups are patterns, not ground truth."},
+          "rows without a target; groups are patterns, not ground truth. The Goal step shows a **Suggested** goal from your column names (for example "
+          "'churned' suggests classification); it is only a starting point. After clustering, each group gets a short **name** describing what sets "
+          "it apart (for example \"High income, low age\" or \"Earlier order_date\"), worked out from the group's averages compared with all rows."},
     {"id": "leakage", "page": P_ML,
      "q": ["What is leakage?", "red warning may leak the answer", "exclude leaky column", "cancellation reason warning", "too good to be true"],
      "a": "Leakage is information a model would not have when making a real prediction (for example a *cancellation reason* that only exists after a "
@@ -174,8 +176,9 @@ KB: list[dict] = [
           "training rows only and re-learned in every fold."},
     {"id": "models", "page": P_ML,
      "q": ["Which model should I choose?", "compare models", "recommended model", "model list", "xgboost", "random forest"],
-     "a": "**Recommended model** trains the top suggestion; **Choose a model** trains one; **Compare models** trains several under the same split, "
-          "preparation and metric. Models that cannot run on your data say why. XGBoost and LightGBM appear when installed."},
+     "a": "**Compare models** is the default: it starts with the top 3 suggestions for your data (add or remove any) and trains them under the same "
+          "split, preparation and metric. **Recommended model** trains only the top suggestion; **Choose a model** trains one you pick. Models that "
+          "cannot run on your data say why. XGBoost and LightGBM appear when installed."},
     {"id": "metric", "page": P_ML,
      "q": ["Which metric should I use?", "primary metric", "f1 vs accuracy", "multiple metrics", "also compare models on", "pr-auc"],
      "a": "The **primary metric** picks the winning model. Add up to 4 more under **Also compare models on** to see trade-offs as extra columns. For "
@@ -224,6 +227,11 @@ KB: list[dict] = [
      "q": ["no anomalies found", "found no anomalies", "flagged 0 rows", "Why were no rows flagged?", "zero anomalies", "nothing flagged", "flag more rows", "expected share"],
      "a": "In automatic mode only clearly extreme rows are flagged, so clean data can show none. Untick **Let each method decide how many rows to flag** "
           "and set an expected share (e.g. 2%) to flag the top rows. The most unusual rows are listed either way."},
+    {"id": "mixed_units", "page": P_AN,
+     "q": ["more than one unit warning", "mixed units", "celsius and fahrenheit", "unit column", "different currencies"],
+     "a": "When a companion column (such as `temperature_unit` or `currency`) shows that a number is recorded in several units, rows in the rarer "
+          "unit can look unusual only because of the unit. Convert them in **Prepare Data** (some domain profiles do it automatically), or click "
+          "**Leave ... out** to skip that column."},
     {"id": "anomaly_labels", "page": P_AN,
      "q": ["What is the column with known anomalies?", "evaluate anomaly detection", "labelled anomalies", "precision recall anomalies"],
      "a": "If a column marks known anomalies (e.g. confirmed fraud), choose it: Nexora uses it **only** to measure precision, recall and PR-AUC. It is "
@@ -247,29 +255,45 @@ KB: list[dict] = [
           "month-first), then try again."},
     # ---------------------------------------------------------------- reports, settings, troubleshooting
     {"id": "reports", "page": P_REP, "goto": P_REP,
-     "q": ["Where are my past results?", "experiment history", "compare experiments", "reports page", "download report"],
-     "a": "**Reports → Experiments** lists every training run with settings, seed and results; select two or more to compare, open one to download its "
-          "report, settings and model. **Preparation reports** lists every preparation run with its downloads."},
+     "q": ["Where are my past results?", "experiment history", "reports page", "download report"],
+     "a": "**Reports → Experiments** lists every training run with settings, seed and results; open one to download its report, settings and model. "
+          "**Anomaly and forecast runs** holds runs you saved from those pages. **Preparation reports** lists every preparation run with its downloads."},
+    {"id": "compare_exps", "page": P_REP, "goto": P_REP,
+     "q": ["How do I compare experiments?", "compare experiments", "compare two models runs", "which experiment was better", "experiments side by side"],
+     "a": "**Reports → Experiments → Compare experiments**: pick a dataset and goal, then the runs. The table shows the selected model, selection "
+          "score and test metrics for each, plus the split, seed, data version and left-out columns. A yellow note says when one of those differs, "
+          "because then the scores are not directly comparable."},
+    {"id": "save_runs", "page": P_REP, "goto": P_REP,
+     "q": ["How do I save an anomaly or forecast result?", "save forecast", "save anomaly run", "keep my forecast", "saved runs"],
+     "a": "Click **Save to Reports** under the results on the **Anomalies** or **Forecasting** page. The summary and files (scores or forecast CSVs) "
+          "are kept under **Reports → Anomaly and forecast runs**, where you can download or delete them."},
     {"id": "reproduce", "page": ANY,
      "q": ["Will I get the same results again?", "random seed", "reproducible", "results changed"],
      "a": "Splits and models use a **seed** (default 42, set in **Settings**; each experiment can set its own on the Split step). The same data, settings "
           "and seed give the same results. Tree models using several CPU cores can differ in the last decimal places."},
     {"id": "privacy", "page": ANY,
      "q": ["is my data uploaded to the cloud", "does it send data online", "cloud", "Is my data sent anywhere?", "privacy", "offline", "internet", "is it safe", "where is my data stored"],
-     "a": "Nexora runs on your computer and sends nothing anywhere (this help assistant works offline too). Data is stored in the `data` folder "
-          "(or `NEXORA_DATA_DIR`). Only the Database and Web API tabs contact the source you enter. **Settings** can delete all local data."},
+     "a": "**On your own computer**, Nexora sends nothing anywhere: data stays in the `data` folder (or `NEXORA_DATA_DIR`), and only the Database "
+          "and Web API tabs contact the source you enter. **On the public demo**, your files are uploaded to the demo server, kept for your browser "
+          "session only (other visitors cannot see them) and deleted within 24 hours; do not upload personal or confidential data there. This help "
+          "assistant never sends your questions anywhere. **Settings** can delete your stored data."},
     {"id": "optional_pkgs", "page": ANY,
      "q": ["A feature says a package is needed", "install xgboost", "shap not installed", "optional packages", "needs the optional package"],
-     "a": "Some extras are optional. Install them in the activated environment, for example `pip install xgboost lightgbm shap statsmodels sqlalchemy`, "
+     "a": "XGBoost, LightGBM and statsmodels come with `requirements.txt`. Other extras are optional: install them in the activated environment, "
+          "for example `pip install shap umap-learn sqlalchemy`, "
           "then restart Nexora (Ctrl + C, then `streamlit run app.py`)."},
     {"id": "error", "page": ANY,
      "q": ["Something went wrong on this page", "error message", "app crashed", "page shows an error", "bug"],
-     "a": "Go back one step and try again; the technical details are in the terminal where Nexora runs (tick **Show technical details** to see them on "
-          "the page). Your original file is never changed. If it keeps happening, note what you clicked and the message."},
+     "a": "Go back one step and try again (or reload the page). The red message names the problem, and **Technical details** under it shows the "
+          "full error, which is useful when reporting it. Your original file is never changed."},
     {"id": "restart", "page": ANY,
      "q": ["How do I start Nexora again?", "restart the app", "run the app", "streamlit run", "stop the app"],
      "a": "In a terminal: activate the environment (`C:\\venvs\\nexora\\Scripts\\Activate.ps1` in this setup), then `streamlit run app.py`. Stop it with "
           "**Ctrl + C** in that terminal."},
+    {"id": "rename_delete", "page": P_DATA, "goto": P_DATA,
+     "q": ["How do I rename a dataset?", "delete a dataset", "remove dataset", "rename dataset", "clean up my datasets"],
+     "a": "**Datasets → My datasets**: pick the dataset, then open **Rename or delete**. Deleting removes it with its prepared versions and the "
+          "experiments trained on them (tick the confirmation first); it cannot be undone. To delete everything at once, use **Settings**."},
     {"id": "settings", "page": P_SET, "goto": P_SET,
      "q": ["What can I change in Settings?", "default seed", "delete all data", "software versions", "compute gpu"],
      "a": "**Settings**: default random seed, the current limits, detected compute (CPU/GPU), software versions, and deleting all local data."},
@@ -278,12 +302,12 @@ KB: list[dict] = [
 # Questions shown as quick buttons on each page (ids from KB, in order)
 SUGGESTED = {
     P_HOME: ["start", "workflow", "samples", "privacy"],
-    P_DATA: ["upload", "combine", "limits", "database"],
+    P_DATA: ["upload", "combine", "rename_delete", "limits"],
     P_PREP: ["prep_kinds", "domain", "outliers_prep", "dates"],
     P_VIS: ["dashboard", "colours", "vis_where", "correlation"],
     P_ML: ["leakage", "metric", "imbalance", "test_once"],
-    P_AN: ["anomalies", "anomaly_zero", "anomaly_labels"],
+    P_AN: ["anomalies", "anomaly_zero", "mixed_units", "anomaly_labels"],
     P_FC: ["forecast", "forecast_baseline", "forecast_mae"],
-    P_REP: ["saved_model", "reports", "reproduce"],
+    P_REP: ["compare_exps", "save_runs", "saved_model", "reports"],
     P_SET: ["settings", "optional_pkgs", "privacy"],
 }

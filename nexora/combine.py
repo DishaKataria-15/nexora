@@ -64,14 +64,25 @@ class StepReport:
     examples_unmatched: list[str] = field(default_factory=list)
 
 
+NULL_TOKENS = {"", "na", "n/a", "nan", "null", "none", "-", "--", "?", "missing", "unknown"}
+
+
+def _key_value(v, ignore_case: bool = False):
+    """One key value as comparable text, or None when it is blank or a placeholder (blanks never match each other)."""
+    if v is None or (not isinstance(v, str) and pd.isna(v)):
+        return None
+    t = str(v).strip()
+    if t.lower() in NULL_TOKENS:
+        return None
+    if _TRAILING_ZERO.match(t):                 # "12.0" -> "12"; leading zeros such as "007" are kept as written
+        t = t[: t.index(".")]
+    return t.lower() if ignore_case else t
+
+
 def _norm_keys(df: pd.DataFrame, cols: list[str], ignore_case: bool) -> pd.DataFrame:
     out = pd.DataFrame(index=df.index)
     for i, c in enumerate(cols):
-        s = df[c].astype(object).where(df[c].notna(), None).map(lambda v: None if v is None else str(v).strip())
-        s = s.map(lambda v: None if v in (None, "") else (v.lower() if ignore_case else v))
-        # "12" and "12.0" are the same key (a spreadsheet often adds ".0"); leading zeros such as "007" are kept as written
-        s = s.map(lambda v: v if v is None else (v[: v.index(".")] if _TRAILING_ZERO.match(v) else v))
-        out[f"__k{i}"] = s
+        out[f"__k{i}"] = df[c].map(lambda v: _key_value(v, ignore_case)).astype(object)
     return out
 
 
@@ -237,22 +248,54 @@ def combine(frames: dict[str, pd.DataFrame], base: str, steps: list[Step], max_r
     return out, reports
 
 
+_ID_HINT = re.compile(r"(^|_|\b)(id|key|code|sku|no|num|number|ref)$|id$", re.I)
+
+
+def _profile_key(s: pd.Series) -> dict | None:
+    """Describe a column as a possible key, or None if it cannot be one (blank, constant, or continuous numbers)."""
+    vals = s.map(_key_value).dropna().astype(str)
+    if len(vals) < 2:
+        return None
+    distinct = set(vals.head(50000))
+    if len(distinct) < 2:
+        return None
+    num = pd.to_numeric(vals, errors="coerce")
+    numeric_share = float(num.notna().mean())
+    if numeric_share > 0.95 and (num.dropna() % 1 != 0).mean() > 0.05:
+        return None                               # measurements with decimals (temperature, price) are not keys
+    return {"distinct": distinct, "unique_ratio": len(distinct) / max(len(vals), 1), "numeric": numeric_share > 0.95}
+
+
 def suggest_keys(a: pd.DataFrame, b: pd.DataFrame) -> list[tuple[str, str, float]]:
-    """Column pairs that look like a shared key: (column in a, column in b, share of b's values found in a)."""
+    """Column pairs that look like a shared key: (column in a, column in b, share of b's distinct values found in a).
+
+    Prefers columns with the same name and ID-like names; requires the two columns to hold the same kind of value
+    (numbers with numbers, text with text); ignores blanks and placeholders; ignores measurements with decimals.
+    """
     def norm(c: str) -> str:
         return str(c).lower().replace("_", "").replace(" ", "").replace("-", "")
-    sets = {ca: set(a[ca].dropna().astype(str).str.strip().head(20000)) for ca in a.columns if a[ca].nunique() > 1}
+    pa = {c: p for c in a.columns if (p := _profile_key(a[c])) is not None}
+    pb = {c: p for c in b.columns if (p := _profile_key(b[c])) is not None}
     out = []
-    for cb in b.columns:
-        vb = b[cb].dropna().astype(str).str.strip().head(20000)
-        if vb.empty or b[cb].nunique() <= 1:
-            continue
-        for ca, va in sets.items():
-            same_name = norm(ca) == norm(cb)
-            if not same_name and len(out) >= 20:
+    for cb, qb in pb.items():
+        for ca, qa in pa.items():
+            if qa["numeric"] != qb["numeric"]:
                 continue
-            cover = float(vb.isin(va).mean())
-            if (same_name and cover > 0) or cover >= 0.6:
-                out.append((ca, cb, round(cover, 3), same_name))
-    out.sort(key=lambda t: (not t[3], -t[2]))
+            same_name = norm(ca) == norm(cb)
+            id_like = bool(_ID_HINT.search(str(ca)) or _ID_HINT.search(str(cb)))
+            small = min(len(qa["distinct"]), len(qb["distinct"]))
+            if small < 3 and not same_name:
+                continue                          # yes/no style columns match by accident
+            cover = len(qb["distinct"] & qa["distinct"]) / max(len(qb["distinct"]), 1)
+            if cover == 0:
+                continue
+            # one of the two sides should identify rows (a lookup table key), unless the names say it is a key
+            keyish = max(qa["unique_ratio"], qb["unique_ratio"]) >= 0.5 or id_like or same_name
+            if not keyish:
+                continue
+            if not (same_name or (id_like and cover >= 0.5) or cover >= 0.8):
+                continue
+            score = cover + (1.0 if same_name else 0) + (0.5 if id_like else 0)
+            out.append((ca, cb, round(cover, 3), score))
+    out.sort(key=lambda t: -t[3])
     return [(x, y, c) for x, y, c, _ in out[:5]]

@@ -110,13 +110,18 @@ def test_gaps_and_duplicate_dates_are_reported_and_handled(weekly_daily):
         F.run_forecast(df, F.ForecastConfig("day", "sales", fill="none", methods=["naive"]))
 
 
-def test_a_model_that_cannot_beat_the_baseline_is_called_out():
+def test_when_the_baseline_wins_it_is_the_forecast():
     idx = pd.date_range("2024-01-01", periods=120, freq="D")
     rng = np.random.RandomState(0)
-    walk = np.cumsum(rng.normal(0, 1, 120)) + 50                          # a random walk: naive is optimal
+    walk = np.cumsum(rng.normal(0, 1, 120)) + 50                          # a random walk: repeating the last value is optimal
     r = F.run_forecast(pd.DataFrame({"d": idx, "v": walk}), F.ForecastConfig("d", "v", horizon=5, folds=4, methods=["moving_average"]))
-    if not r.beats_baseline:
-        assert any("did not beat the simple baseline" in w for w in r.warnings)
+    bt = {e["key"]: e for e in r.backtest}
+    best = min(bt.values(), key=lambda e: e["metrics"]["mae"])
+    assert r.selected == best["key"]                                      # the forecast always comes from the most accurate method
+    if best["baseline"]:
+        assert not r.beats_baseline and r.best_model == "moving_average" and any("is used for the forecast" in w for w in r.warnings)
+    future = F._forecast(r.selected, pd.Series(walk, index=idx), pd.DataFrame(index=idx), pd.DataFrame(index=range(5)), 5, 7, [1, 2, 3, 7], 42)
+    assert [f["forecast"] for f in r.forecast] == pytest.approx(list(future))
 
 
 def test_monthly_series_and_holt_winters():

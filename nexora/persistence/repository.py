@@ -60,15 +60,27 @@ class Repository(abc.ABC):
     @abc.abstractmethod
     def count_test_uses(self, version_id: str, seed: int, split: dict[str, Any]) -> int: ...
     @abc.abstractmethod
+    def rename_dataset(self, dataset_id: str, name: str) -> None: ...
+    @abc.abstractmethod
+    def delete_dataset(self, dataset_id: str) -> dict[str, int]: ...
+    @abc.abstractmethod
+    def save_run(self, kind: str, dataset_name: str, version_id: str | None, summary: dict[str, Any], files: dict[str, bytes]) -> str: ...
+    @abc.abstractmethod
+    def list_runs(self, kind: str | None = None) -> list[dict[str, Any]]: ...
+    @abc.abstractmethod
+    def get_run(self, run_id: str) -> dict[str, Any] | None: ...
+    @abc.abstractmethod
+    def delete_run(self, run_id: str) -> None: ...
+    @abc.abstractmethod
     def clear_all(self) -> None: ...
 
 
 class SqliteRepository(Repository):
     def __init__(self, data_dir: str | Path):
         self.root = Path(data_dir)
-        self.raw_dir, self.ver_dir, self.art_dir = (self.root / d for d in ("raw", "versions", "artifacts"))
+        self.raw_dir, self.ver_dir, self.art_dir, self.run_dir = (self.root / d for d in ("raw", "versions", "artifacts", "runs"))
         self.db_path = self.root / "nexora.db"
-        for d in (self.raw_dir, self.ver_dir, self.art_dir):
+        for d in (self.raw_dir, self.ver_dir, self.art_dir, self.run_dir):
             d.mkdir(parents=True, exist_ok=True)
         self._init()
 
@@ -91,6 +103,8 @@ class SqliteRepository(Repository):
                 schema_json TEXT, meta_json TEXT);
             CREATE TABLE IF NOT EXISTS experiments(id TEXT PRIMARY KEY, version_id TEXT, name TEXT, task TEXT, status TEXT, created_at TEXT,
                 test_evaluated INTEGER, seed INTEGER, split_json TEXT, result_json TEXT, artifact_path TEXT);
+            CREATE TABLE IF NOT EXISTS runs(id TEXT PRIMARY KEY, kind TEXT, dataset_name TEXT, version_id TEXT, created_at TEXT,
+                summary_json TEXT, files_dir TEXT);
             """)
 
     # datasets -----------------------------------------------------------------------------------
@@ -119,6 +133,40 @@ class SqliteRepository(Repository):
         if not ds:
             raise KeyError(f"Dataset {dataset_id} not found")
         return Path(ds["raw_path"]).read_bytes()
+
+    def rename_dataset(self, dataset_id, name) -> None:
+        name = " ".join(str(name or "").split())[:120]
+        if not name:
+            raise ValueError("The name cannot be empty.")
+        with self._conn() as c:
+            if not c.execute("UPDATE datasets SET name=? WHERE id=?", (name, dataset_id)).rowcount:
+                raise KeyError(f"Dataset {dataset_id} not found")
+
+    def delete_dataset(self, dataset_id) -> dict[str, int]:
+        """Remove a dataset with its raw file, its prepared versions and the experiments trained on those versions.
+
+        Returns counts of what was removed. Experiments trained on the unprepared data keep their results in Reports
+        (they do not record which dataset they came from beyond its name).
+        """
+        ds = self.get_dataset(dataset_id)
+        if not ds:
+            raise KeyError(f"Dataset {dataset_id} not found")
+        with self._conn() as c:
+            vers = [dict(r) for r in c.execute("SELECT id, csv_path FROM versions WHERE dataset_id=?", (dataset_id,))]
+            vids = [v["id"] for v in vers]
+            exps = [dict(r) for r in c.execute(f"SELECT id, artifact_path FROM experiments WHERE version_id IN ({','.join('?' * len(vids)) or 'NULL'})", vids)]
+            c.execute(f"DELETE FROM experiments WHERE version_id IN ({','.join('?' * len(vids)) or 'NULL'})", vids)
+            c.execute("DELETE FROM versions WHERE dataset_id=?", (dataset_id,))
+            c.execute("DELETE FROM datasets WHERE id=?", (dataset_id,))
+        for path in [v["csv_path"] for v in vers] + [e["artifact_path"] for e in exps if e["artifact_path"]]:
+            with contextlib.suppress(OSError):
+                Path(path).unlink()
+        raw = self.raw_dir / dataset_id
+        for p in raw.rglob("*"):
+            with contextlib.suppress(OSError):
+                os.chmod(p, stat.S_IRWXU)            # the raw copy is read-only on disk
+        shutil.rmtree(raw, ignore_errors=True)
+        return {"versions": len(vers), "experiments": len(exps)}
 
     # versions -----------------------------------------------------------------------------------
     def save_version(self, dataset_id, prepared, meta) -> str:
@@ -200,15 +248,54 @@ class SqliteRepository(Repository):
             rows = c.execute("SELECT split_json FROM experiments WHERE version_id=? AND seed=? AND test_evaluated=1", (version_id, seed)).fetchall()
         return sum(1 for r in rows if _same_test_rows(json.loads(r["split_json"]), split))
 
+    # anomaly and forecast runs ----------------------------------------------------------------
+    def save_run(self, kind, dataset_name, version_id, summary, files) -> str:
+        rid = _id()
+        d = self.run_dir / rid
+        d.mkdir(parents=True)
+        for fn, data in files.items():
+            (d / safe_filename(fn)).write_bytes(data)
+        with self._conn() as c:
+            c.execute("INSERT INTO runs VALUES (?,?,?,?,?,?,?)", (rid, kind, dataset_name, version_id, _now(), json.dumps(summary, default=str), str(d)))
+        return rid
+
+    def list_runs(self, kind=None):
+        q, a = "SELECT id, kind, dataset_name, version_id, created_at, summary_json FROM runs", ()
+        if kind:
+            q, a = q + " WHERE kind=?", (kind,)
+        with self._conn() as c:
+            rows = [dict(r) for r in c.execute(q + " ORDER BY created_at DESC, rowid DESC", a)]
+        for r in rows:
+            r["summary"] = json.loads(r.pop("summary_json") or "{}")
+        return rows
+
+    def get_run(self, run_id):
+        with self._conn() as c:
+            r = c.execute("SELECT * FROM runs WHERE id=?", (run_id,)).fetchone()
+        if not r:
+            return None
+        d = dict(r)
+        d["summary"] = json.loads(d.pop("summary_json") or "{}")
+        folder = Path(d.pop("files_dir"))
+        d["files"] = {p.name: p.read_bytes() for p in sorted(folder.glob("*")) if p.is_file()} if folder.is_dir() else {}
+        return d
+
+    def delete_run(self, run_id) -> None:
+        with self._conn() as c:
+            r = c.execute("SELECT files_dir FROM runs WHERE id=?", (run_id,)).fetchone()
+            c.execute("DELETE FROM runs WHERE id=?", (run_id,))
+        if r:
+            shutil.rmtree(r["files_dir"], ignore_errors=True)
+
     def clear_all(self) -> None:
-        for d in (self.raw_dir, self.ver_dir, self.art_dir):
+        for d in (self.raw_dir, self.ver_dir, self.art_dir, self.run_dir):
             for p in d.rglob("*"):
                 with contextlib.suppress(OSError):
                     os.chmod(p, stat.S_IRWXU)
             shutil.rmtree(d, ignore_errors=True)
             d.mkdir(parents=True, exist_ok=True)
         with self._conn() as c:
-            for t in ("datasets", "versions", "experiments"):
+            for t in ("datasets", "versions", "experiments", "runs"):
                 c.execute(f"DELETE FROM {t}")
 
 

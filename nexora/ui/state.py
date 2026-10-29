@@ -111,6 +111,12 @@ def working_frame() -> tuple[pd.DataFrame, str] | None:
     return _frame(h.dataset_id, st.session_state.get("version_id"), data_dir())
 
 
+def typed_raw() -> pd.DataFrame | None:
+    """The original file with column types detected (nothing cleaned), for summaries of an unprepared dataset."""
+    h = handle()
+    return None if h is None else _frame(h.dataset_id, None, data_dir())[0]
+
+
 def clear_frames() -> None:
     _frame.clear()
 

@@ -8,6 +8,8 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
+from ...config import get_settings
+
 from ...eda import charts as C
 from ...ml import cv as CV
 from ...ml import explain as XP
@@ -149,6 +151,8 @@ DEFAULT_COMPARE = {"classification": ["logistic_regression", "decision_tree", "r
 
 
 def unavailable_note(task: str) -> None:
+    if get_settings().public_mode:
+        return                     # install hints mean nothing to demo visitors
     missing = [s for s in models_for(task, include_unavailable=True) if not s.available]
     if missing:
         st.caption("Optional models not installed: " + "; ".join(f"{s.name} ({INSTALL_HINT.get(s.optional_package or '', '')})" for s in missing))
@@ -262,7 +266,8 @@ def validation_tuning(m: dict, task: str, has_val: bool) -> None:
                         st.warning(f"{spec.name}: the grid has {size} combinations, above the trial limit; use random search or halving, or raise the limit.")
                 else:
                     st.caption(f"{spec.name}: nothing to tune.")
-        m["shap"] = st.checkbox("Also compute SHAP explanations for the selected model" + ("" if XP.SHAP_AVAILABLE else " (needs: pip install shap)"),
+        why = "" if XP.SHAP_AVAILABLE else (" (not available in the online demo)" if get_settings().public_mode else " (needs: pip install shap)")
+        m["shap"] = st.checkbox("Also compute SHAP explanations for the selected model" + why,
                                 value=bool(m.get("shap")) and XP.SHAP_AVAILABLE, disabled=not XP.SHAP_AVAILABLE, key="ml_w_shap")
 
 
@@ -285,7 +290,7 @@ def results_extras(exp) -> None:
         fig = go.Figure()
         for c in folds:
             fig.add_trace(go.Box(y=c.fold_scores, name=c.name, boxpoints="all", marker_color=C.TEAL if c.key == exp.selected_key else C.MUTED))
-        st.plotly_chart(C._layout(fig, "Score in each cross-validation fold", 300), width="stretch")
+        st.plotly_chart(C._layout(fig, "Score in each cross-validation fold", 300), width="stretch", config=C.PLOTLY_CONFIG)
         st.caption("A wide spread means the score depends on which rows land in which fold; treat small differences between models with caution.")
     rep = exp.pipeline_report or {}
     if rep.get("reduction") or rep.get("selection") or rep.get("outliers"):
@@ -310,7 +315,7 @@ def results_extras(exp) -> None:
         d = pd.DataFrame(ni["rows"]).head(15)
         fig = go.Figure(go.Bar(x=d["importance"], y=d["feature"], orientation="h", marker_color=C.TEAL))
         fig.update_yaxes(autorange="reversed")
-        st.plotly_chart(C._layout(fig, "Impurity importance" if ni["kind"] == "impurity" else "Coefficient size", max(260, 26 * len(d) + 110)), width="stretch")
+        st.plotly_chart(C._layout(fig, "Impurity importance" if ni["kind"] == "impurity" else "Coefficient size", max(260, 26 * len(d) + 110)), width="stretch", config=C.PLOTLY_CONFIG)
         st.caption(ni["note"])
     if exp.shap:
         st.markdown("#### SHAP explanation")
@@ -318,7 +323,7 @@ def results_extras(exp) -> None:
             d = pd.DataFrame(exp.shap["rows"]).head(15)
             fig = go.Figure(go.Bar(x=d["mean_abs_shap"], y=d["feature"], orientation="h", marker_color=C.TEAL))
             fig.update_yaxes(autorange="reversed")
-            st.plotly_chart(C._layout(fig, "Mean |SHAP value| per prepared feature", max(260, 26 * len(d) + 110)), width="stretch")
+            st.plotly_chart(C._layout(fig, "Mean |SHAP value| per prepared feature", max(260, 26 * len(d) + 110)), width="stretch", config=C.PLOTLY_CONFIG)
             st.caption(exp.shap["note"] + " SHAP shows how the model uses features, not what causes the outcome.")
         else:
             st.info(exp.shap.get("reason", "SHAP is not available."))

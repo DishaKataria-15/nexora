@@ -21,7 +21,8 @@ def column_role(s: pd.Series, name: str = "") -> str:
     if n == 0:
         return "empty"
     if s.dropna().nunique() <= 1:
-        return "constant"
+        # one value plus blanks is not constant: whether the value is filled in carries information (e.g. a return reason)
+        return "categorical" if s.isna().any() and n >= 2 else "constant"
     if pd.api.types.is_datetime64_any_dtype(s):
         return "datetime"
     if pd.api.types.is_bool_dtype(s) or str(s.dtype) == "boolean":

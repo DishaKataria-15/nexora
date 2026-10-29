@@ -6,6 +6,7 @@ Scores are oriented so that higher always means more unusual.
 """
 from __future__ import annotations
 
+import re
 import time
 from dataclasses import asdict, dataclass, field
 from typing import Any, Callable
@@ -58,6 +59,7 @@ class AnomalyResult:
     selected: str = ""
     top: list[dict[str, Any]] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
+    unit_warnings: list[dict[str, Any]] = field(default_factory=list)
     seconds: float = 0.0
     _scores: dict[str, np.ndarray] = field(default_factory=dict, repr=False)
     _flags: dict[str, np.ndarray] = field(default_factory=dict, repr=False)
@@ -72,6 +74,40 @@ class AnomalyResult:
         m = method or self.selected
         return pd.DataFrame({"row_in_dataset": np.arange(len(self._scores[m])), "anomaly_score": np.round(self._scores[m], 6),
                              "flagged": self._flags[m].astype(bool)})
+
+
+UNIT_NAME = re.compile(r"(^|_)(unit|units|uom|currency|curr|scale|measure)$", re.I)
+
+
+def mixed_unit_warnings(df: pd.DataFrame, exclude: list[str] | None = None) -> list[dict[str, Any]]:
+    """Numeric columns whose readings come in more than one unit, recognised by a companion column such as
+    'temperature_unit' or 'currency'. Rows in the less common unit would look unusual only because of the unit.
+
+    Returns [{"value_cols", "unit_col", "units": {unit: rows}, "message"}]. Unit spellings are compared ignoring case.
+    """
+    exclude = set(exclude or [])
+    out: list[dict[str, Any]] = []
+    numeric = [c for c in df.columns if c not in exclude and pd.to_numeric(df[c], errors="coerce").notna().mean() >= 0.8]
+    for uc in df.columns:
+        if not UNIT_NAME.search(str(uc)):
+            continue
+        counts = df[uc].dropna().astype(str).str.strip().str.upper().replace("", np.nan).dropna().value_counts()   # 'usd' = 'USD'
+        if len(counts) < 2 or len(counts) > 10:
+            continue
+        stem = UNIT_NAME.sub("", str(uc)).strip("_").lower()
+        pairs = [c for c in numeric if c != uc and stem and str(c).lower().startswith(stem)]
+        if not pairs and stem in ("", "currency", "curr"):
+            pairs = [c for c in numeric if re.search(r"(amount|price|total|cost|balance|value)", str(c), re.I)]
+        if not pairs:
+            continue
+        units = {str(k): int(v) for k, v in counts.items()}
+        listing = ", ".join(f"{k} ({v:,} rows)" for k, v in units.items())
+        cols = ", ".join(f"'{c}'" for c in pairs)
+        out.append({"value_cols": pairs, "unit_col": uc, "units": units,
+                    "message": f"{cols} {'is' if len(pairs) == 1 else 'are'} recorded in more than one unit according to '{uc}': {listing}. "
+                               "Rows in the less common unit can look unusual only because of the unit. Convert them to one unit first "
+                               "(Prepare Data), or leave " + ("that column" if len(pairs) == 1 else "those columns") + " out here."})
+    return out
 
 
 def _robust_z(Z: np.ndarray) -> np.ndarray:
@@ -151,6 +187,7 @@ def run_anomaly(df: pd.DataFrame, cfg: AnomalyConfig, options: PreprocessOptions
     if not fs.all:
         raise AnomalyError("No usable feature columns remain.")
     res.feature_set = fs.to_dict()
+    res.unit_warnings = [w for w in mixed_unit_warnings(work, exclude) if set(w["value_cols"]) & set(fs.all)]
     prep = Pipeline(build_pipeline_steps(fs, options, True, task="clustering", seed=cfg.seed))
     Xt = np.asarray(prep.fit_transform(work[fs.all]), dtype=float)
     names = _names(prep, Xt.shape[1])
@@ -221,6 +258,8 @@ def run_anomaly(df: pd.DataFrame, cfg: AnomalyConfig, options: PreprocessOptions
                "why": "; ".join(why) or "an unusual combination of values rather than one extreme value"}
         for c in fs.all[:8]:
             v = work.at[r, c]
+            if isinstance(v, pd.Timestamp) and v == v.normalize():
+                v = v.strftime("%Y-%m-%d")                       # date-only values without 00:00:00
             row[c] = None if pd.isna(v) else (v if isinstance(v, (int, float, str, bool)) else str(v))
         res.top.append(row)
     res.seconds = round(time.time() - t0, 2)

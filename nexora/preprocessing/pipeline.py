@@ -257,7 +257,7 @@ def build_pipeline_steps(fs: FeatureSet, options: PreprocessOptions, scale_sensi
     if categorical:
         enc = (OneHotEncoder(handle_unknown="ignore", max_categories=options.max_categories, sparse_output=False)
                if options.encoding == "onehot" else OrdinalEncoder(handle_unknown="use_encoded_value", unknown_value=-1))
-        transformers.append(("cat", Pipeline([("impute", SimpleImputer(strategy="most_frequent", keep_empty_features=True)), ("encode", enc)]), categorical))
+        transformers.append(("cat", Pipeline([("impute", SimpleImputer(strategy="constant", fill_value="(missing)", keep_empty_features=True)), ("encode", enc)]), categorical))
     if fs.datetime:
         transformers.append(("date", Pipeline([("parts", DatetimeFeatures(parts=options.date_parts, cyclical=options.cyclical)),
                                                ("impute", SimpleImputer(strategy="median", keep_empty_features=True))]), fs.datetime))

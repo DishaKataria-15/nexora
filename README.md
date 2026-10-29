@@ -2,11 +2,16 @@
 
 **Connect data, models and decisions.**
 
+**Live demo: [nexora-dk.streamlit.app](https://nexora-dk.streamlit.app)** (synthetic sample data included; nothing to install)
+
+![Nexora tour: home page, a cleaning plan, correlations, ML Studio and a model comparison](docs/demo.gif)
+
 Nexora is a local application that takes a spreadsheet from upload to a trained, evaluated model in one guided flow:
 upload a CSV or Excel file, review a short automatic preparation plan, confirm once, explore the cleaned data, then
 predict a number, predict a category, or discover groups. Every number it shows is computed from your data.
 
-It runs on your own computer. Nothing is sent anywhere and no paid service is used.
+It runs on your own computer. Nothing is sent anywhere and no paid service is used. The hosted demo runs the same code in
+*public mode*: each browser session gets its own private workspace that is deleted within 24 hours, and database connections are off.
 
 ## What it does
 
@@ -15,11 +20,11 @@ It runs on your own computer. Nothing is sent anywhere and no paid service is us
 | **Datasets** | CSV / TSV / Excel upload with validation and preview; read-only **database** connections (SQLite, PostgreSQL, MySQL, SQL Server) and **web API** ingestion (JSON / CSV, pagination, authentication); clearly labelled synthetic sample data; **Combine datasets (advanced)** joins, summarises or stacks two to five saved datasets into one; every source is stored read-only and never modified. |
 | **Prepare Data** | Profile, choose a domain and goal, review a plan where every step has a plain-language reason and expandable details, confirm once. Safe steps run automatically; ambiguous ones (for example `03/04/2026`) wait for your decision. Before/after report with reconciliation checks and a complete step log. |
 | **Visualize & Dashboard** | Computed summaries, per-column views, correlations, recommended charts, a chart builder, a filterable dashboard you can export as HTML, and a **Dimensions** view (PCA, SVD, t-SNE, optional UMAP). |
-| **ML Studio** | Regression, classification and clustering with 34 registered models (XGBoost and LightGBM optional). Target and leakage checks, reproducible splits, class-imbalance handling, in-pipeline outlier treatment, feature engineering, dimensionality reduction and feature selection (all learned on training rows only), k-fold / stratified / group / repeated / time-series cross-validation, bounded grid, random and successive-halving tuning, background training with cancellation, one-time test-set evaluation, native importance and optional SHAP. |
-| **Anomalies** | Unsupervised anomaly scoring (Isolation Forest, Local Outlier Factor, One-Class SVM, Elliptic Envelope, robust z-score), the most unusual rows with the reason, and optional evaluation against a column of known anomalies. |
-| **Forecasting** | Time-series forecasts with rolling-origin backtesting against naive and seasonal-naive baselines; lag-feature models, optional Holt-Winters, known-in-advance columns, rough prediction ranges. |
+| **ML Studio** | Regression, classification and clustering with 34 registered models (XGBoost and LightGBM included). A suggested goal from your columns, the top 3 suggested models compared by default, a full review before training, a warning beside test scores that look too good, and clustering groups with plain-language names. Target and leakage checks, reproducible splits, class-imbalance handling, in-pipeline outlier treatment, feature engineering, dimensionality reduction and feature selection (all learned on training rows only), k-fold / stratified / group / repeated / time-series cross-validation, bounded grid, random and successive-halving tuning, background training with cancellation, one-time test-set evaluation, native importance and optional SHAP. |
+| **Anomalies** | Unsupervised anomaly scoring (Isolation Forest, Local Outlier Factor, One-Class SVM, Elliptic Envelope, robust z-score), the most unusual rows with the reason, optional evaluation against a column of known anomalies, a warning when a column is recorded in mixed units, and runs you can save to Reports. |
+| **Forecasting** | Time-series forecasts with rolling-origin backtesting against naive and seasonal-naive baselines; lag-feature models, Holt-Winters, known-in-advance columns, rough prediction ranges, the error in every backtest window, and runs you can save to Reports. |
 | **Help assistant** | A *Help: ask about Nexora* panel in the sidebar answers typed questions about the interface from about 60 built-in answers, with suggested questions for the page you are on and a *Go to* button. It works offline and says so when it has no answer. |
-| **Reports** | Every experiment and preparation run is saved with its settings, seed and results, and can be reopened, compared and downloaded. Saved models can score new rows. |
+| **Reports** | Every experiment and preparation run is saved with its settings, seed and results, and can be reopened and downloaded. Experiments on the same dataset and goal are compared in one table that flags settings which differ. Saved anomaly and forecast runs, and saved models that score new rows. Datasets can be renamed or deleted. |
 
 Domain depth: all 18 domain profiles have domain-aware cleaning (record keys, required spellings, exact unit conversions where they
 are safe, an outlier policy). **Retail, Finance and Manufacturing** are additionally tested end to end against recorded ground truth;
@@ -52,7 +57,7 @@ pip install -r requirements-dev.txt
 streamlit run app.py
 ```
 
-Optional extras (XGBoost, LightGBM, SHAP, Holt-Winters, UMAP, database drivers): `pip install -r requirements-optional.txt`.
+XGBoost, LightGBM and Holt-Winters (statsmodels) are installed with `requirements.txt`. Optional extras (SHAP, UMAP, database drivers): `pip install -r requirements-optional.txt`.
 Nexora works without them; each feature shows its install command when the package is missing.
 
 ### macOS / Linux
@@ -119,7 +124,7 @@ Your data lives in `data/` (created on first run). Set `NEXORA_DATA_DIR` to move
 | Over-/under-sampling and SMOTE show as unavailable | `pip install imbalanced-learn`. SMOTE is also withheld when features include categories or dates, by design. |
 | The GPU option never appears | Intended: it is offered only when a compatible GPU **and** a GPU-capable model exist. Nexora's built-in models run on CPU. |
 | Preparing a very large file feels slow | Planning and preparing scale with rows and columns; 150,000 rows by 5 columns took about 20 seconds (plan 11 s, prepare 8 s) in testing. |
-| A model, SHAP, Holt-Winters or UMAP option says a package is needed | `pip install -r requirements-optional.txt` (or just the package named). |
+| A SHAP or UMAP option, or a database driver, says a package is needed | `pip install -r requirements-optional.txt` (or just the package named). |
 | Database tab: "needs the driver package" | Install the driver it names (for example `pip install psycopg2-binary`). |
 | Web API: "points to a private or internal address" | Intended protection. For an API on your own machine or network, start Nexora with `NEXORA_ALLOW_PRIVATE_API=1`. |
 | A page shows "Something went wrong" | Go back one step. Details are in the terminal. Your original file is never changed. |
@@ -134,3 +139,6 @@ Your data lives in `data/` (created on first run). Set `NEXORA_DATA_DIR` to move
   Passwords are kept in memory for the session only, or read from an environment variable; they are never written to disk or logs.
 * Web API credentials are only sent over https to the host you entered, never to redirect or pagination targets on other hosts.
 * Preparation never invents identifiers or target labels, never deletes rows that merely look similar, and never changes your original file.
+
+---
+Built by Disha Kataria · [GitHub](https://github.com/DishaKataria-15) · [LinkedIn](https://www.linkedin.com/in/dishakataria15)

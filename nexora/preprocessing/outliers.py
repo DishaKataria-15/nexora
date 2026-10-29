@@ -180,7 +180,7 @@ class OutlierReport:
             lo, hi = self.bounds.get(c, (np.nan, np.nan))
             rows.append({"column": c, "flagged values": self.per_column.get(c, 0),
                          "share %": round(100 * self.per_column.get(c, 0) / max(self.n_rows, 1), 2),
-                         "lower bound": None if not np.isfinite(lo) else round(lo, 6), "upper bound": None if not np.isfinite(hi) else round(hi, 6),
+                         "lower bound": "none" if not np.isfinite(lo) else f"{lo:.6g}", "upper bound": "none" if not np.isfinite(hi) else f"{hi:.6g}",
                          "note": self.notes.get(c, "")})
         return pd.DataFrame(rows)
 
@@ -217,6 +217,10 @@ def detect(df: pd.DataFrame, cfg: OutlierConfig) -> OutlierReport:
     for c in cols:
         s = df[c].astype(float)
         lo, hi, note = column_bounds(s.values, cfg, c)
+        if np.isfinite(lo) and lo < 0 and s.notna().any() and float(s.min()) >= 0:
+            # e.g. Q1 - 3 x IQR = -132.75 for prices: no value can be that low, so there is effectively no lower limit
+            lo = -np.inf
+            note = (note + "; " if note else "") + "no lower limit (the computed fence is below zero and the column has no negative values)"
         bounds[c] = (lo, hi)
         if note:
             notes[c] = note

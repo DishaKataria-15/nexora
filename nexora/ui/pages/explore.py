@@ -6,6 +6,8 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
+from ...config import get_settings
+
 from ...eda import charts as C
 from ...eda import profiling as P
 from ...reporting import eda_summary_html
@@ -18,19 +20,29 @@ def _show(df: pd.DataFrame, spec: C.ChartSpec, key: str) -> bool:
     except C.ChartError as e:
         st.info(f"This chart cannot be drawn: {e}")
         return False
-    st.plotly_chart(fig, width="stretch", key=key)
+    st.plotly_chart(fig, width="stretch", config=C.PLOTLY_CONFIG, key=key)
     return True
 
 
-def _add(spec: C.ChartSpec, key: str) -> None:
+def _on_dashboard(spec: C.ChartSpec) -> bool:
+    return any(C.ChartSpec.from_dict(d).key() == spec.key() for d in st.session_state["dashboard"])
+
+
+def _add_spec(spec: C.ChartSpec) -> None:
     dash = st.session_state["dashboard"]
-    if st.button("Add to dashboard", key=key, help="Adds this chart to the Dashboard tab."):
-        if any(C.ChartSpec.from_dict(d).key() == spec.key() for d in dash):
-            st.toast("That chart is already on the dashboard.")
-        else:
-            spec.spec_id = f"d{len(dash) + 1}_{zlib.crc32(spec.key().encode()) % 100000}"
-            dash.append(spec.to_dict())
-            st.toast("Added to the dashboard.")
+    if not _on_dashboard(spec):
+        spec.spec_id = f"d{len(dash) + 1}_{zlib.crc32(spec.key().encode()) % 100000}"
+        dash.append(spec.to_dict())
+        st.toast(f"Added to the dashboard ({len(dash)} chart(s) there now).")
+
+
+def _add(spec: C.ChartSpec, key: str) -> None:
+    """'Add to dashboard', which turns into a lasting 'On the dashboard' note so it is clear the click worked."""
+    if _on_dashboard(spec):
+        n = len(st.session_state["dashboard"])
+        st.success(f"On the dashboard. Open the **Dashboard** tab to see all {n} chart(s).", icon=":material/check_circle:")
+    else:
+        st.button("Add to dashboard", key=key, help="Adds this chart to the Dashboard tab.", on_click=_add_spec, args=(spec,))
 
 
 def render() -> None:
@@ -72,7 +84,7 @@ def _dimensions(df: pd.DataFrame) -> None:
     c1, c2 = st.columns(2)
     meth = c1.selectbox("Method", methods, format_func=lambda k: R.VIEW_METHODS[k], key="ex_dim_m")
     color = c2.selectbox("Colour points by", ["(none)"] + list(df.columns), key="ex_dim_c")
-    if not R.UMAP_AVAILABLE:
+    if not R.UMAP_AVAILABLE and not get_settings().public_mode:
         st.caption("UMAP is optional (pip install umap-learn).")
     if st.button("Draw", type="primary", key="ex_dim_go"):
         try:
@@ -93,7 +105,7 @@ def _dimensions(df: pd.DataFrame) -> None:
                                            marker={"size": 6, "opacity": 0.7, "color": C.COLORWAY[i % len(C.COLORWAY)]}))
         else:
             fig.add_trace(go.Scattergl(x=pts["dim1"], y=pts["dim2"], mode="markers", marker={"size": 6, "opacity": 0.6, "color": C.TEAL}))
-        st.plotly_chart(C._layout(fig, R.VIEW_METHODS[pr.method], 420), width="stretch")
+        st.plotly_chart(C._layout(fig, R.VIEW_METHODS[pr.method], 420), width="stretch", config=C.PLOTLY_CONFIG)
         if pr.explained_variance:
             st.caption("Share of variation shown: " + ", ".join(f"dimension {i + 1}: {100 * v:.1f}%" for i, v in enumerate(pr.explained_variance)))
         if pr.note:
@@ -125,7 +137,7 @@ def _overview(df: pd.DataFrame) -> None:
         fig = go.Figure(go.Bar(x=miss["missing %"], y=miss["column"], orientation="h", marker_color=C.TEAL, text=[f"{v}%" for v in miss["missing %"]], textposition="outside"))
         fig.update_yaxes(autorange="reversed")
         fig.update_xaxes(title="% of rows missing", range=[0, max(100, float(miss["missing %"].max()) * 1.1)])
-        st.plotly_chart(C._layout(fig, "Missing values by column", height=max(260, 30 * len(miss) + 120)), width="stretch")
+        st.plotly_chart(C._layout(fig, "Missing values by column", height=max(260, 30 * len(miss) + 120)), width="stretch", config=C.PLOTLY_CONFIG)
     osum = P.outlier_summary(df)
     if not osum.empty and (osum["outliers"] > 0).any():
         st.markdown("#### Unusual values")
@@ -137,7 +149,11 @@ def _overview(df: pd.DataFrame) -> None:
 
 
 def _columns(df: pd.DataFrame) -> None:
-    col = st.selectbox("Column", list(df.columns), key="ex_col")
+    cols = list(df.columns)
+    chartable = [c for c in cols if P.column_role(df[c], c) in ("numeric", "categorical", "boolean", "datetime")]
+    if st.session_state.get("ex_col") not in cols:
+        st.session_state["ex_col"] = chartable[0] if chartable else cols[0]      # open on a column that has a chart, not an ID
+    col = st.selectbox("Column", cols, key="ex_col")
     s = df[col]
     role = P.column_role(s, col)
     st.markdown(f"**{col}**: {role}, {s.dtype}; {int(s.isna().sum()):,} missing; {int(s.nunique()):,} distinct values.")

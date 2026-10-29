@@ -20,12 +20,104 @@ def _headline(res: dict) -> str:
     return f"{k}: {sel['score']:.4g} (selection only; test set not used)" if sel and sel.get("score") is not None else ""
 
 
+def compare_table(results: list[tuple[str, dict]]) -> tuple[pd.DataFrame, list[str]]:
+    """One row per experiment (same dataset and task), with the settings that decide whether scores are comparable.
+
+    results: [(label, result_dict)]. Returns (table, notes) where notes say which settings differ between the rows.
+    """
+    rows, test_keys = [], []
+    for _, r in results:
+        for k in ((r.get("test_result") or {}).get("metrics") or {}):
+            if k not in test_keys:
+                test_keys.append(k)
+    for label, r in results:
+        cfg = r.get("config", {})
+        sel = next((c for c in r.get("candidates", []) if c["key"] == r.get("selected_key")), {}) or {}
+        sp = cfg.get("split", {})
+        row = {"Experiment": label, "Selected model": sel.get("name", ""), "Primary metric": cfg.get("primary_metric"),
+               "Selection score": sel.get("score"), "Models tried": len(r.get("candidates", [])),
+               "Data version": "prepared" if cfg.get("dataset_version") not in (None, "raw") else "raw",
+               "Split": f"{sp.get('strategy', '')} {sp.get('train', 0):.0%}/{sp.get('val', 0):.0%}/{sp.get('test', 0):.0%}" if sp else "none",
+               "Seed": cfg.get("seed"), "Left out": ", ".join(cfg.get("features_exclude") or []) or "nothing"}
+        tm = (r.get("test_result") or {}).get("metrics") or {}
+        for k in test_keys:
+            row[f"Test {k}"] = tm.get(k) if r.get("test_evaluated") or cfg.get("task") == "clustering" else None
+        rows.append(row)
+    tab = pd.DataFrame(rows)
+    notes = []
+    for col, what in (("Primary metric", "primary metric"), ("Data version", "data version (raw or prepared)"), ("Split", "split"),
+                      ("Seed", "seed"), ("Left out", "set of left-out columns")):
+        if col in tab and tab[col].astype(str).nunique() > 1:
+            notes.append(f"The {what} differs between these experiments, so their scores are not directly comparable.")
+    return tab, notes
+
+
+def _compare(full: dict, exps: list[dict]) -> None:
+    st.markdown("#### Compare experiments")
+    groups: dict[tuple[str, str], list[dict]] = {}
+    for e in exps:
+        cfg = full[e["id"]]["result"].get("config", {})
+        groups.setdefault((cfg.get("dataset_name", "?"), cfg.get("task", "?")), []).append(e)
+    multi = {k: v for k, v in groups.items() if len(v) >= 2}
+    if not multi:
+        st.caption("Train two or more experiments on the same dataset and goal to compare them here.")
+        return
+    glabels = {f"{ds}: {task} ({len(v)} experiments)": k for k, v in multi.items() for ds, task in [k]}
+    g = multi[glabels[st.selectbox("Dataset and goal", list(glabels), key="rep_cmp_g",
+                                   help="Only experiments on the same dataset with the same goal are compared.")]]
+    labels = {f"{e['name']} ({theme.local_time(e['created_at'])}, {e['id'][:4]})": e["id"] for e in g}
+    pick = st.multiselect("Experiments", list(labels), default=list(labels)[:4], max_selections=6, key="rep_cmp_pick")
+    if len(pick) < 2:
+        st.caption("Pick at least two.")
+        return
+    tab, notes = compare_table([(p, full[labels[p]]["result"]) for p in pick])
+    nums = [c for c in tab.columns if c == "Selection score" or c.startswith("Test ")]
+    st.dataframe(tab.dropna(axis=1, how="all"), hide_index=True, width="stretch",
+                 column_config={c: st.column_config.NumberColumn(format="%.4f") for c in nums})
+    for n in notes:
+        st.warning(n)
+    if not notes:
+        st.caption("Same metric, data version, split, seed and inputs: the scores are directly comparable.")
+    st.caption("Test columns are empty for experiments whose test set has not been used yet.")
+
+
+def _runs(w) -> None:
+    runs = w.repo.list_runs()
+    if not runs:
+        theme.empty_state("No saved runs yet", "Use 'Save to Reports' on the Anomalies or Forecasting page to keep a run here.")
+        return
+    kind = {"anomaly": "Anomalies", "forecast": "Forecast"}
+    st.dataframe(pd.DataFrame([{"Kind": kind.get(r["kind"], r["kind"]), "Dataset": r["dataset_name"], "Result": r["summary"].get("headline", ""),
+                                "Data version": "prepared" if r.get("version_id") else "raw", "Saved": theme.local_time(r["created_at"])} for r in runs]),
+                 hide_index=True, width="stretch")
+    labels = {f"{kind.get(r['kind'], r['kind'])}: {r['dataset_name']} ({theme.local_time(r['created_at'])}, {r['id'][:4]})": r["id"] for r in runs}
+    rid = labels[st.selectbox("Open a run", list(labels), key="rep_run")]
+    run = w.repo.get_run(rid)
+    if not run:
+        return
+    sm = run["summary"]
+    st.markdown(f"**{theme.esc(sm.get('headline', ''))}**", unsafe_allow_html=True)
+    if sm.get("table"):
+        st.dataframe(pd.DataFrame(sm["table"]), hide_index=True, width="stretch")
+    for t in sm.get("notes", []):
+        st.caption(t)
+    cols = st.columns(min(len(run["files"]) + 1, 5))
+    mime = {"csv": "text/csv", "json": "application/json"}
+    for col, (fn, data) in zip(cols, run["files"].items()):
+        col.download_button(fn, data, file_name=fn, mime=mime.get(fn.rsplit(".", 1)[-1], "application/octet-stream"), key=f"run_dl_{rid}_{fn}")
+    if st.button("Delete this run", key=f"run_del_{rid}"):
+        w.repo.delete_run(rid)
+        st.rerun()
+
+
 def render() -> None:
     st.title("Reports and experiments")
     w = state.ws()
-    tab_e, tab_p, tab_u = st.tabs(["Experiments", "Preparation reports", "Use a saved model"])
+    tab_e, tab_r, tab_p, tab_u = st.tabs(["Experiments", "Anomaly and forecast runs", "Preparation reports", "Use a saved model"])
     with tab_u:
         _use_model(w)
+    with tab_r:
+        _runs(w)
     with tab_e:
         exps = w.repo.list_experiments()
         if not exps:
@@ -38,18 +130,10 @@ def render() -> None:
                 sel = next((c["name"] for c in r.get("candidates", []) if c["key"] == r.get("selected_key")), "")
                 rows.append({"Name": e["name"], "Task": e["task"], "Status": e["status"].replace("_", " "), "Selected model": sel, "Headline": _headline(r),
                              "Test set used": "yes" if e["test_evaluated"] else ("n/a" if e["task"] == "clustering" else "no"), "Seed": e["seed"],
-                             "Created": e["created_at"][:16].replace("T", " ")})
+                             "Created": theme.local_time(e["created_at"])})
             st.dataframe(pd.DataFrame(rows), hide_index=True, width="stretch")
-            names = {f"{e['name']} ({e['created_at'][:16].replace('T', ' ')}, {e['id'][:4]})": e["id"] for e in exps}
-            pick = st.multiselect("Compare experiments", list(names), max_selections=4, help="Select two or more to compare their candidate models side by side.")
-            if len(pick) >= 2:
-                comp = []
-                for p in pick:
-                    r = full[names[p]]["result"]
-                    for c in r.get("candidates", []):
-                        comp.append({"Experiment": p, "Model": c["name"], "Primary metric": r["config"].get("primary_metric"), "Selection score": c.get("score"), "Status": c["status"]})
-                st.dataframe(pd.DataFrame(comp), hide_index=True, width="stretch")
-                st.caption("Scores from different experiments are comparable only if they used the same data, split and metric.")
+            names = {f"{e['name']} ({theme.local_time(e['created_at'])}, {e['id'][:4]})": e["id"] for e in exps}
+            _compare(full, exps)
             one = st.selectbox("Open an experiment", list(names), key="rep_one")
             rec = full[names[one]]
             r = rec["result"]
@@ -66,7 +150,17 @@ def render() -> None:
                          "balancing": r["config"].get("imbalance")})
             cand = pd.DataFrame(r.get("candidates", []))
             if not cand.empty:
-                st.dataframe(cand[[c for c in ("name", "status", "score", "score_std", "seconds", "error") if c in cand.columns]], hide_index=True, width="stretch")
+                view = cand[[c for c in ("name", "status", "score", "score_std", "seconds", "error") if c in cand.columns]].copy()
+                for c in ("score", "score_std", "seconds"):
+                    if c in view:
+                        view[c] = pd.to_numeric(view[c], errors="coerce")      # None becomes an empty cell, not the word "None"
+                view = view.rename(columns={"name": "Model", "status": "Status", "score": "Score", "score_std": "Spread (folds)", "seconds": "Seconds",
+                                            "error": "Note"})
+                if "Note" in view:
+                    view["Note"] = view["Note"].fillna("")
+                st.dataframe(view, hide_index=True, width="stretch", column_config={"Score": st.column_config.NumberColumn(format="%.4f"),
+                                                                                   "Spread (folds)": st.column_config.NumberColumn(format="%.4f"),
+                                                                                   "Seconds": st.column_config.NumberColumn(format="%.2f")})
             for t in r.get("interpretation", []):
                 st.markdown(f"- {t}")
     with tab_p:
@@ -77,8 +171,8 @@ def render() -> None:
             dsn = {d["id"]: d["name"] for d in w.repo.list_datasets()}
             st.dataframe(pd.DataFrame([{"Dataset": dsn.get(v["dataset_id"], v["dataset_id"]), "Rows": v["rows"], "Columns": v["cols"], "Profile": v["meta"].get("profile_id"),
                                         "Goal": v["meta"].get("goal"), "Checks passed": "yes" if v["meta"].get("reconciliation_ok") else "NO",
-                                        "Created": v["created_at"][:16].replace("T", " ")} for v in vers]), hide_index=True, width="stretch")
-            lab = {f"{dsn.get(v['dataset_id'], '?')} {v['created_at'][:16].replace('T', ' ')} ({v['id'][:4]})": v for v in vers}
+                                        "Created": theme.local_time(v["created_at"])} for v in vers]), hide_index=True, width="stretch")
+            lab = {f"{dsn.get(v['dataset_id'], '?')} {theme.local_time(v['created_at'])} ({v['id'][:4]})": v for v in vers}
             v = lab[st.selectbox("Open a preparation report", list(lab))]
             rep = v["meta"].get("report", {})
             if rep:
@@ -102,7 +196,7 @@ def _use_model(w) -> None:
         return
     st.markdown("Score new rows with a model you trained here. The saved pipeline repeats every preparation step exactly as it was learned "
                 "from the training rows. The new data needs the same input columns.")
-    names = {f"{e['name']} ({e['task']}, {e['created_at'][:16].replace('T', ' ')}, {e['id'][:4]})": e["id"] for e in exps}
+    names = {f"{e['name']} ({e['task']}, {theme.local_time(e['created_at'])}, {e['id'][:4]})": e["id"] for e in exps}
     pick = st.selectbox("Model", list(names), key="pr_model")
     src = st.radio("Rows to score", ["Upload a file", "The dataset that is open now"], horizontal=True, key="pr_src")
     df = None
@@ -131,6 +225,6 @@ def _use_model(w) -> None:
         out, notes = res
         for n in notes:
             st.caption(n)
-        st.dataframe(out.head(200), hide_index=True, width="stretch")
+        st.dataframe(theme.display_frame(out.head(200)), hide_index=True, width="stretch")
         st.download_button("Predictions (CSV)", out.to_csv(index=False).encode(), file_name="predictions.csv", mime="text/csv", key="pr_dl")
         st.caption("Predictions are only as good as the test results of this model, and only for data like the data it was trained on.")

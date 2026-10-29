@@ -19,20 +19,33 @@ def render() -> None:
                                                    help="Used as the starting seed for new experiments, so results can be repeated."))
     st.caption("Applies to new experiments. Existing experiments keep the seed they were trained with.")
     st.subheader("Limits")
-    st.table({"Setting": ["Maximum upload size", "Maximum rows", "Maximum columns", "Data folder"],
-              "Value": [f"{s.max_upload_mb} MB", f"{s.max_rows:,}", str(s.max_cols), str(s.data_dir)]})
-    st.caption("Change limits with the environment variables NEXORA_MAX_UPLOAD_MB, NEXORA_MAX_ROWS, NEXORA_MAX_COLS and NEXORA_DATA_DIR before starting Nexora.")
-    st.subheader("Compute")
-    info = detect_compute()
-    st.markdown(f"**CPU cores:** {info.cpu_count}. **GPU:** {', '.join(info.gpu_devices) if info.gpu_devices else 'none detected'}.")
-    st.caption(info.note + " A GPU option is offered only if a compatible device and a GPU-capable model are both available.")
-    st.subheader("Software versions")
-    env = environment()
-    st.table({"Package": list(env), "Version": list(env.values())})
-    st.subheader("Local data")
-    st.markdown(f"{len(w.repo.list_datasets())} dataset(s) and {len(w.repo.list_experiments())} experiment(s) are stored on this computer only. Nothing is sent anywhere.")
-    with st.expander("Delete all local workspace data"):
-        st.warning("This permanently removes every stored dataset, prepared version, experiment and model from this computer. Your original files elsewhere are not touched.")
+    if s.public_mode:
+        # the demo does not show server paths, hardware or package versions
+        st.table({"Setting": ["Maximum upload size", "Maximum rows", "Maximum columns"],
+                  "Value": [f"{s.max_upload_mb} MB", f"{s.max_rows:,}", str(s.max_cols)]})
+        st.caption("These are the limits of the online demo. Running Nexora on your own computer lets you raise them.")
+    else:
+        st.table({"Setting": ["Maximum upload size", "Maximum rows", "Maximum columns", "Data folder"],
+                  "Value": [f"{s.max_upload_mb} MB", f"{s.max_rows:,}", str(s.max_cols), str(s.data_dir)]})
+        st.caption("Change limits with the environment variables NEXORA_MAX_UPLOAD_MB, NEXORA_MAX_ROWS, NEXORA_MAX_COLS and NEXORA_DATA_DIR before starting Nexora.")
+        st.subheader("Compute")
+        info = detect_compute()
+        st.markdown(f"**CPU cores:** {info.cpu_count}. **GPU:** {', '.join(info.gpu_devices) if info.gpu_devices else 'none detected'}.")
+        st.caption(info.note + " A GPU option is offered only if a compatible device and a GPU-capable model are both available.")
+        st.subheader("Software versions")
+        env = environment()
+        st.table({"Package": list(env), "Version": list(env.values())})
+    st.subheader("Your data in this session" if s.public_mode else "Local data")
+    if s.public_mode:
+        st.markdown(f"{len(w.repo.list_datasets())} dataset(s) and {len(w.repo.list_experiments())} experiment(s) are stored on the demo server for "
+                    "**this browser session only**. Other visitors cannot see them, and they are deleted within 24 hours or when the server restarts. "
+                    "Download anything you want to keep.")
+    else:
+        st.markdown(f"{len(w.repo.list_datasets())} dataset(s) and {len(w.repo.list_experiments())} experiment(s) are stored on this computer only. "
+                    "Nexora sends nothing anywhere; only the Database and Web API tabs contact the sources you enter.")
+    with st.expander("Delete all workspace data" if s.public_mode else "Delete all local workspace data"):
+        st.warning("This permanently removes every stored dataset, prepared version, experiment, saved run and model "
+                   + ("from this browser session." if s.public_mode else "from this computer. Your original files elsewhere are not touched."))
         ok = st.checkbox("I understand this cannot be undone", key="del_ok")
         if st.button("Delete everything", disabled=not ok):
             w.repo.clear_all()

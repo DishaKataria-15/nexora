@@ -539,6 +539,67 @@ def finalize_experiment(exp: Experiment) -> Experiment:
 # Clustering
 # ----------------------------------------------------------------------------
 
+def describe_groups(work: pd.DataFrame, labels, numeric: list[str], categorical: list[str], top: int = 2,
+                    dates: list[str] | None = None) -> dict[int, str]:
+    """A short plain-language name per group, from what sets it apart from all rows.
+
+    Numeric columns: the group average compared with the overall spread (at least half a standard deviation counts as
+    "high" or "low"). Categorical columns: a value that is much more common in the group than overall. Noise (-1) is
+    named "Noise (no group)". Date columns count as "earlier" or "later". When nothing clears those bars, the strongest
+    weaker difference is used ("slightly ..."), and only a group with no difference at all is called "Typical rows".
+    Names that would repeat get the group number added.
+    """
+    labels = np.asarray(labels)
+    out: dict[int, str] = {}
+    num = {c: pd.to_numeric(work[c], errors="coerce") for c in numeric}
+    for c in dates or []:
+        d = pd.to_datetime(work[c], errors="coerce")
+        if d.notna().sum() > 1:
+            num[f"\x00{c}"] = (d - d.min()).dt.total_seconds()
+    stats = {c: (float(s.mean()), float(s.std())) for c, s in num.items() if s.notna().sum() > 1 and float(s.std() or 0) > 0}
+
+    def word(c: str, z: float) -> str:
+        if c.startswith("\x00"):
+            return f"{'later' if z > 0 else 'earlier'} {c[1:]}"
+        return f"{'high' if z > 0 else 'low'} {c}"
+
+    cat_share = {c: work[c].dropna().astype(str).value_counts(normalize=True) for c in categorical[:8]}
+    for g in sorted(set(labels.tolist())):
+        if g == -1:
+            out[-1] = "Noise (no group)"
+            continue
+        mask = labels == g
+        traits: list[tuple[float, str]] = []
+        weak: list[tuple[float, str]] = []
+        for c, (mu, sd) in stats.items():
+            v = num[c][mask].mean()
+            if pd.notna(v):
+                z = (float(v) - mu) / sd
+                (traits if abs(z) >= 0.5 else weak).append((abs(z), word(c, z)))
+        for c, overall in cat_share.items():
+            vc = work.loc[mask, c].dropna().astype(str).value_counts(normalize=True)
+            if len(vc):
+                val, share = vc.index[0], float(vc.iloc[0])
+                base = float(overall.get(val, 0.0))
+                if share >= 0.5 and share - base >= 0.2:
+                    traits.append((2 * (share - base), f"mostly {c} = {val}"))
+                elif share - base >= 0.05:
+                    weak.append((2 * (share - base), f"more {c} = {val}"))
+        traits.sort(key=lambda t: -t[0])
+        weak.sort(key=lambda t: -t[0])
+        if traits:
+            name = ", ".join(t for _, t in traits[:top])
+        elif weak and weak[0][0] >= 0.1:
+            name = "slightly " + weak[0][1]
+        else:
+            name = "typical rows"
+        out[int(g)] = name[0].upper() + name[1:]
+    seen: dict[str, int] = {}
+    for n in out.values():
+        seen[n] = seen.get(n, 0) + 1
+    return {g: (f"{n} ({g})" if seen[n] > 1 and g != -1 else n) for g, n in out.items()}
+
+
 def _run_clustering(df: pd.DataFrame, cfg: ExperimentConfig, exp: Experiment, cancel: CancelToken, progress, t0: float) -> Experiment:
     options = PreprocessOptions(**cfg.preprocess)
     if options.scaling == "auto":
@@ -632,9 +693,11 @@ def _run_clustering(df: pd.DataFrame, cfg: ExperimentConfig, exp: Experiment, ca
     exp.test_evaluated = False
     exp.interpretation = E.interpret("clustering", exp.test_result, None)
     prof = work.assign(cluster=labels)
+    names = describe_groups(work, labels, fs.numeric, fs.categorical, dates=fs.datetime)
     rows = []
     for g, part in prof.groupby("cluster"):
-        r: dict[str, Any] = {"cluster": "noise" if g == -1 else int(g), "rows": int(len(part)), "share %": round(100 * len(part) / len(prof), 1)}
+        r: dict[str, Any] = {"cluster": "noise" if g == -1 else int(g), "name": names.get(int(g), ""), "rows": int(len(part)),
+                             "share %": round(100 * len(part) / len(prof), 1)}
         for c in fs.numeric:
             r[f"mean {c}"] = round(float(part[c].mean()), 3) if part[c].notna().any() else None
         for c in fs.categorical[:4]:

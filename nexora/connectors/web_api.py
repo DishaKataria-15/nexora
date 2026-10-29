@@ -287,10 +287,10 @@ class APIClient:
                 progress(f"page {pages + 1}")
             body, ctype, headers, final_url = self.get(url, p)
             pages += 1
-            fmt = c.response_format if c.response_format != "auto" else ("csv" if "csv" in ctype.lower() else "json")
-            if fmt == "csv":
+            fmt = c.response_format if c.response_format != "auto" else _guess_format(final_url, ctype, body)
+            if fmt in ("csv", "tsv"):
                 try:
-                    df = pd.read_csv(io.BytesIO(body))
+                    df = pd.read_csv(io.BytesIO(body), sep="\t" if fmt == "tsv" else None, engine="python")
                 except Exception as e:
                     raise ConnectorError(f"The response could not be read as CSV: {type(e).__name__}.") from None
                 batch, payload = df.to_dict("records"), None
@@ -348,6 +348,31 @@ class _Retryable(Exception):
     def __init__(self, msg: str, retry_after: float | None = None):
         super().__init__(msg)
         self.retry_after = retry_after
+
+
+def _guess_format(url: str, ctype: str, body: bytes) -> str:
+    """JSON or CSV, from the content type, then the file extension, then the content itself."""
+    ct = (ctype or "").lower()
+    if "json" in ct:
+        return "json"
+    if "csv" in ct:
+        return "csv"
+    if "tab-separated" in ct:
+        return "tsv"
+    path = urlparse(url).path.lower()
+    if path.endswith((".csv", ".csv.txt")):
+        return "csv"
+    if path.endswith((".tsv", ".tab")):
+        return "tsv"
+    if path.endswith(".json"):
+        return "json"
+    head = body[:2048].lstrip().decode("utf-8-sig", "ignore")
+    if head[:1] in ("{", "["):
+        return "json"
+    first = head.splitlines()[0] if head else ""
+    if "\t" in first and first.count("\t") >= 1:
+        return "tsv"
+    return "csv" if first.count(",") >= 1 else "json"
 
 
 def _link_next(link_header: str) -> str | None:

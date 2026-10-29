@@ -9,3 +9,9 @@ openpyxl>=3.1,<4       # Excel (.xlsx) upload
 PyYAML>=6.0,<7         # domain profiles
 joblib>=1.4            # model artifacts
 imbalanced-learn>=0.12,<1   # optional: random over/under-sampling and SMOTE. Without it those options are shown as unavailable.
+# Models and forecasting methods that are optional locally but installed on the hosted demo, so every option works there.
+# Linux (Streamlit Community Cloud) uses the small CPU-only XGBoost build; Windows and macOS use the normal package.
+xgboost-cpu>=2.1; sys_platform == "linux"
+xgboost>=2.0; sys_platform != "linux"
+lightgbm>=4.0
+statsmodels>=0.14

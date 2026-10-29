@@ -7,11 +7,48 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
+from ...config import get_settings
+
 from ...eda import charts as C
 from ...eda import profiling as P
 from ...ml import forecasting as F
 from ...reporting import zip_bytes
-from .. import components, theme
+from .. import components, state, theme
+
+
+def window_table(res) -> pd.DataFrame:
+    """MAE of every method in every backtest window (rows = methods, columns = windows), plus the spread between windows."""
+    rows = []
+    for e in res.backtest:
+        if e["status"] != "ok" or not e.get("folds"):
+            continue
+        r = {"Method": e["name"] + (" (baseline)" if e["baseline"] else "")}
+        maes = [f.get("mae") for f in e["folds"]]
+        for i, (w, v) in enumerate(zip(res.fold_windows, maes), 1):
+            r[f"Window {i} ({w['test_from']} to {w['test_until']})"] = v
+        vals = [v for v in maes if v is not None]
+        r["Worst / best"] = (max(vals) / min(vals)) if len(vals) > 1 and min(vals) > 0 else None
+        rows.append(r)
+    return pd.DataFrame(rows)
+
+
+def _per_window(res) -> None:
+    tab = window_table(res)
+    if tab.empty or len(res.fold_windows) < 2:
+        return
+    with st.expander("Error in each backtest window (MAE)", expanded=False):
+        st.caption("The table above shows averages. Here each window is shown on its own, so you can see whether a method is steady or did well "
+                   "only once. 'Worst / best' near 1 means steady.")
+        wcols = [c for c in tab.columns if c.startswith("Window")]
+        st.dataframe(tab, hide_index=True, width="stretch",
+                     column_config={**{c: st.column_config.NumberColumn(format="%.4g") for c in wcols},
+                                    "Worst / best": st.column_config.NumberColumn(format="%.2f")})
+        fig = go.Figure()
+        for i, (_, r) in enumerate(tab.iterrows()):
+            fig.add_trace(go.Scatter(x=[f"Window {j + 1}" for j in range(len(wcols))], y=[r[c] for c in wcols], mode="lines+markers", name=r["Method"],
+                                     line={"color": C.COLORWAY[i % len(C.COLORWAY)], "dash": "dot" if "(baseline)" in r["Method"] else "solid"}))
+        fig.update_yaxes(title="MAE (lower is better)")
+        st.plotly_chart(C._layout(fig, "MAE by backtest window", 300), width="stretch", config=C.PLOTLY_CONFIG)
 
 
 def render() -> None:
@@ -22,7 +59,6 @@ def render() -> None:
     df, note = wf
     st.markdown("Forecast a number over time. Every method is **backtested**: it is trained only on data before a cut-off and scored on what "
                 "happened next, several times. Simple baselines are always included so you can see whether a model adds anything.")
-    st.caption(note)
     dts = P.datetime_columns(df)
     nums = [c for c in df.columns if pd.api.types.is_numeric_dtype(df[c]) and not pd.api.types.is_bool_dtype(df[c])]
     if not dts or not nums:
@@ -39,7 +75,7 @@ def render() -> None:
     season = int(c3.number_input("Season length in steps (0 = automatic)", 0, 400, 0, key="fc_season", help="7 for daily data with a weekly pattern, 12 for monthly."))
     methods = st.multiselect("Methods", [k for k in F.METHODS if k not in F.BASELINES and (k != "holt_winters" or F.STATSMODELS_AVAILABLE)],
                              default=["ridge_lags", "boosting_lags"], format_func=F.METHODS.get, key="fc_methods")
-    if not F.STATSMODELS_AVAILABLE:
+    if not F.STATSMODELS_AVAILABLE and not get_settings().public_mode:
         st.caption("Holt-Winters is optional (pip install statsmodels).")
     with st.expander("More settings"):
         exog = st.multiselect("Columns known in advance (for example a planned promotion)", [c for c in nums if c not in (target,)], key="fc_exog",
@@ -68,7 +104,12 @@ def render() -> None:
              "Seconds": e["seconds"], "Note": e.get("error", "")} for e in res.backtest]
     st.dataframe(pd.DataFrame(rows), hide_index=True, width="stretch", column_config={k: st.column_config.NumberColumn(format="%.4g") for k in ("MAE", "RMSE", "MAPE %", "sMAPE %")})
     st.caption("Backtest windows: " + "; ".join(f"trained until {w['train_until']}, tested {w['test_from']} to {w['test_until']}" for w in res.fold_windows))
-    st.markdown(f"**Selected:** {F.METHODS[res.selected]} (lowest average MAE in the backtest)." + ("" if res.beats_baseline else " It does not beat the baselines."))
+    _per_window(res)
+    if res.selected == res.best_model or not res.best_model:
+        st.markdown(f"**Used for the forecast:** {F.METHODS[res.selected]}: the lowest average MAE in the backtest, better than the simple baselines.")
+    else:
+        st.markdown(f"**Used for the forecast:** {F.METHODS[res.selected]} (a simple baseline). It had the lowest average MAE in the backtest; "
+                    f"none of the chosen models beat it. Best model: {F.METHODS[res.best_model]}.")
     hist = pd.DataFrame(res.history)
     fc = pd.DataFrame(res.forecast)
     fig = go.Figure()
@@ -80,11 +121,22 @@ def render() -> None:
     if not bt.empty:
         part = bt[bt["method"] == res.selected]
         fig.add_trace(go.Scatter(x=part["date"], y=part["predicted"], mode="markers", name="backtest predictions", marker={"color": C.MUTED, "size": 5}))
-    st.plotly_chart(C._layout(fig, f"{target}: history and forecast", 420), width="stretch")
+    st.plotly_chart(C._layout(fig, f"{target}: history and forecast", 420), width="stretch", config=C.PLOTLY_CONFIG)
     st.caption("The range comes from the backtest errors at each step ahead. It is a rough guide, not a guarantee.")
     st.dataframe(fc, hide_index=True, width="stretch")
     files = {"forecast.csv": fc.to_csv(index=False).encode(), "backtest_predictions.csv": bt.to_csv(index=False).encode(),
              "forecast_summary.json": json.dumps(res.to_dict(), indent=2, default=str).encode()}
-    c1, c2, _ = st.columns([1.4, 1.4, 4])
+    c1, c2, c3, _ = st.columns([1.4, 1.4, 1.4, 2.6])
     c1.download_button("Forecast (CSV)", files["forecast.csv"], file_name="forecast.csv", mime="text/csv", key="fc_dl")
     c2.download_button("Everything (ZIP)", zip_bytes(files), file_name="nexora_forecast.zip", mime="application/zip", key="fc_zip")
+    saved = S.get("fc_saved") == id(res)
+    if c3.button("Saved to Reports" if saved else "Save to Reports", key="fc_save", disabled=saved,
+                 help="Keeps this run (summary and files) under Reports > Anomaly and forecast runs."):
+        h = state.handle()
+        sel = next((e for e in res.backtest if e["key"] == res.selected), {})
+        mae = (sel.get("metrics") or {}).get("mae")
+        summary = {"headline": f"{target}: next {len(fc)} step(s) with {F.METHODS[res.selected]}" + (f" (backtest MAE {mae:.4g})" if mae is not None else ""),
+                   "table": [{k: v for k, v in r.items() if k != "Note"} for r in rows], "notes": list(res.warnings), "config": res.config.to_dict()}
+        state.ws().repo.save_run("forecast", h.name if h else "", S.get("version_id"), summary, files)
+        S["fc_saved"] = id(res)
+        st.rerun()

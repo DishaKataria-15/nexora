@@ -60,12 +60,17 @@ def palette(name: str | None) -> dict:
     return PALETTES.get(name or DEFAULT_PALETTE, PALETTES[DEFAULT_PALETTE])
 
 
+# shared by every chart: the toolbar appears only on hover, without the Plotly logo or the selection tools
+PLOTLY_CONFIG = {"displaylogo": False, "displayModeBar": "hover",
+                 "modeBarButtonsToRemove": ["select2d", "lasso2d", "autoScale2d", "toggleSpikelines", "hoverClosestCartesian", "hoverCompareCartesian"]}
+
+
 def _layout(fig: go.Figure, title: str, height: int = 380, colorway: list[str] | None = None) -> go.Figure:
     fig.update_layout(
         title={"text": title, "font": {"size": 15, "color": NAVY}, "x": 0.0, "xanchor": "left"},
         font={"family": "Segoe UI, Inter, Arial, sans-serif", "size": 12, "color": NAVY},
         paper_bgcolor="white", plot_bgcolor="white", colorway=colorway or COLORWAY, height=height,
-        margin={"l": 55, "r": 20, "t": 55, "b": 50}, legend={"orientation": "h", "y": -0.2},
+        margin={"l": 55, "r": 20, "t": 70, "b": 50}, legend={"orientation": "h", "y": -0.2},     # room above the plot for the toolbar
     )
     fig.update_xaxes(showgrid=False, linecolor=MUTED, ticks="outside", tickcolor=MUTED, automargin=True)
     fig.update_yaxes(gridcolor="#e8edf3", zeroline=False, linecolor=MUTED, automargin=True)

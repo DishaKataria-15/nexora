@@ -1,9 +1,7 @@
 # Optional extras. Nexora runs without any of these; each feature shows the install command when its package is missing.
 -r requirements.txt
-xgboost>=2.0          # XGBoost models (classification and regression; optional GPU via CUDA)
-lightgbm>=4.0         # LightGBM models
+# xgboost and lightgbm are now in requirements.txt. For GPU XGBoost on Linux, install the full "xgboost" package instead of "xgboost-cpu".
 shap>=0.44            # SHAP explanations for tree and linear models
-statsmodels>=0.14     # Holt-Winters exponential smoothing in Forecasting
 umap-learn>=0.5       # UMAP view in Explore > Dimensions
 sqlalchemy>=2.0       # database connections (required for the Database tab)
 psycopg2-binary>=2.9  # PostgreSQL driver

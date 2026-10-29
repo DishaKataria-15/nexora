@@ -69,6 +69,7 @@ class ForecastResult:
     backtest: list[dict[str, Any]] = field(default_factory=list)
     fold_windows: list[dict[str, str]] = field(default_factory=list)
     selected: str = ""
+    best_model: str = ""                  # the best of the methods the user asked for (may differ from selected)
     beats_baseline: bool = False
     forecast: list[dict[str, Any]] = field(default_factory=list)
     history: list[dict[str, Any]] = field(default_factory=list)
@@ -286,13 +287,18 @@ def run_forecast(df: pd.DataFrame, cfg: ForecastConfig, progress: Callable[[floa
     ok = [e for e in res.backtest if e["status"] == "ok" and e["requested"]]
     if not ok:
         raise ForecastError("No requested method could be backtested: " + "; ".join(f"{e['name']}: {e.get('error', '')}" for e in res.backtest if e["requested"]))
-    best = min(ok, key=lambda e: e["metrics"]["mae"])
-    res.selected = best["key"]
+    best_model = min(ok, key=lambda e: e["metrics"]["mae"])
     base = [e for e in res.backtest if e["baseline"] and e["status"] == "ok"]
     best_base = min(base, key=lambda e: e["metrics"]["mae"]) if base else None
-    res.beats_baseline = bool(best_base is None or best["metrics"]["mae"] < best_base["metrics"]["mae"])
-    if best_base is not None and not best["baseline"] and not res.beats_baseline:
-        res.warnings.append(f"{best['name']} did not beat the simple baseline ({best_base['name']}); the baseline is the more honest forecast here.")
+    res.beats_baseline = bool(best_base is None or best_model["metrics"]["mae"] < best_base["metrics"]["mae"])
+    res.best_model = best_model["key"]
+    if res.beats_baseline or best_model["baseline"]:
+        res.selected = best_model["key"]
+    else:
+        # the simplest method had the lowest backtest error: use it, and say which model came closest
+        res.selected = best_base["key"]
+        res.warnings.append(f"{best_base['name']} had the lowest backtest error (MAE {best_base['metrics']['mae']:.4g}), so it is used for the "
+                            f"forecast. The best model, {best_model['name']}, was less accurate (MAE {best_model['metrics']['mae']:.4g}).")
     if progress:
         progress(len(methods) / (len(methods) + 1), "Forecasting the future")
     fut_idx = pd.date_range(y.index[-1], periods=h + 1, freq=y.index.freq)[1:]

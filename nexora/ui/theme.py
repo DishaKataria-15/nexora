@@ -25,6 +25,8 @@ h1{font-size:1.65rem!important;letter-spacing:-.01em}h2{font-size:1.2rem!importa
 .nx-sample{font-size:.8rem;border:1px solid #b45309;color:#92400e;background:#fffbeb;border-radius:4px;padding:0 6px}
 [data-testid="stSidebar"] .nx-side-tag{color:#aab6c8;font-size:.82rem}
 :focus-visible{outline:2px solid #0f766e!important;outline-offset:2px}
+.nx-footer{margin-top:3rem;padding-top:.8rem;border-top:1px solid var(--nx-line);color:var(--nx-slate);font-size:.82rem;text-align:center}
+.nx-footer a{color:var(--nx-teal);text-decoration:none}.nx-footer a:hover{text-decoration:underline}
 </style>
 """
 
@@ -41,7 +43,37 @@ def chip(text: str, kind: str = "info") -> str:
     return f"<span class='nx-chip {kind}'>{esc(text)}</span>"
 
 
-def stepper(steps: list[str], current: int) -> None:
+_SCROLL_JS = """<script>
+// {n}: Streamlit keeps the scroll position on reruns; after moving to another step, start at the top of the page
+const d = window.parent.document;
+for (const sel of ['[data-testid="stMain"]', '[data-testid="stAppViewContainer"]', 'section.main']) {{
+  const el = d.querySelector(sel); if (el) el.scrollTo({{top: 0, behavior: 'instant'}});
+}}
+window.parent.scrollTo(0, 0);
+</script>"""
+
+
+def footer() -> None:
+    st.markdown("<div class='nx-footer'>Nexora · built by Disha Kataria · "
+                "<a href='https://github.com/DishaKataria-15' target='_blank' rel='noopener'>GitHub</a> · "
+                "<a href='https://www.linkedin.com/in/dishakataria15' target='_blank' rel='noopener'>LinkedIn</a></div>", unsafe_allow_html=True)
+
+
+def scroll_to_top_on_change(key: str, value) -> None:
+    """Scroll the page to the top when `value` changes between reruns (not on the first visit)."""
+    sk = f"_scroll_{key}"
+    prev = st.session_state.get(sk)
+    st.session_state[sk] = value
+    if prev is not None and prev != value:
+        import streamlit.components.v1 as components
+        n = st.session_state.get("_scroll_n", 0) + 1
+        st.session_state["_scroll_n"] = n
+        components.html(_SCROLL_JS.format(n=n), height=0)
+
+
+def stepper(steps: list[str], current: int, key: str | None = None) -> None:
+    if key:
+        scroll_to_top_on_change(key, steps[current])
     items = []
     for i, s in enumerate(steps):
         cls = "done" if i < current else ("current" if i == current else "")
@@ -57,6 +89,41 @@ def empty_state(title: str, body: str) -> None:
 
 def sample_badge() -> str:
     return "<span class='nx-sample'>SAMPLE DATA (synthetic)</span>"
+
+
+def local_time(iso: str | None) -> str:
+    """'YYYY-MM-DD HH:MM' in the viewer's time zone (read from the browser), or UTC when it is unknown."""
+    if not iso:
+        return ""
+    from datetime import datetime, timezone
+    try:
+        t = datetime.fromisoformat(str(iso))
+        if t.tzinfo is None:
+            t = t.replace(tzinfo=timezone.utc)
+        tz = None
+        try:
+            name = st.context.timezone
+            if name:
+                from zoneinfo import ZoneInfo
+                tz = ZoneInfo(name)
+        except Exception:
+            tz = None
+        return t.astimezone(tz or timezone.utc).strftime("%Y-%m-%d %H:%M") + ("" if tz else " UTC")
+    except (ValueError, TypeError):
+        return str(iso)[:16].replace("T", " ")
+
+
+def display_frame(df):
+    """A copy for on-screen tables: date-only columns as YYYY-MM-DD (no 00:00:00), the same way they are exported."""
+    import pandas as pd
+    out = df.copy()
+    for c in out.columns:
+        s = out[c]
+        if pd.api.types.is_datetime64_any_dtype(s):
+            nn = s.dropna()
+            if len(nn) == 0 or bool((nn.dt.normalize() == nn).all()):
+                out[c] = s.map(lambda v: v.strftime("%Y-%m-%d") if pd.notna(v) else None).astype(object)
+    return out
 
 
 def fmt_int(n: int | float) -> str:

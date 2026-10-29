@@ -69,7 +69,7 @@ def test_ml_studio_model_settings_and_compatibility(app):
     app.number_input(key="ml_w_mp_knn_n_neighbors").set_value(15).run()
     assert app.session_state["ml"]["model_params"] == {"knn": {"n_neighbors": 15}}
     app.radio(key="ml_w_mode").set_value("Compare models").run()
-    assert app.session_state["ml_w_cmp"] == ["logistic_regression", "decision_tree", "random_forest", "gradient_boosting"]
+    assert app.session_state["ml_w_cmp"] == ["gradient_boosting", "random_forest", "logistic_regression"]   # top 3 suggestions
 
 
 def test_anomalies_page(app):
@@ -252,3 +252,27 @@ def test_help_assistant_in_the_sidebar(app):
     go = next((b for b in app.sidebar.button if b.label.startswith("Go to")), None)
     assert go is None                                                                  # already on ML Studio
     assert not app.exception
+
+
+def test_leaky_columns_are_excluded_by_default_and_can_be_included_on_purpose(app):
+    _ml(app, "Predict a category (classification)", "customer_churn.csv")
+    click(app, "Next: Target")
+    m = app.session_state["ml"]
+    assert m["exclude"] == ["cancellation_reason"] and app.multiselect(key="ml_w_exclude").value == ["cancellation_reason"]
+    click(app, "", key="keep_leak")
+    m = app.session_state["ml"]
+    assert m["exclude"] == [] and m["keep_leaky"]["churned"] == ["cancellation_reason"]
+    assert any("may leak the answer" in e.value for e in app.error)                 # the warning stays while it is included
+    app.run()
+    assert app.session_state["ml"]["exclude"] == []                                  # not re-excluded on the next run
+    app.multiselect(key="ml_w_exclude").set_value(["cancellation_reason", "region"]).run()
+    assert app.session_state["ml"]["exclude"] == ["cancellation_reason", "region"]   # manual choices are kept
+
+
+def test_switching_target_undoes_automatic_exclusions(app):
+    _ml(app, "Predict a category (classification)", "customer_churn.csv")
+    click(app, "Next: Target")
+    assert "cancellation_reason" in app.session_state["ml"]["exclude"]
+    other = [o for o in app.selectbox(key="ml_w_target").options if o != "churned"][0]
+    app.selectbox(key="ml_w_target").set_value(other).run()
+    assert "cancellation_reason" not in app.session_state["ml"]["exclude"] or other == "cancellation_reason"

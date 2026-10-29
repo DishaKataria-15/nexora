@@ -5,6 +5,7 @@ Keeping this separate from Streamlit means every workflow is testable without a 
 from __future__ import annotations
 
 import json
+from urllib.parse import urlparse
 import logging
 import tempfile
 from dataclasses import dataclass
@@ -151,7 +152,10 @@ class Workspace:
     def ingest_api(self, cfg, name: str | None = None):
         from .connectors.web_api import fetch_api
         res = fetch_api(cfg, allow_private=self.settings.allow_private_api_hosts)
-        handle = self.ingest_frame(res.frame, name or res.source.rsplit("/", 1)[-1] or "api data", "web_api")
+        if not name:
+            last = res.source.rstrip("/").rsplit("/", 1)[-1]
+            name = (last.rsplit(".", 1)[0] if "." in last else last) or urlparse(res.source).hostname or "web data"
+        handle = self.ingest_frame(res.frame, name, "web_api")
         return handle, res
 
     def sample_bytes(self, filename: str) -> bytes:

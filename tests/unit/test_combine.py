@@ -110,3 +110,22 @@ def test_workspace_saves_the_result_as_a_new_dataset(tmp_path, monkeypatch, rati
                                          [Step("join", "movies", ["movie_id"], ["movie_id"])], "ratings with titles")
     assert h.source == "combined" and len(h.raw) == 6 and "title" in h.raw.columns and recipe["rows"] == 6
     assert len(w.open_dataset(hr.dataset_id).raw) == 6 and list(w.open_dataset(hr.dataset_id).raw.columns) == ["user", "movie_id", "rating"]
+
+
+def test_blank_and_missing_keys_never_match_and_never_crash():
+    a = pd.DataFrame({"id": ["1", "", None, "N/A", "2"], "v": list("abcde")})
+    b = pd.DataFrame({"id": ["", "1", float("nan"), "n/a"], "w": ["blank", "one", "nan", "na"]})
+    out, [rep] = combine({"a": a, "b": b}, "a", [Step("join", "b", ["id"], ["id"])], 100)
+    assert out["w"].tolist()[0] == "one" and out["w"].iloc[1:].isna().all()
+    assert rep.matched_rows == 1 and any("empty key" in w for w in rep.warnings)
+
+
+def test_suggestions_ignore_blanks_measurements_and_unrelated_columns():
+    rng = __import__("numpy").random.RandomState(0)
+    sensors = pd.DataFrame({"temperature": [f"{v:.1f}" for v in rng.normal(50, 5, 300)], "note": [""] * 300, "qty": [str(i % 7) for i in range(300)]})
+    churn = pd.DataFrame({"cancellation_reason": [""] * 290 + ["price"] * 10, "tenure_months": [str(i % 7) for i in range(300)],
+                          "region": ["North", "South"] * 150})
+    assert suggest_keys(sensors, churn) == []              # blank = blank, small number = small number and decimals are not keys
+    orders = pd.DataFrame({"customer_id": [f"C{i % 40:03d}" for i in range(300)], "amount": ["1"] * 300})
+    customers = pd.DataFrame({"cust_id": [f"C{i:03d}" for i in range(40)], "name": [f"n{i}" for i in range(40)]})
+    assert suggest_keys(orders, customers)[0][:2] == ("customer_id", "cust_id")   # ID-like names with full overlap

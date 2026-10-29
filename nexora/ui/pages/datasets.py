@@ -8,6 +8,9 @@ from ...workflow import SAMPLES
 from .. import components, state, theme
 
 
+SOURCE_LABELS = {"sample": "sample", "upload": "upload", "database": "database", "web_api": "web API", "combined": "combined"}
+
+
 def _preview(df) -> None:
     st.dataframe(df.head(50), hide_index=True, width="stretch")
     st.caption(f"Showing the first {min(50, len(df))} of {len(df):,} rows. Values are shown exactly as stored in the file.")
@@ -80,22 +83,60 @@ def render() -> None:
                 st.rerun()
 
     with tab_mine:
+        msg = st.session_state.pop("ds_msg", None)
+        if msg:
+            st.success(msg)
         rows = w.repo.list_datasets()
         if not rows:
             theme.empty_state("Nothing saved yet", "Datasets you upload or open from the samples are listed here.")
         else:
-            st.dataframe([{"Name": r["name"], "Rows": r["rows"], "Columns": r["cols"], "File": r["filename"], "Added": r["created_at"][:16].replace("T", " "),
-                           "Kind": "sample" if r["source"] == "sample" else "upload"} for r in rows], hide_index=True, width="stretch")
-            ids = {f"{r['name']} ({r['created_at'][:16].replace('T', ' ')}, {r['id'][:4]})": r["id"] for r in rows}
+            st.dataframe([{"Name": r["name"], "Rows": r["rows"], "Columns": r["cols"], "File": r["filename"], "Added": theme.local_time(r["created_at"]),
+                           "Kind": SOURCE_LABELS.get(r["source"], r["source"])} for r in rows], hide_index=True, width="stretch")
+            ids = {f"{r['name']} ({theme.local_time(r['created_at'])}, {r['id'][:4]})": r["id"] for r in rows}
             pick = st.selectbox("Open a saved dataset", list(ids))
             vers = w.repo.list_versions(ids[pick])
-            vopts = {"Raw data (no preparation)": None} | {f"Prepared {v['created_at'][:16].replace('T', ' ')}: {v['rows']:,} rows ({v['id'][:4]})": v["id"] for v in vers}
-            vpick = st.selectbox("Version to work with", list(vopts), help="Prepared versions were saved by Prepare Data; the raw file is always kept.")
-            if st.button("Open", key="open_saved"):
+            vopts = {"Raw data (no preparation)": None} | {f"Prepared {theme.local_time(v['created_at'])}: {v['rows']:,} rows ({v['id'][:4]})": v["id"] for v in vers}
+            vpick = st.selectbox("Version to work with", list(vopts), index=1 if vers else 0,
+                                 help="The newest prepared version is preselected when there is one. The raw file is always kept.")
+            if st.button("Open", key="open_saved", type="primary"):
                 state.set_dataset(w.open_dataset(ids[pick]))
                 st.session_state["version_id"] = vopts[vpick]
                 state.clear_frames()
                 st.rerun()
+            _manage(w, next(r for r in rows if r["id"] == ids[pick]), len(vers))
+
+
+def _manage(w, row: dict, n_versions: int) -> None:
+    """Rename or delete the dataset picked above."""
+    did = row["id"]
+    with st.expander(f"Rename or delete '{row['name']}'"):
+        c1, c2 = st.columns([3, 1], vertical_alignment="bottom")
+        new = c1.text_input("New name", row["name"], key=f"rn_{did}", max_chars=120)
+        if c2.button("Rename", key=f"rn_go_{did}"):
+            try:
+                w.repo.rename_dataset(did, new)
+                h = state.handle()
+                if h is not None and h.dataset_id == did:
+                    from dataclasses import replace
+                    st.session_state["handle"] = replace(h, name=" ".join(new.split()))
+                st.session_state["ds_msg"] = f"Renamed to '{' '.join(new.split())}'."
+                st.rerun()
+            except (ValueError, KeyError) as e:
+                st.error(str(e))
+        n_exp = sum(1 for e in w.repo.list_experiments() if e["version_id"] in {v["id"] for v in w.repo.list_versions(did)})
+        st.markdown(f"Deleting removes the dataset, its **{n_versions}** prepared version(s) and **{n_exp}** experiment(s) trained on those versions. "
+                    "This cannot be undone. Experiments trained on its unprepared data stay in Reports.")
+        sure = st.checkbox("Yes, delete it permanently", key=f"del_ok_{did}")
+        if st.button("Delete dataset", key=f"del_go_{did}", disabled=not sure):
+            gone = w.repo.delete_dataset(did)
+            h = state.handle()
+            if h is not None and h.dataset_id == did:
+                st.session_state["handle"] = None
+                st.session_state["version_id"] = None
+            state.clear_frames()
+            _raw.clear()
+            st.session_state["ds_msg"] = (f"Deleted '{row['name']}' with {gone['versions']} prepared version(s) and {gone['experiments']} experiment(s).")
+            st.rerun()
 
 
 # ---------------------------------------------------------------------------------------------- connectors
@@ -188,7 +229,7 @@ def _database(w) -> None:
     pv = st.session_state.get("db_preview")
     if pv is not None:
         st.caption(pv.note())
-        st.dataframe(pv.frame.head(200), hide_index=True, width="stretch")
+        st.dataframe(theme.display_frame(pv.frame.head(200)), hide_index=True, width="stretch")
     if st.session_state.get("db_done"):
         st.success("Added: " + st.session_state["db_done"])
 
@@ -233,7 +274,7 @@ def _web_api(w) -> None:
         elif pag == "link":
             cfg.next_path = c2.text_input("JSON field with the next URL (empty = Link header)", "", key="api_np")
     cfg.max_rows = int(st.number_input("Row limit", 1, 1_000_000, 100_000, key="api_maxrows"))
-    name = st.text_input("Dataset name", "api data", key="api_name")
+    name = st.text_input("Dataset name (optional)", "", key="api_name", placeholder="defaults to the file name in the URL")
     if st.button("Fetch and add as dataset", type="primary", key="api_go", disabled=not url.strip()):
         try:
             h, res = w.ingest_api(cfg, name=name)
@@ -297,7 +338,11 @@ def _combine(w) -> None:
             ic = c2.checkbox("Ignore upper/lower case in keys", key=f"cb_ic_{i}_{o}")
             if mode == "join":
                 cand = [c for c in frames[o].columns if c not in right_on]
-                cols = st.multiselect("Columns to bring in", cand, default=cand, key=f"cb_cols_{i}_{o}")
+                if st.checkbox(f"Bring in all {len(cand)} other column(s)", value=True, key=f"cb_all_{i}_{o}"):
+                    cols = list(cand)
+                    st.caption(", ".join(f"`{c}`" for c in cand[:12]) + (f" and {len(cand) - 12} more" if len(cand) > 12 else ""))
+                else:
+                    cols = st.multiselect("Columns to bring in", cand, key=f"cb_cols_{i}_{o}", placeholder="Choose the columns you need")
                 steps.append(Step("join", o, left_on, right_on, how, ic, columns=cols))
                 known_cols += cols
             else:
@@ -317,6 +362,9 @@ def _combine(w) -> None:
         except CombineError as e:
             S["cb_preview"] = None
             st.error(str(e))
+        except Exception as e:  # never lose the page over a preview
+            S["cb_preview"] = None
+            st.error(f"The preview failed: {type(e).__name__}: {e}. Check the key columns and the tables chosen.")
     if c2.button("Combine and save", type="primary", key="cb_save"):
         try:
             h, reps, recipe = w.combine_datasets({lab: labels[lab] for lab in chosen}, base, steps, name.strip() or "combined data")
@@ -326,6 +374,8 @@ def _combine(w) -> None:
             st.rerun()
         except (CombineError, ValueError) as e:
             st.error(str(e))
+        except Exception as e:
+            st.error(f"Combining failed: {type(e).__name__}: {e}.")
     pv = S.get("cb_preview")
     if pv:
         head, reps, n, ncol = pv

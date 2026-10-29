@@ -13,7 +13,7 @@ from ...ml import imbalance as IMB
 from ...ml.compute import detect_compute, device_options
 from ...ml.model_registry import REGISTRY, models_for, recommend_models
 from ...ml.splitting import STRATEGIES, SplitConfig, SplitError, make_split, recommend_split
-from ...ml.task_detection import recommend_targets, task_for_column
+from ...ml.task_detection import recommend_targets, suggest_goal, task_for_column
 from ...ml.training import ExperimentConfig, ExperimentError, TestSetAlreadyUsed, finalize_experiment
 from ...preprocessing import leakage_checks as L
 from ...preprocessing.pipeline import PreprocessOptions, select_features
@@ -35,7 +35,7 @@ def _ml() -> dict:
     S = st.session_state
     if S["ml"] is None:
         S["ml"] = {"task": None, "target": None, "exclude": [], "strategy": None, "shares": "recommended", "custom_test": 20, "custom_val": 0, "seed": S["seed"],
-                   "group_col": None, "time_col": None, "imbalance": None, "pre": PreprocessOptions().to_dict(), "mode": "Recommended model", "models": [],
+                   "group_col": None, "time_col": None, "imbalance": None, "pre": PreprocessOptions().to_dict(), "mode": "Compare models", "models": [],
                    "metric": None, "compute": "auto", "folds": 5, "positive": None, "drop_missing": False, "kmin": 2, "kmax": 8, "unit": "", "step": "Goal",
                    "last_mode": None, "model_params": {}, "cv": None, "tuning": None, "shap": False, "extra_metrics": []}
     return S["ml"]
@@ -65,7 +65,7 @@ def render() -> None:
     steps = CLU if m["task"] == "clustering" else SUP
     if m["step"] not in steps:
         m["step"] = "Goal"
-    theme.stepper(steps, steps.index(m["step"]))
+    theme.stepper(steps, steps.index(m["step"]), key="ml")
     page = {"Goal": _goal, "Target and features": _target, "Features": _target, "Split": _split, "Preparation": _prep, "Models": _models, "Train": _train, "Results": _results}
     page[m["step"]](df, note, m)
 
@@ -80,7 +80,11 @@ def _exclude_widget(label: str, pool: list[str], m: dict, help_text: str | None 
 def _goal(df, note, m) -> None:
     st.subheader("What do you want to achieve?")
     keys = list(TASKS)
-    cur = m["task"] if m["task"] in keys else "classification"
+    sug = suggest_goal(df)
+    st.markdown(f"{theme.chip('Suggested', 'info')} &nbsp; **{TASKS[sug['task']]}**. {theme.esc(sug['reason'])}", unsafe_allow_html=True)
+    if m["task"] is None and sug["column"]:
+        m["target"] = sug["column"]
+    cur = m["task"] if m["task"] in keys else (sug["task"] if sug["task"] != "explore" else "classification")
     m["task"] = st.radio("Goal", keys, index=keys.index(cur), format_func=lambda k: TASKS[k], captions=[TASK_HELP[k] for k in keys], key="ml_w_goal")
     if m["task"] == "explore":
         st.info("No model is needed for this. Charts, correlations and dashboards are in Visualize & Dashboard.")
@@ -88,9 +92,6 @@ def _goal(df, note, m) -> None:
             state.goto("Visualize & Dashboard")
             st.rerun()
         return
-    if not state.has_prepared():
-        st.warning("This dataset has not been prepared. Models trained on uncleaned data can be misleading. Prepare Data first, or continue knowing types were only detected automatically.")
-    st.caption(note)
     m["models"] = [k for k in m["models"] if k in REGISTRY and REGISTRY[k].task == m["task"]]
     _nav(m, None, "Features" if m["task"] == "clustering" else "Target and features")
 
@@ -109,7 +110,6 @@ def _target(df, note, m) -> None:
         _nav(m, "Goal", "Models", bool(fs.all), "Select at least one usable column.")
         return
     st.subheader("What should the model predict?")
-    st.caption(note)
     recs = recommend_targets(df, task)
     valid = [c for c in df.columns if task_for_column(df[c], c)[0] == task]
     if not valid:
@@ -138,17 +138,18 @@ def _target(df, note, m) -> None:
         c1, c2 = st.columns([1, 1.4])
         c1.dataframe(info.table, hide_index=True, width="stretch")
         fig = go.Figure(go.Bar(x=info.table["class"], y=info.table["rows"], marker_color=C.TEAL, text=[f"{s}%" for s in info.table["share %"]], textposition="outside"))
-        c2.plotly_chart(C._layout(fig, "Rows per class", 260), width="stretch")
+        c2.plotly_chart(C._layout(fig, "Rows per class", 260), width="stretch", config=C.PLOTLY_CONFIG)
         if info.n_classes > 30 or info.smallest_count < 2:
             ok = False
             st.error("Each class needs at least 2 rows, and this looks like too many classes. Merge rare classes or choose another target.")
     else:
         if y.nunique() > 1:
-            st.plotly_chart(C.build_figure(df, C.ChartSpec("histogram", x=m["target"])), width="stretch")
+            st.plotly_chart(C.build_figure(df, C.ChartSpec("histogram", x=m["target"])), width="stretch", config=C.PLOTLY_CONFIG)
         m["unit"] = st.text_input("Unit of the target (optional, shown next to errors)", m["unit"], key="ml_w_unit", placeholder="for example: USD thousands")
     st.markdown("**Features**")
-    fs = select_features(df, m["target"], m["exclude"], None, opts)
     work = df[df[m["target"]].notna()]
+    _auto_exclude_leaks(work, m, task, opts)
+    fs = select_features(df, m["target"], m["exclude"], None, opts)
     leaks = L.check_target_leakage(work, m["target"], task, fs.all) + L.check_post_outcome_names(fs.all, m["target"])
     for w_ in leaks:
         (st.error if w_.level == "warning" else st.warning)(w_.message)
@@ -166,6 +167,42 @@ def _target(df, note, m) -> None:
     if not fs.all:
         ok = False
     _nav(m, "Goal", "Split", ok, "Resolve the items above to continue.")
+
+
+def _auto_exclude_leaks(work: pd.DataFrame, m: dict, task: str, opts: PreprocessOptions) -> None:
+    """Strong leakage (a column that alone reveals the target) is excluded by default; the user can include it on purpose."""
+    target = m["target"]
+    auto = m.setdefault("auto_excluded", {})          # target -> columns excluded automatically
+    keep = m.setdefault("keep_leaky", {})             # target -> columns the user chose to include anyway
+    if "ml_w_exclude" in st.session_state:            # the multiselect is the source of truth for what the user changed
+        m["exclude"] = list(st.session_state["ml_w_exclude"])
+        for c in [c for c in auto.get(target, []) if c not in m["exclude"]]:      # removed by hand = include on purpose
+            keep[target] = sorted(set(keep.get(target, [])) | {c})
+            auto[target] = [x for x in auto[target] if x != c]
+    for other, cols in list(auto.items()):            # a different target: undo the old automatic exclusions
+        if other != target:
+            m["exclude"] = [c for c in m["exclude"] if c not in cols]
+            auto.pop(other)
+    all_fs = select_features(work, target, [c for c in m["exclude"] if c not in auto.get(target, [])], None, opts)
+    strong = {c for w_ in L.check_target_leakage(work, target, task, all_fs.all) if w_.level == "warning" and w_.suggest_exclude
+              for c in w_.columns}
+    new = sorted(strong - set(keep.get(target, [])) - set(m["exclude"]))
+    if new:
+        m["exclude"] = list(m["exclude"]) + new
+        auto[target] = sorted(set(auto.get(target, [])) | set(new))
+    st.session_state["ml_w_exclude"] = [c for c in m["exclude"]]
+    shown = [c for c in auto.get(target, []) if c in m["exclude"]]
+    if shown:
+        st.error(f"Excluded automatically because each one reveals '{target}' almost by itself (leakage): **{', '.join(shown)}**. "
+                 "A model using it looks excellent in testing but fails on new data, because the value is only known after the outcome.")
+
+        def _keep(cols=tuple(shown), t=target):
+            mm = st.session_state["ml"]
+            mm["keep_leaky"][t] = sorted(set(mm["keep_leaky"].get(t, [])) | set(cols))
+            mm["exclude"] = [c for c in mm["exclude"] if c not in cols]
+            mm["auto_excluded"][t] = [c for c in mm["auto_excluded"].get(t, []) if c not in cols]
+            st.session_state["ml_w_exclude"] = list(mm["exclude"])
+        st.button("Include anyway (only if it is truly known before the prediction)", on_click=_keep, key="keep_leak")
 
 
 def _feature_summary(fs) -> None:
@@ -240,7 +277,7 @@ def _prep(df, note, m) -> None:
     p = m["pre"]
     c1, c2 = st.columns(2)
     p["numeric_impute"] = c1.selectbox("Fill missing numbers with", ["median", "mean"], index=["median", "mean"].index(p["numeric_impute"]), key="ml_w_imp",
-                                      help="The median is less affected by extreme values. Missing categories are filled with the most common value.")
+                                      help="The median is less affected by extreme values. Missing categories become their own '(missing)' category, so a blank stays visible to the model.")
     scal = ["auto", "standard", "minmax", "robust", "none"]
     p["scaling"] = c2.selectbox("Scaling", scal, index=scal.index(p["scaling"]), key="ml_w_scale",
                                 help="Auto scales only for models that need it (linear and distance-based). Tree models ignore scale.")
@@ -316,10 +353,12 @@ def _models(df, note, m) -> None:
         st.caption(REGISTRY[pick].description + " " + REGISTRY[pick].tradeoff)
     else:
         if m.get("last_mode") != "Compare models" or "ml_w_cmp" not in st.session_state:
-            # entering compare mode: start with the core models; the others (slower or more specialised) can be added
-            st.session_state["ml_w_cmp"] = [k for k in MO.DEFAULT_COMPARE.get(task, []) if k in avail] or list(avail)
+            # entering compare mode: start with the top 3 suggestions for this data; any other model can be added
+            top3 = [r.key for r in recs if r.key in avail][:3]
+            st.session_state["ml_w_cmp"] = top3 or [k for k in MO.DEFAULT_COMPARE.get(task, []) if k in avail] or list(avail)
         m["models"] = st.multiselect("Models to compare", avail, format_func=name.get, key="ml_w_cmp")
-        st.caption("All models get the same data split, the same preparation and the same metric, so the comparison is fair. The test set is not used here.")
+        st.caption("Starts with the top 3 suggestions above; add or remove any model. All models get the same data split, the same preparation and the same metric, "
+                   "so the comparison is fair. The test set is not used here.")
     m["last_mode"] = m["mode"]
     MO.unavailable_note(task)
     blocked = MO.compatibility(m, len(work), len(fs.all))
@@ -376,6 +415,52 @@ def _config(m: dict, df: pd.DataFrame) -> ExperimentConfig:
                             shap=bool(m.get("shap")), extra_metrics=list(m.get("extra_metrics") or []))
 
 
+def _review_rows(cfg: ExperimentConfig, m: dict, df: pd.DataFrame, S) -> list[tuple[str, str]]:
+    """Everything that decides the result, in plain words, so the run can be checked before it starts."""
+    clu = cfg.task == "clustering"
+    opts = PreprocessOptions(**cfg.preprocess)
+    fs = select_features(df, cfg.target, cfg.features_exclude, None, opts)
+    mnames = E.selection_metrics(cfg.task, 2)
+    work = df if clu or not cfg.target else (df[df[cfg.target].notna()] if cfg.drop_missing_target else df)
+    n = len(work)
+    rows = [("Goal", TASKS[cfg.task]),
+            ("Dataset", f"{cfg.dataset_name} ({'prepared version' if S.get('version_id') else 'unprepared'}), {n:,} rows used")]
+    if not clu:
+        rows.append(("Target", cfg.target or "(none)"))
+        if cfg.task == "classification" and cfg.positive_label:
+            rows.append(("Class you care most about", str(cfg.positive_label)))
+    kinds = ", ".join(f"{len(v)} {k}" for k, v in (("numeric", fs.numeric), ("categorical", fs.categorical), ("date", fs.datetime), ("text", fs.text)) if v)
+    rows.append(("Input columns", f"{len(fs.all)} ({kinds or 'none'})"))
+    excl = list(cfg.features_exclude) + [c for c in fs.excluded if c not in cfg.features_exclude and c != cfg.target]
+    rows.append(("Left out", ", ".join(excl[:8]) + (f" and {len(excl) - 8} more" if len(excl) > 8 else "") if excl else "nothing"))
+    rows.append(("Grouping methods" if clu else "Models", ", ".join(REGISTRY[k].name for k in cfg.models)))
+    rows.append(("Primary metric", mnames.get(cfg.primary_metric, cfg.primary_metric) + (" (decides the choice)" if len(cfg.models) > 1 else "")))
+    if cfg.extra_metrics:
+        rows.append(("Also shown", ", ".join(mnames.get(k, k) for k in cfg.extra_metrics)))
+    if clu:
+        rows.append(("Number of groups tried", f"{cfg.cluster_k_min} to {cfg.cluster_k_max}"))
+        rows.append(("Held-out data", "none (clustering has no answer key to test against)"))
+    else:
+        tr, va, te = cfg.split["train"], cfg.split["val"], cfg.split["test"]
+        rows.append(("Split", f"{cfg.split['strategy']}: {tr:.0%} train, {va:.0%} validation, {te:.0%} test "
+                              f"(about {round(n * tr):,} / {round(n * va):,} / {round(n * te):,} rows), seed {cfg.seed}"))
+        cv = cfg.cv or {}
+        rows.append(("How models are compared", "on the validation rows" if va > 0 else f"{cv.get('folds', cfg.cv_folds)}-fold cross-validation on the training rows"))
+        if cfg.task == "classification":
+            rows.append(("Balancing", IMB.STRATEGIES.get(cfg.imbalance, cfg.imbalance)))
+    prep = [f"missing numbers: {opts.numeric_impute}", "missing categories: own '(missing)' category", f"scaling: {opts.scaling}",
+            f"categories: {'one-hot' if opts.encoding == 'onehot' else 'ordinal'} (up to {opts.max_categories})"]
+    if opts.skew_transform:
+        prep.append("skew correction")
+    rows.append(("Preparation inside the model", "; ".join(prep) + ". Learned from training rows only."))
+    rows.append(("Extra steps", ", ".join(k for k in ("outliers", "features", "reduction", "selection") if cfg.preprocess.get(k)) or "none"))
+    rows.append(("Tuning", cfg.tuning.get("method", "none")))
+    rows.append(("Compute", cfg.compute))
+    if not clu:
+        rows.append(("Explanations (SHAP)", "yes" if cfg.shap else "no"))
+    return rows
+
+
 def _train(df, note, m) -> None:
     S = st.session_state
     job = S.get("job")
@@ -399,11 +484,7 @@ def _train(df, note, m) -> None:
         return
     st.subheader("Review and train")
     cfg = _config(m, df)
-    summary = [("Goal", TASKS[cfg.task]), ("Dataset", f"{cfg.dataset_name} ({'prepared version' if S.get('version_id') else 'unprepared'})"), ("Target", cfg.target or "(none)"),
-               ("Models", ", ".join(REGISTRY[k].name for k in cfg.models)), ("Primary metric", E.selection_metrics(cfg.task, 2).get(cfg.primary_metric, cfg.primary_metric)),
-               ("Split", f"{cfg.split['strategy']}, seed {cfg.seed}" if cfg.task != "clustering" else "none (no held-out data for clustering)"),
-               ("Balancing", IMB.STRATEGIES.get(cfg.imbalance, cfg.imbalance) if cfg.task == "classification" else "n/a"), ("Compute", cfg.compute),
-               ("Tuning", cfg.tuning.get("method", "none")), ("Extra steps", ", ".join(k for k in ("outliers", "features", "reduction", "selection") if cfg.preprocess.get(k)) or "none")]
+    summary = _review_rows(cfg, m, df, S)
     st.dataframe(pd.DataFrame(summary, columns=["Setting", "Value"]), hide_index=True, width="stretch")
     st.caption("Training runs in the background. You can cancel between models; a single model's fit cannot be interrupted once it has started.")
     c1, c2, _ = st.columns([1.3, 1, 4])
@@ -435,8 +516,10 @@ def _results(df, note, m) -> None:
         _nav(m, "Train", None)
         return
     task = exp.config.task
+    clu = task == "clustering"
     st.subheader("Results")
-    st.markdown(f"{theme.chip(exp.status.replace('_', ' ').title(), 'ok' if exp.status == 'finalized' else 'info')} &nbsp; Models were compared on **{theme.esc(exp.selection_basis)}**. "
+    status = "Done" if clu else exp.status.replace('_', ' ').title()
+    st.markdown(f"{theme.chip(status, 'ok' if exp.status == 'finalized' else 'info')} &nbsp; {'Grouping methods' if clu else 'Models'} were compared on **{theme.esc(exp.selection_basis)}**. "
                 f"Seed {exp.config.seed}. Took {exp.seconds}s.", unsafe_allow_html=True)
     for w_ in exp.warnings:
         st.warning(w_)
@@ -444,8 +527,8 @@ def _results(df, note, m) -> None:
         (st.error if lk["level"] == "warning" else st.info)(lk["message"])
     metric = exp.config.primary_metric
     mlabel = E.selection_metrics(task, 2).get(metric, metric)
-    st.markdown("#### Model comparison")
-    rows = [{"Model": c.name, "Status": ("Selected" if c.key == exp.selected_key else c.status.title()), mlabel: c.score, "Spread (folds)": c.score_std, "Groups": c.n_clusters,
+    st.markdown("#### " + ("Grouping methods compared" if clu else "Model comparison"))
+    rows = [{"Method" if clu else "Model": c.name, "Status": ("Selected" if c.key == exp.selected_key else c.status.title()), mlabel: c.score, "Spread (folds)": c.score_std, "Groups": c.n_clusters,
              "Noise %": c.noise_pct, **{E.selection_metrics(task, 2).get(k, k): (c.metrics or {}).get(k) for k in (exp.config.extra_metrics or []) if k != metric},
              "Seconds": c.seconds, "Note": c.error or c.note} for c in exp.candidates]
     st.dataframe(pd.DataFrame(rows).dropna(axis=1, how="all"), hide_index=True, width="stretch")
@@ -453,16 +536,20 @@ def _results(df, note, m) -> None:
     if len(okc) > 1:
         fig = go.Figure(go.Bar(x=[c.name for c in okc], y=[c.score for c in okc], marker_color=[C.TEAL if c.key == exp.selected_key else C.MUTED for c in okc]))
         fig.update_yaxes(title=f"{mlabel} ({E.metric_direction(metric)} is better)")
-        st.plotly_chart(C._layout(fig, f"{mlabel} by model", 300), width="stretch")
+        st.plotly_chart(C._layout(fig, f"{mlabel} by {'method' if clu else 'model'}", 300), width="stretch", config=C.PLOTLY_CONFIG)
     sel = exp.selected
     if sel:
         spec = REGISTRY.get(sel.key.split("|")[0])
-        st.markdown(f"**Selected:** {sel.name}: the best {mlabel} under this protocol. This describes this data and split; it is not a general ranking of the algorithms."
-                    + (f" {spec.tradeoff}" if spec else ""))
+        if clu:
+            st.markdown(f"**Chosen grouping:** {sel.name} with {sel.n_clusters} group(s), which had the best {mlabel} of the methods tried. "
+                        "Groups are patterns the method found in these columns, not correct answers; a different method or number of groups can be just as valid.")
+        else:
+            st.markdown(f"**Selected:** {sel.name}: the best {mlabel} under this protocol. This describes this data and split; it is not a general ranking of the algorithms."
+                        + (f" {spec.tradeoff}" if spec else ""))
     if exp.baseline_selection:
         bm = exp.baseline_selection["metrics"].get(metric)
         if bm is not None:
-            st.caption(f"Baseline on the same validation data (always predicts the majority class / the average): {mlabel} = {bm:.4g}.")
+            st.caption(f"Baseline on the same validation data (always predicts the majority class / the average): {mlabel} = {bm:.3f}.")
 
     if task != "clustering" and not exp.test_evaluated:
         st.markdown("#### Final check on the test set")
@@ -488,7 +575,7 @@ def _results(df, note, m) -> None:
         fig = go.Figure(go.Bar(x=imp["importance"], y=imp["feature"], orientation="h", marker_color=C.TEAL))
         fig.update_yaxes(autorange="reversed")
         fig.update_xaxes(title="Drop in score when the column is shuffled")
-        st.plotly_chart(C._layout(fig, "Permutation importance (computed without the test set)", max(260, 28 * len(imp) + 110)), width="stretch")
+        st.plotly_chart(C._layout(fig, "Permutation importance (computed without the test set)", max(260, 28 * len(imp) + 110)), width="stretch", config=C.PLOTLY_CONFIG)
         st.caption("Importance describes what this model used, not what causes the outcome.")
     _exports(exp)
     c1, c2, _ = st.columns([1.4, 1.4, 4])
@@ -504,15 +591,21 @@ def _results(df, note, m) -> None:
 
 def _final(exp, task, m) -> None:
     res, base = exp.test_result, exp.test_baseline
-    st.markdown("#### " + ("Final results on the held-out test set" if task != "clustering" else "How well separated are the groups?"))
+    st.markdown("#### " + ("Final results on the held-out test set" if task != "clustering" else "How clearly separated are the groups?"))
     unit = f" ({m['unit']})" if m.get("unit") and task == "regression" else ""
     rows = []
     for k, v in res["metrics"].items():
         b = (base or {}).get("metrics", {}).get(k) if base else None
         label = {"mae": "MAE", "rmse": "RMSE", "r2": "R²", "mape": "MAPE (%)", "median_ae": "Median abs. error"}.get(k, k.replace("_", " ").title())
         rows.append({"Metric": label + (unit if k in ("mae", "rmse", "median_ae") else ""), "Value": v, "Baseline": b, "What it means": E.METRIC_HELP.get(k, "")})
-    st.dataframe(pd.DataFrame(rows), hide_index=True, width="stretch",
-                 column_config={"Value": st.column_config.NumberColumn(format="%.4g"), "Baseline": st.column_config.NumberColumn(format="%.4g")})
+    table = pd.DataFrame(rows)
+    if "Baseline" in table and table["Baseline"].isna().all():
+        table = table.drop(columns="Baseline")                     # clustering has no baseline to compare with
+    st.dataframe(table, hide_index=True, width="stretch",
+                 column_config={"Value": st.column_config.NumberColumn(format="%.3f"), "Baseline": st.column_config.NumberColumn(format="%.3f")})
+    caveat = score_caveat(task, res["metrics"], exp.leakage, (exp.config.features_exclude or []))
+    if caveat:
+        st.warning(caveat)
     if res.get("unavailable"):
         with st.expander("Metrics that could not be computed"):
             for k, v in res["unavailable"].items():
@@ -523,7 +616,7 @@ def _final(exp, task, m) -> None:
         fig.update_xaxes(title="Predicted", type="category")
         fig.update_yaxes(title="Actual", autorange="reversed", type="category")
         c1, c2 = st.columns([1, 1.2])
-        c1.plotly_chart(C._layout(fig, "Confusion matrix", 340), width="stretch")
+        c1.plotly_chart(C._layout(fig, "Confusion matrix", 340), width="stretch", config=C.PLOTLY_CONFIG)
         c2.markdown("**By class**")
         c2.dataframe(res["per_class"], hide_index=True, width="stretch", column_config={k: st.column_config.NumberColumn(format="%.3f") for k in ("precision", "recall", "f1")})
         c2.caption(f"Precision, recall and F1 use the {res['averaging']}.")
@@ -535,26 +628,49 @@ def _final(exp, task, m) -> None:
         fig.update_xaxes(title="Actual")
         fig.update_yaxes(title="Predicted")
         c1, c2 = st.columns(2)
-        c1.plotly_chart(C._layout(fig, "Predicted vs actual (test rows)", 340), width="stretch")
+        c1.plotly_chart(C._layout(fig, "Predicted vs actual (test rows)", 340), width="stretch", config=C.PLOTLY_CONFIG)
         h = go.Figure(go.Histogram(x=tp["error"], marker_color=C.TEAL))
         h.update_xaxes(title="Prediction error (predicted - actual)")
-        c2.plotly_chart(C._layout(h, "Errors", 340), width="stretch")
+        c2.plotly_chart(C._layout(h, "Errors", 340), width="stretch", config=C.PLOTLY_CONFIG)
     elif task == "clustering":
         proj = pd.DataFrame(exp.projection)
+        gname = {str(r["cluster"]): r.get("name") for r in exp.cluster_profile}
         if not proj.empty:
             fig = go.Figure()
             for i, (g, part) in enumerate(proj.groupby("cluster")):
-                fig.add_trace(go.Scattergl(x=part["x"], y=part["y"], mode="markers", name=f"Group {g}" if g != "noise" else "Noise",
+                fig.add_trace(go.Scattergl(x=part["x"], y=part["y"], mode="markers", name=(f"Group {g}: {gname[g]}" if gname.get(g) else f"Group {g}") if g != "noise" else "Noise",
                                            marker={"size": 6, "opacity": 0.7, "color": C.COLORWAY[i % len(C.COLORWAY)] if g != "noise" else "#94a3b8"}))
             fig.update_xaxes(title="Component 1")
             fig.update_yaxes(title="Component 2")
-            st.plotly_chart(C._layout(fig, "Groups in two dimensions (PCA view of the prepared features)", 380), width="stretch")
+            st.plotly_chart(C._layout(fig, "Groups in two dimensions (PCA view of the prepared features)", 380), width="stretch", config=C.PLOTLY_CONFIG)
             st.caption("A flat picture of many columns: groups that overlap here may still be separate in the full data.")
-        st.markdown("**Group profiles** (averages in original units)")
+        st.markdown("**Group profiles** (averages in original units). Names describe what sets each group apart from all rows; they are a summary, not a label from the data.")
         st.dataframe(pd.DataFrame(exp.cluster_profile).astype({"cluster": str}), hide_index=True, width="stretch")
     st.markdown("**Interpretation and caveats**")
     for t in exp.interpretation:
         st.markdown(f"- {t}")
+
+
+def score_caveat(task: str, metrics: dict, leakage: list[dict], excluded: list[str]) -> str | None:
+    """A warning to show beside the test score when it may be too good to be true, or None."""
+    if task == "clustering":
+        return None
+    high = {"accuracy": 0.98, "balanced_accuracy": 0.98, "f1": 0.98, "f1_macro": 0.98, "f1_weighted": 0.98, "roc_auc": 0.99, "r2": 0.98}
+    near_perfect = [k for k, lim in high.items() if isinstance(metrics.get(k), (int, float)) and metrics[k] >= lim]
+    warned = [lk for lk in leakage or [] if lk.get("level") == "warning"]
+    if not near_perfect and not warned:
+        return None
+    parts = []
+    if near_perfect:
+        parts.append("This score is close to perfect, which is rare on real data.")
+    if warned:
+        cols = sorted({c for lk in warned for c in lk.get("columns", [])})
+        parts.append("Some input columns looked like they could reveal the answer" + (f" ({', '.join(cols[:5])})" if cols else "") + ".")
+    elif excluded:
+        parts.append(f"Columns left out: {', '.join(excluded[:5])}.")
+    parts.append("Check that no input column is only known after the outcome (for example a cancellation date when predicting churn); "
+                 "if one is, the score will not hold on new data.")
+    return " ".join(parts)
 
 
 def _exports(exp) -> None:
